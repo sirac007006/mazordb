@@ -1,0 +1,996 @@
+<!DOCTYPE html>
+<html lang="sr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - Porudžbine</title>
+    <style>
+        :root {
+            --primary-color: #3498db;
+            --secondary-color: #2c3e50;
+            --success-color: #2ecc71;
+            --danger-color: #e74c3c;
+            --warning-color: #f39c12;
+            --light-gray: #f5f5f5;
+            --border-color: #ddd;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f9f9f9;
+        }
+        
+        .container {
+            display: flex;
+            min-height: 100vh;
+        }
+        
+        /* Sidebar */
+        .sidebar {
+            width: 250px;
+            background-color: var(--secondary-color);
+            color: white;
+            padding: 20px 0;
+            transition: all 0.3s;
+        }
+        
+        .sidebar-header {
+            padding: 0 20px 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            text-align: center;
+        }
+        
+        .sidebar-header h3 {
+            margin-bottom: 5px;
+        }
+        
+        .sidebar-menu {
+            padding: 20px 0;
+        }
+        
+        .sidebar-menu ul {
+            list-style: none;
+        }
+        
+        .sidebar-menu li {
+            margin-bottom: 5px;
+        }
+        
+        .sidebar-menu a {
+            display: block;
+            padding: 12px 20px;
+            color: #ecf0f1;
+            text-decoration: none;
+            transition: all 0.3s;
+            border-left: 3px solid transparent;
+        }
+        
+        .sidebar-menu a:hover, .sidebar-menu a.active {
+            background-color: rgba(255, 255, 255, 0.1);
+            border-left: 3px solid var(--primary-color);
+        }
+        
+        .sidebar-menu a.active {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+        
+        .sidebar-menu i {
+            margin-right: 10px;
+        }
+        
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            padding: 20px;
+            overflow-x: auto;
+        }
+        
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        /* Table styles */
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+            background-color: white;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        
+        .data-table th, .data-table td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .data-table th {
+            background-color: var(--secondary-color);
+            color: white;
+            font-weight: 600;
+        }
+        
+        .data-table tr:hover {
+            background-color: var(--light-gray);
+        }
+        
+        /* Status badge */
+        .status-badge {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+        
+        .status-pending {
+            background-color: #f39c12;
+            color: white;
+        }
+        
+        .status-completed {
+            background-color: #2ecc71;
+            color: white;
+        }
+        
+        .status-cancelled {
+            background-color: #e74c3c;
+            color: white;
+        }
+        
+        .status-processing {
+            background-color: #3498db;
+            color: white;
+        }
+        
+        /* Button styles */
+        .btn {
+            padding: 8px 15px;
+            cursor: pointer;
+            border: none;
+            border-radius: 4px;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+        
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        
+        .btn-success {
+            background-color: var(--success-color);
+            color: white;
+        }
+        
+        .btn-danger {
+            background-color: var(--danger-color);
+            color: white;
+        }
+        
+        .btn-warning {
+            background-color: var(--warning-color);
+            color: white;
+        }
+        
+        .btn:hover {
+            opacity: 0.9;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 5px;
+        }
+        
+        /* Modal styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            overflow: auto;
+        }
+        
+        .modal-content {
+            background-color: white;
+            margin: 5% auto;
+            padding: 20px;
+            border-radius: 5px;
+            width: 70%;
+            max-width: 800px;
+            animation: modalOpen 0.3s;
+        }
+        
+        @keyframes modalOpen {
+            from {opacity: 0; transform: translateY(-50px);}
+            to {opacity: 1; transform: translateY(0);}
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .modal-header h2 {
+            margin: 0;
+        }
+        
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        
+        .close:hover {
+            color: black;
+        }
+        
+        /* Form styles */
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        
+        .form-row {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+        
+        .form-col {
+            flex: 1;
+        }
+        
+        .form-buttons {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        /* Search and filter styles */
+        .search-container {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .search-container .form-control {
+            max-width: 300px;
+        }
+        
+        /* Filter dropdown */
+        .filter-dropdown {
+            position: relative;
+            display: inline-block;
+        }
+        
+        .filter-content {
+            display: none;
+            position: absolute;
+            background-color: white;
+            min-width: 160px;
+            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+            z-index: 1;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        
+        .filter-content a {
+            color: black;
+            padding: 12px 16px;
+            text-decoration: none;
+            display: block;
+            transition: all 0.2s;
+        }
+
+        .filter-content a:hover {
+            background-color: #f1f1f1;
+        }
+        
+        .show {
+            display: block;
+        }
+        
+        /* Pagination */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            gap: 5px;
+            margin-top: 20px;
+        }
+        
+        .pagination button {
+            padding: 5px 10px;
+            border: 1px solid var(--border-color);
+            background: white;
+            cursor: pointer;
+            border-radius: 3px;
+        }
+        
+        .pagination button.active {
+            background-color: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+            }
+            
+            .sidebar {
+                width: 100%;
+                padding: 10px;
+            }
+            
+            .sidebar-header {
+                padding: 10px;
+            }
+            
+            .form-row {
+                flex-direction: column;
+                gap: 0;
+            }
+            
+            .modal-content {
+                width: 90%;
+                margin: 10% auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <h3>Admin Panel</h3>
+                <p>Upravljanje bazom podataka</p>
+            </div>
+            <div class="sidebar-menu">
+                <ul>
+                    <li><a href="/">Proizvodi</a></li>
+                    <li><a href="/porudzbine" class="active">Porudzbine</a></li>
+                    <li><a href="/korisnici">Korisnici</a></li>
+                    <li><a href="/subkategorije">Subkategorije</a></li>
+                    <li><a href="/poruke">Poruke</a></li>
+                </ul>
+            </div>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="page-header">
+                <h1>Porudžbine</h1>
+                <div class="search-container" style="margin-bottom: 0;">
+                    <input type="text" id="searchInput" class="form-control" placeholder="Pretraži porudžbine...">
+                    <button class="btn btn-primary" id="searchBtn">Pretraži</button>
+                </div>
+            </div>
+            
+            <div class="filter-container" style="margin: 20px 0; display: flex; justify-content: flex-end;">
+                <div class="filter-dropdown">
+                    <button class="btn btn-primary" id="filterBtn">Filter po statusu ▼</button>
+                    <div id="statusFilter" class="filter-content">
+                        <a href="#" data-status="all">Svi statusi</a>
+                        <a href="#" data-status="pending">Na čekanju</a>
+                        <a href="#" data-status="processing">U obradi</a>
+                        <a href="#" data-status="completed">Završeno</a>
+                        <a href="#" data-status="cancelled">Otkazano</a>
+                    </div>
+                </div>
+            </div>
+            
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>ID Korisnika</th>
+                        <th>Datum</th>
+                        <th>Iznos</th>
+                        <th>Sadržaj</th>
+                        <th>Status</th>
+                        <th>Akcije</th>
+                    </tr>
+                </thead>
+                <tbody id="ordersTableBody">
+                    <!-- Početne porudžbine su definirane direktno u HTML-u -->
+                    <tr>
+                        <td>1</td>
+                        <td>101</td>
+                        <td>15.04.2025</td>
+                        <td>12.500 RSD</td>
+                        <td>Laptop Asus X509, Logitech M185</td>
+                        <td><span class="status-badge status-completed">Završeno</span></td>
+                        <td class="action-buttons">
+                            <button class="btn btn-warning btn-edit" data-id="1">Izmeni status</button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>2</td>
+                        <td>105</td>
+                        <td>14.04.2025</td>
+                        <td>8.300 RSD</td>
+                        <td>Monitor Samsung 24"</td>
+                        <td><span class="status-badge status-processing">U obradi</span></td>
+                        <td class="action-buttons">
+                            <button class="btn btn-warning btn-edit" data-id="2">Izmeni status</button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>3</td>
+                        <td>112</td>
+                        <td>13.04.2025</td>
+                        <td>24.750 RSD</td>
+                        <td>Grafička kartica Nvidia GTX 1660, RAM 16GB DDR4</td>
+                        <td><span class="status-badge status-pending">Na čekanju</span></td>
+                        <td class="action-buttons">
+                            <button class="btn btn-warning btn-edit" data-id="3">Izmeni status</button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>4</td>
+                        <td>103</td>
+                        <td>12.04.2025</td>
+                        <td>45.200 RSD</td>
+                        <td>CPU Intel i5-12400F, Matična ploča Asus B660M</td>
+                        <td><span class="status-badge status-completed">Završeno</span></td>
+                        <td class="action-buttons">
+                            <button class="btn btn-warning btn-edit" data-id="4">Izmeni status</button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>5</td>
+                        <td>108</td>
+                        <td>10.04.2025</td>
+                        <td>6.800 RSD</td>
+                        <td>Tastatura Logitech K120, Miš Logitech M185</td>
+                        <td><span class="status-badge status-cancelled">Otkazano</span></td>
+                        <td class="action-buttons">
+                            <button class="btn btn-warning btn-edit" data-id="5">Izmeni status</button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            
+            <div class="pagination" id="pagination">
+                <!-- Pagination buttons will be dynamically generated -->
+            </div>
+        </div>
+    </div>
+    
+    <!-- Add/Edit Order Modal -->
+    <div id="orderModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle">Izmeni status porudžbine</h2>
+                <span class="close">&times;</span>
+            </div>
+            <form id="orderForm">
+                <input type="hidden" id="orderId">
+                
+                <div class="form-row">
+                    <div class="form-col">
+                        <div class="form-group">
+                            <label for="orderInfo">Informacije o porudžbini</label>
+                            <p id="orderInfo" class="form-control" style="background-color: #f9f9f9; padding: 15px; border-radius: 4px; height: auto; min-height: 100px;"></p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-col">
+                        <div class="form-group">
+                            <label for="status">Status porudžbine</label>
+                            <select id="status" class="form-control" required>
+                                <option value="pending">Na čekanju</option>
+                                <option value="processing">U obradi</option>
+                                <option value="completed">Završeno</option>
+                                <option value="cancelled">Otkazano</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-buttons">
+                    <button type="button" class="btn btn-danger" id="cancelBtn">Odustani</button>
+                    <button type="submit" class="btn btn-success" id="saveBtn">Sačuvaj</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Delete Confirmation Modal -->
+    <div id="deleteModal" class="modal">
+        <div class="modal-content" style="max-width: 400px;">
+            <div class="modal-header">
+                <h2>Potvrda brisanja</h2>
+                <span class="close">&times;</span>
+            </div>
+            <p>Da li ste sigurni da želite da obrišete ovu porudžbinu?</p>
+            <div class="form-buttons">
+                <button type="button" class="btn btn-primary" id="cancelDeleteBtn">Odustani</button>
+                <button type="button" class="btn btn-danger" id="confirmDeleteBtn">Obriši</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Inicijalizacija porudžbina iz HTML tabele
+        let orders = [];
+        
+        // Funkcija za inicijalno učitavanje podataka iz HTML tabele
+        function loadInitialOrdersFromHTML() {
+            const rows = document.querySelectorAll('#ordersTableBody tr');
+            
+            orders = Array.from(rows).map(row => {
+                const cells = row.querySelectorAll('td');
+                const id = parseInt(cells[0].textContent);
+                const statusElement = cells[5].querySelector('.status-badge');
+                let status = '';
+                
+                if (statusElement.classList.contains('status-pending')) status = 'pending';
+                else if (statusElement.classList.contains('status-processing')) status = 'processing';
+                else if (statusElement.classList.contains('status-completed')) status = 'completed';
+                else if (statusElement.classList.contains('status-cancelled')) status = 'cancelled';
+                
+                return {
+                    id: id,
+                    iduser: parseInt(cells[1].textContent),
+                    datum: cells[2].textContent,
+                    iznos: parseFloat(cells[3].textContent.replace(/[^\d.,]/g, '').replace('.', '')),
+                    sadrzaj: cells[4].textContent,
+                    status: status
+                };
+            });
+            
+            // Sačuvaj učitane porudžbine u localStorage
+            saveOrdersToStorage();
+        }
+        
+        // Settings
+        const itemsPerPage = 5;
+        let currentPage = 1;
+        let currentOrderId = null;
+        let currentFilter = 'all';
+        
+        // DOM Elements
+        const ordersTableBody = document.getElementById('ordersTableBody');
+        const pagination = document.getElementById('pagination');
+        const orderModal = document.getElementById('orderModal');
+        const deleteModal = document.getElementById('deleteModal');
+        const modalTitle = document.getElementById('modalTitle');
+        const orderForm = document.getElementById('orderForm');
+        const searchInput = document.getElementById('searchInput');
+        const searchBtn = document.getElementById('searchBtn');
+        const filterBtn = document.getElementById('filterBtn');
+        const statusFilter = document.getElementById('statusFilter');
+        
+        // Buttons
+        const addOrderBtn = document.getElementById('addOrderBtn');
+        const cancelBtn = document.getElementById('cancelBtn');
+        const closeModalBtns = document.querySelectorAll('.close');
+        const cancelDeleteBtn = document.getElementById('cancelDeleteBtn');
+        const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
+        
+        // Load orders from localStorage if available
+        function loadOrdersFromStorage() {
+            const storedOrders = localStorage.getItem('orders');
+            if (storedOrders) {
+                orders = JSON.parse(storedOrders);
+            }
+        }
+        
+        // Save orders to localStorage
+        function saveOrdersToStorage() {
+            localStorage.setItem('orders', JSON.stringify(orders));
+        }
+        
+        // Initialize the application
+        function init() {
+            // Prvo proveravamo da li već postoje porudžbine u localStorage
+            const storedOrders = localStorage.getItem('orders');
+            
+            if (!storedOrders) {
+                // Ako ne postoje, učitavamo ih iz HTML-a
+                loadInitialOrdersFromHTML();
+            } else {
+                // Ako postoje, učitavamo ih iz localStorage-a
+                loadOrdersFromStorage();
+            }
+            
+            renderOrders();
+            setupEventListeners();
+        }
+        
+        // Render orders table
+        function renderOrders(filteredOrders = null) {
+            let displayOrders = filteredOrders || orders;
+            
+            // Apply status filter if not "all"
+            if (currentFilter !== 'all' && !filteredOrders) {
+                displayOrders = orders.filter(order => order.status === currentFilter);
+            }
+            
+            // Calculate pagination
+            const totalPages = Math.ceil(displayOrders.length / itemsPerPage);
+            const startIndex = (currentPage - 1) * itemsPerPage;
+            const endIndex = startIndex + itemsPerPage;
+            const currentOrders = displayOrders.slice(startIndex, endIndex);
+            
+            // Clear table body
+            ordersTableBody.innerHTML = '';
+            
+            // Render orders
+            if (currentOrders.length === 0) {
+                ordersTableBody.innerHTML = `
+                    <tr>
+                        <td colspan="7" style="text-align: center;">Nema porudžbina za prikaz</td>
+                    </tr>
+                `;
+            } else {
+                currentOrders.forEach(order => {
+                    // Format status display
+                    let statusClass = '';
+                    let statusText = '';
+                    
+                    switch(order.status) {
+                        case 'pending':
+                            statusClass = 'status-pending';
+                            statusText = 'Na čekanju';
+                            break;
+                        case 'processing':
+                            statusClass = 'status-processing';
+                            statusText = 'U obradi';
+                            break;
+                        case 'completed':
+                            statusClass = 'status-completed';
+                            statusText = 'Završeno';
+                            break;
+                        case 'cancelled':
+                            statusClass = 'status-cancelled';
+                            statusText = 'Otkazano';
+                            break;
+                    }
+                    
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${order.id}</td>
+                        <td>${order.iduser}</td>
+                        <td>${order.datum}</td>
+                        <td>${formatPrice(order.iznos)}</td>
+                        <td>${order.sadrzaj || '-'}</td>
+                        <td><span class="status-badge ${statusClass}">${statusText}</span></td>
+                        <td class="action-buttons">
+                            <button class="btn btn-warning btn-edit" data-id="${order.id}">Izmeni status</button>
+                        </td>
+                    `;
+                    ordersTableBody.appendChild(row);
+                });
+            }
+            
+            // Render pagination
+            renderPagination(totalPages);
+            
+            // Add event listeners for edit buttons
+            document.querySelectorAll('.btn-edit').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    openEditModal(parseInt(this.dataset.id));
+                });
+            });
+        }
+        
+        // Format price with thousand separator
+        function formatPrice(price) {
+            return price.toLocaleString('sr-RS') + ' RSD';
+        }
+        
+        // Render pagination controls
+        function renderPagination(totalPages) {
+            pagination.innerHTML = '';
+            
+            if (totalPages <= 1) return;
+            
+            // Previous button
+            const prevBtn = document.createElement('button');
+            prevBtn.textContent = '←';
+            prevBtn.disabled = currentPage === 1;
+            prevBtn.addEventListener('click', () => {
+                if (currentPage > 1) {
+                    currentPage--;
+                    renderOrders();
+                }
+            });
+            pagination.appendChild(prevBtn);
+            
+            // Page buttons
+            for (let i = 1; i <= totalPages; i++) {
+                const pageBtn = document.createElement('button');
+                pageBtn.textContent = i;
+                pageBtn.classList.toggle('active', i === currentPage);
+                pageBtn.addEventListener('click', () => {
+                    currentPage = i;
+                    renderOrders();
+                });
+                pagination.appendChild(pageBtn);
+            }
+            
+            // Next button
+            const nextBtn = document.createElement('button');
+            nextBtn.textContent = '→';
+            nextBtn.disabled = currentPage === totalPages;
+            nextBtn.addEventListener('click', () => {
+                if (currentPage < totalPages) {
+                    currentPage++;
+                    renderOrders();
+                }
+            });
+            pagination.appendChild(nextBtn);
+        }
+        
+        // Set up event listeners
+        function setupEventListeners() {
+            // Close modal buttons
+            closeModalBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    orderModal.style.display = 'none';
+                });
+            });
+            
+            // Cancel button in order modal
+            cancelBtn.addEventListener('click', () => {
+                orderModal.style.display = 'none';
+            });
+            
+            // Form submit
+            orderForm.addEventListener('submit', saveOrder);
+            
+            // Search button
+            searchBtn.addEventListener('click', searchOrders);
+            
+            // Search input enter key
+            searchInput.addEventListener('keyup', function(e) {
+                if (e.key === 'Enter') {
+                    searchOrders();
+                }
+            });
+            
+            // Filter dropdown
+            filterBtn.addEventListener('click', function() {
+                statusFilter.classList.toggle('show');
+            });
+            
+            // Status filter options
+            document.querySelectorAll('#statusFilter a').forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    currentFilter = this.dataset.status;
+                    currentPage = 1;
+                    statusFilter.classList.remove('show');
+                    filterBtn.textContent = `Filter po statusu: ${this.textContent} ▼`;
+                    renderOrders();
+                });
+            });
+            
+            // Close dropdown when clicking outside
+            window.addEventListener('click', function(e) {
+                if (!e.target.matches('#filterBtn')) {
+                    if (statusFilter.classList.contains('show')) {
+                        statusFilter.classList.remove('show');
+                    }
+                }
+            });
+            
+            // Close modals when clicking outside
+            window.addEventListener('click', function(e) {
+                if (e.target === orderModal) {
+                    orderModal.style.display = 'none';
+                }
+            });
+        }
+
+            
+            // Cancel button in order modal
+            cancelBtn.addEventListener('click', () => {
+                orderModal.style.display = 'none';
+            });
+            
+            // Cancel button in delete modal
+            cancelDeleteBtn.addEventListener('click', () => {
+                deleteModal.style.display = 'none';
+            });
+            
+            // Confirm delete button
+            confirmDeleteBtn.addEventListener('click', deleteOrder);
+            
+            // Form submit
+            orderForm.addEventListener('submit', saveOrder);
+            
+            // Search button
+            searchBtn.addEventListener('click', searchOrders);
+            
+            // Search input enter key
+            searchInput.addEventListener('keyup', function(e) {
+                if (e.key === 'Enter') {
+                    searchOrders();
+                }
+            });
+            
+            // Filter dropdown
+            filterBtn.addEventListener('click', function() {
+                statusFilter.classList.toggle('show');
+            });
+            
+            // Status filter options
+            document.querySelectorAll('#statusFilter a').forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    currentFilter = this.dataset.status;
+                    currentPage = 1;
+                    statusFilter.classList.remove('show');
+                    filterBtn.textContent = `Filter po statusu: ${this.textContent} ▼`;
+                    renderOrders();
+                });
+            });
+            
+            // Close dropdown when clicking outside
+            window.addEventListener('click', function(e) {
+                if (!e.target.matches('#filterBtn')) {
+                    if (statusFilter.classList.contains('show')) {
+                        statusFilter.classList.remove('show');
+                    }
+                }
+            });
+            
+            // Close modals when clicking outside
+            window.addEventListener('click', function(e) {
+                if (e.target === orderModal) {
+                    orderModal.style.display = 'none';
+                }
+                if (e.target === deleteModal) {
+                    deleteModal.style.display = 'none';
+                }
+            });
+
+        
+        // Open Add Order Modal
+        function openAddModal() {
+            modalTitle.textContent = 'Dodaj novu porudžbinu';
+            orderForm.reset();
+            
+            // Set today's date as default
+            const today = new Date();
+            const yyyy = today.getFullYear();
+            let mm = today.getMonth() + 1; // Month is zero-indexed
+            let dd = today.getDate();
+            
+            if (dd < 10) dd = '0' + dd;
+            if (mm < 10) mm = '0' + mm;
+            
+            document.getElementById('datum').value = `${yyyy}-${mm}-${dd}`;
+            document.getElementById('orderId').value = '';
+            currentOrderId = null;
+            orderModal.style.display = 'block';
+        }
+        
+        // Open Edit Order Modal
+        function openEditModal(orderId) {
+            const order = orders.find(o => o.id === orderId);
+            if (!order) return;
+            
+            modalTitle.textContent = 'Izmeni status porudžbine';
+            document.getElementById('orderId').value = order.id;
+            
+            // Prikaz informacija o porudžbini
+            const orderInfo = document.getElementById('orderInfo');
+            orderInfo.innerHTML = `
+                <strong>ID Porudžbine:</strong> ${order.id}<br>
+                <strong>ID Korisnika:</strong> ${order.iduser}<br>
+                <strong>Datum:</strong> ${order.datum}<br>
+                <strong>Iznos:</strong> ${formatPrice(order.iznos)}<br>
+                <strong>Sadržaj:</strong> ${order.sadrzaj}
+            `;
+            
+            document.getElementById('status').value = order.status;
+            
+            currentOrderId = orderId;
+            orderModal.style.display = 'block';
+        }
+        
+        // Save Order (Edit only)
+        function saveOrder(e) {
+            e.preventDefault();
+            
+            if (currentOrderId) {
+                // Get only the status
+                const newStatus = document.getElementById('status').value;
+                
+                // Edit existing order status only
+                const index = orders.findIndex(o => o.id === currentOrderId);
+                if (index !== -1) {
+                    orders[index].status = newStatus;
+                }
+                
+                // Save to localStorage and update view
+                saveOrdersToStorage();
+                orderModal.style.display = 'none';
+                renderOrders();
+            }
+        }
+        
+        // Delete Order
+        function deleteOrder() {
+            if (currentOrderId) {
+                orders = orders.filter(o => o.id !== currentOrderId);
+                saveOrdersToStorage();
+                currentPage = 1; // Reset to first page
+                deleteModal.style.display = 'none';
+                renderOrders();
+            }
+        }
+        
+        // Search Orders
+        function searchOrders() {
+            const searchTerm = searchInput.value.toLowerCase().trim();
+            
+            if (searchTerm === '') {
+                currentPage = 1;
+                renderOrders();
+                return;
+            }
+            
+            const filtered = orders.filter(order => {
+                return (
+                    order.id.toString().includes(searchTerm) ||
+                    order.iduser.toString().includes(searchTerm) ||
+                    order.datum.toLowerCase().includes(searchTerm) ||
+                    order.iznos.toString().includes(searchTerm)
+                );
+            });
+            
+            currentPage = 1; // Reset to first page
+            renderOrders(filtered);
+        }
+        
+        // Initialize the application
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>

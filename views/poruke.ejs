@@ -1,0 +1,705 @@
+<!DOCTYPE html>
+<html lang="sr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - Poruke</title>
+    <style>
+        :root {
+            --primary-color: #3498db;
+            --secondary-color: #2c3e50;
+            --success-color: #2ecc71;
+            --danger-color: #e74c3c;
+            --warning-color: #f39c12;
+            --light-gray: #f5f5f5;
+            --border-color: #ddd;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f9f9f9;
+        }
+        
+        .container {
+            display: flex;
+            min-height: 100vh;
+        }
+        
+        /* Sidebar */
+        .sidebar {
+            width: 250px;
+            background-color: var(--secondary-color);
+            color: white;
+            padding: 20px 0;
+            transition: all 0.3s;
+        }
+        
+        .sidebar-header {
+            padding: 0 20px 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            text-align: center;
+        }
+        
+        .sidebar-header h3 {
+            margin-bottom: 5px;
+        }
+        
+        .sidebar-menu {
+            padding: 20px 0;
+        }
+        
+        .sidebar-menu ul {
+            list-style: none;
+        }
+        
+        .sidebar-menu li {
+            margin-bottom: 5px;
+        }
+        
+        .sidebar-menu a {
+            display: block;
+            padding: 12px 20px;
+            color: #ecf0f1;
+            text-decoration: none;
+            transition: all 0.3s;
+            border-left: 3px solid transparent;
+        }
+        
+        .sidebar-menu a:hover, .sidebar-menu a.active {
+            background-color: rgba(255, 255, 255, 0.1);
+            border-left: 3px solid var(--primary-color);
+        }
+        
+        .sidebar-menu a.active {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+        
+        .sidebar-menu i {
+            margin-right: 10px;
+        }
+        
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            padding: 20px;
+            overflow-x: auto;
+        }
+        
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        /* Table styles */
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+            background-color: white;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        
+        .data-table th, .data-table td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .data-table th {
+            background-color: var(--secondary-color);
+            color: white;
+            font-weight: 600;
+        }
+        
+        .data-table tr:hover {
+            background-color: var(--light-gray);
+        }
+        
+        /* Truncate long text in table */
+        .truncate {
+            max-width: 200px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        /* Button styles */
+        .btn {
+            padding: 8px 15px;
+            cursor: pointer;
+            border: none;
+            border-radius: 4px;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+        
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        
+        .btn:hover {
+            opacity: 0.9;
+        }
+        
+        /* Search and filter styles */
+        .search-container {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .search-container .form-control {
+            max-width: 300px;
+            padding: 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        
+        /* Pagination */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            gap: 5px;
+            margin-top: 20px;
+        }
+        
+        .pagination button {
+            padding: 5px 10px;
+            border: 1px solid var(--border-color);
+            background: white;
+            cursor: pointer;
+            border-radius: 3px;
+        }
+        
+        .pagination button.active {
+            background-color: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+        
+        /* Message details modal */
+        .message-details {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .detail-item {
+            display: flex;
+            flex-direction: column;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 12px;
+        }
+        
+        .detail-label {
+            font-weight: 600;
+            color: #555;
+            margin-bottom: 5px;
+        }
+        
+        .detail-value {
+            flex: 1;
+        }
+        
+        .message-text {
+            background-color: #f9f9f9;
+            padding: 15px;
+            border-radius: 4px;
+            min-height: 150px;
+        }
+        
+        /* Modal styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            overflow: auto;
+        }
+        
+        .modal-content {
+            background-color: white;
+            margin: 5% auto;
+            padding: 20px;
+            border-radius: 5px;
+            width: 70%;
+            max-width: 800px;
+            animation: modalOpen 0.3s;
+        }
+        
+        @keyframes modalOpen {
+            from {opacity: 0; transform: translateY(-50px);}
+            to {opacity: 1; transform: translateY(0);}
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .modal-header h2 {
+            margin: 0;
+        }
+        
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        
+        .close:hover {
+            color: black;
+        }
+        
+        /* Badge for new messages */
+        .badge-new {
+            display: inline-block;
+            background-color: var(--success-color);
+            color: white;
+            font-size: 12px;
+            padding: 3px 8px;
+            border-radius: 10px;
+            margin-left: 10px;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+            }
+            
+            .sidebar {
+                width: 100%;
+                padding: 10px;
+            }
+            
+            .sidebar-header {
+                padding: 10px;
+            }
+            
+            .modal-content {
+                width: 90%;
+                margin: 10% auto;
+            }
+            
+            .data-table {
+                display: block;
+                overflow-x: auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <h3>Admin Panel</h3>
+                <p>Upravljanje bazom podataka</p>
+            </div>
+            <div class="sidebar-menu">
+                <ul>
+                    <li><a href="/">Proizvodi</a></li>
+                    <li><a href="/porudzbine">Porudzbine</a></li>
+                    <li><a href="/korisnici">Korisnici</a></li>
+                    <li><a href="/subkategorije">Subkategorije</a></li>
+                    <li><a href="/poruke" class="active">Poruke</a></li>
+                </ul>
+            </div>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="page-header">
+                <h1>Poruke</h1>
+                <div class="search-container">
+                    <input type="text" id="searchInput" class="form-control" placeholder="Pretraži poruke...">
+                    <button class="btn btn-primary" id="searchBtn">Pretraži</button>
+                </div>
+            </div>
+            
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Ime i prezime</th>
+                        <th>Email</th>
+                        <th>Telefon</th>
+                        <th>Predmet</th>
+                        <th>Poruka</th>
+                        <th>Detalji</th>
+                    </tr>
+                </thead>
+                <tbody id="messagesTableBody">
+                    <!-- Početne poruke su definirane direktno u HTML-u -->
+                    <tr>
+                        <td>1</td>
+                        <td>Marko Marković</td>
+                        <td>marko@example.com</td>
+                        <td>064-1234-567</td>
+                        <td>Upit o dostupnosti proizvoda</td>
+                        <td class="truncate">Poštovani, interesuje me da li imate dostupan laptop Asus X509 na stanju i kada očekujete novu isporuku...</td>
+                        <td>
+                            <button class="btn btn-primary btn-details" data-id="1">Pogledaj</button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>2</td>
+                        <td>Ana Anić</td>
+                        <td>ana@example.com</td>
+                        <td>065-9876-543</td>
+                        <td>Problem sa porudžbinom</td>
+                        <td class="truncate">Poštovani, imala sam problem sa poslednjom porudžbinom. Naručila sam monitor Samsung 24" ali...</td>
+                        <td>
+                            <button class="btn btn-primary btn-details" data-id="2">Pogledaj</button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>3</td>
+                        <td>Jovan Jovanović</td>
+                        <td>jovan@example.com</td>
+                        <td>063-5555-123</td>
+                        <td>Reklamacija</td>
+                        <td class="truncate">Poštovani, kupio sam grafičku karticu Nvidia GTX 1660 pre 10 dana i ona ne radi kako treba. Prilikom...</td>
+                        <td>
+                            <button class="btn btn-primary btn-details" data-id="3">Pogledaj</button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>4</td>
+                        <td>Milica Milić</td>
+                        <td>milica@example.com</td>
+                        <td>062-3333-777</td>
+                        <td>Zahtev za saradnju</td>
+                        <td class="truncate">Poštovani, predstavljam kompaniju koja se bavi proizvodnjom računarske opreme i zainteresovani smo za saradnju...</td>
+                        <td>
+                            <button class="btn btn-primary btn-details" data-id="4">Pogledaj</button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>5</td>
+                        <td>Nikola Nikolić</td>
+                        <td>nikola@example.com</td>
+                        <td>061-9999-888</td>
+                        <td>Upit o garanciji</td>
+                        <td class="truncate">Poštovani, kupio sam kod vas laptop pre 11 meseci i zanima me kakva je procedura za servis pod garancijom...</td>
+                        <td>
+                            <button class="btn btn-primary btn-details" data-id="5">Pogledaj</button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            
+            <div class="pagination" id="pagination">
+                <!-- Pagination buttons will be dynamically generated -->
+            </div>
+        </div>
+    </div>
+    
+    <!-- Message Details Modal -->
+    <div id="messageDetailsModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle">Detalji poruke</h2>
+                <span class="close">&times;</span>
+            </div>
+            <div class="message-details" id="messageDetails">
+                <!-- Message details will be dynamically generated -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Inicijalizacija poruka iz HTML tabele
+        let messages = [];
+        
+        // Funkcija za inicijalno učitavanje podataka iz HTML tabele
+        function loadInitialMessagesFromHTML() {
+            const rows = document.querySelectorAll('#messagesTableBody tr');
+            
+            messages = Array.from(rows).map(row => {
+                const cells = row.querySelectorAll('td');
+                const id = parseInt(cells[0].textContent);
+                
+                return {
+                    id: id,
+                    ime_prezime: cells[1].textContent,
+                    email: cells[2].textContent,
+                    telefon: cells[3].textContent,
+                    predmet: cells[4].textContent,
+                    poruka: cells[5].textContent.replace('...', ' Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam auctor, nisl eget ultricies tincidunt, nisl nisl aliquam nisl, eget ultricies nisl nisl eget nisl. Nullam auctor, nisl eget ultricies tincidunt, nisl nisl aliquam nisl, eget ultricies nisl nisl eget nisl.'),
+                    procitano: Math.random() > 0.5 // Slučajno određujemo da li je poruka pročitana
+                };
+            });
+            
+            // Sačuvaj učitane poruke u localStorage
+            saveMessagesToStorage();
+        }
+        
+        // Settings
+        const itemsPerPage = 5;
+        let currentPage = 1;
+        let currentMessageId = null;
+        
+        // DOM Elements
+        const messagesTableBody = document.getElementById('messagesTableBody');
+        const pagination = document.getElementById('pagination');
+        const messageDetailsModal = document.getElementById('messageDetailsModal');
+        const modalTitle = document.getElementById('modalTitle');
+        const messageDetails = document.getElementById('messageDetails');
+        const searchInput = document.getElementById('searchInput');
+        const searchBtn = document.getElementById('searchBtn');
+        
+        // Buttons
+        const closeModalBtn = document.querySelector('.close');
+        
+        // Load messages from localStorage if available
+        function loadMessagesFromStorage() {
+            const storedMessages = localStorage.getItem('contactMessages');
+            if (storedMessages) {
+                messages = JSON.parse(storedMessages);
+            }
+        }
+        
+        // Save messages to localStorage
+        function saveMessagesToStorage() {
+            localStorage.setItem('contactMessages', JSON.stringify(messages));
+        }
+        
+        // Initialize the application
+        function init() {
+            // Prvo proveravamo da li već postoje poruke u localStorage
+            const storedMessages = localStorage.getItem('contactMessages');
+            
+            if (!storedMessages) {
+                // Ako ne postoje, učitavamo ih iz HTML-a
+                loadInitialMessagesFromHTML();
+            } else {
+                // Ako postoje, učitavamo ih iz localStorage-a
+                loadMessagesFromStorage();
+            }
+            
+            renderMessages();
+            setupEventListeners();
+        }
+        
+        // Render messages table
+        function renderMessages(filteredMessages = null) {
+            const displayMessages = filteredMessages || messages;
+            
+            // Calculate pagination
+            const totalPages = Math.ceil(displayMessages.length / itemsPerPage);
+            const startIndex = (currentPage - 1) * itemsPerPage;
+            const endIndex = startIndex + itemsPerPage;
+            const currentMessages = displayMessages.slice(startIndex, endIndex);
+            
+            // Clear table body
+            messagesTableBody.innerHTML = '';
+            
+            // Render messages
+            if (currentMessages.length === 0) {
+                messagesTableBody.innerHTML = `
+                    <tr>
+                        <td colspan="7" style="text-align: center;">Nema poruka za prikaz</td>
+                    </tr>
+                `;
+            } else {
+                currentMessages.forEach(message => {
+                    const truncatedMessage = message.poruka.length > 100 
+                        ? message.poruka.substring(0, 100) + '...' 
+                        : message.poruka;
+                    
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${message.id}</td>
+                        <td>${message.ime_prezime}</td>
+                        <td>${message.email}</td>
+                        <td>${message.telefon}</td>
+                        <td>${message.predmet}</td>
+                        <td class="truncate">${truncatedMessage}</td>
+                        <td>
+                            <button class="btn btn-primary btn-details" data-id="${message.id}">
+                                Pogledaj
+                                ${!message.procitano ? '<span class="badge-new">Novo</span>' : ''}
+                            </button>
+                        </td>
+                    `;
+                    messagesTableBody.appendChild(row);
+                });
+            }
+            
+            // Render pagination
+            renderPagination(totalPages);
+            
+            // Add event listeners for details buttons
+            document.querySelectorAll('.btn-details').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    showMessageDetails(parseInt(this.dataset.id));
+                });
+            });
+        }
+        
+        // Render pagination controls
+        function renderPagination(totalPages) {
+            pagination.innerHTML = '';
+            
+            if (totalPages <= 1) return;
+            
+            // Previous button
+            const prevBtn = document.createElement('button');
+            prevBtn.textContent = '←';
+            prevBtn.disabled = currentPage === 1;
+            prevBtn.addEventListener('click', () => {
+                if (currentPage > 1) {
+                    currentPage--;
+                    renderMessages();
+                }
+            });
+            pagination.appendChild(prevBtn);
+            
+            // Page buttons
+            for (let i = 1; i <= totalPages; i++) {
+                const pageBtn = document.createElement('button');
+                pageBtn.textContent = i;
+                pageBtn.classList.toggle('active', i === currentPage);
+                pageBtn.addEventListener('click', () => {
+                    currentPage = i;
+                    renderMessages();
+                });
+                pagination.appendChild(pageBtn);
+            }
+            
+            // Next button
+            const nextBtn = document.createElement('button');
+            nextBtn.textContent = '→';
+            nextBtn.disabled = currentPage === totalPages;
+            nextBtn.addEventListener('click', () => {
+                if (currentPage < totalPages) {
+                    currentPage++;
+                    renderMessages();
+                }
+            });
+            pagination.appendChild(nextBtn);
+        }
+        
+        // Show message details
+        function showMessageDetails(messageId) {
+            const message = messages.find(m => m.id === messageId);
+            if (!message) return;
+            
+            // Mark as read
+            message.procitano = true;
+            saveMessagesToStorage();
+            
+            modalTitle.textContent = `Poruka: ${message.predmet}`;
+            
+            messageDetails.innerHTML = `
+                <div class="detail-item">
+                    <div class="detail-label">ID poruke:</div>
+                    <div class="detail-value">${message.id}</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label">Ime i prezime:</div>
+                    <div class="detail-value">${message.ime_prezime}</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label">Email adresa:</div>
+                    <div class="detail-value">${message.email}</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label">Broj telefona:</div>
+                    <div class="detail-value">${message.telefon}</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label">Predmet poruke:</div>
+                    <div class="detail-value">${message.predmet}</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label">Poruka:</div>
+                    <div class="detail-value message-text">${message.poruka}</div>
+                </div>
+            `;
+            
+            messageDetailsModal.style.display = 'block';
+            
+            // Update the UI to remove the "New" badge
+            renderMessages();
+        }
+        
+        // Set up event listeners
+        function setupEventListeners() {
+            // Close modal button
+            closeModalBtn.addEventListener('click', () => {
+                messageDetailsModal.style.display = 'none';
+            });
+            
+            // Search button
+            searchBtn.addEventListener('click', searchMessages);
+            
+            // Search input enter key
+            searchInput.addEventListener('keyup', function(e) {
+                if (e.key === 'Enter') {
+                    searchMessages();
+                }
+            });
+            
+            // Close modal when clicking outside
+            window.addEventListener('click', function(e) {
+                if (e.target === messageDetailsModal) {
+                    messageDetailsModal.style.display = 'none';
+                }
+            });
+        }
+        
+        // Search Messages
+        function searchMessages() {
+            const searchTerm = searchInput.value.toLowerCase().trim();
+            
+            if (searchTerm === '') {
+                currentPage = 1;
+                renderMessages();
+                return;
+            }
+            
+            const filtered = messages.filter(message => {
+                return (
+                    message.id.toString().includes(searchTerm) ||
+                    message.ime_prezime.toLowerCase().includes(searchTerm) ||
+                    message.email.toLowerCase().includes(searchTerm) ||
+                    message.telefon.toLowerCase().includes(searchTerm) ||
+                    message.predmet.toLowerCase().includes(searchTerm) ||
+                    message.poruka.toLowerCase().includes(searchTerm)
+                );
+            });
+            
+            currentPage = 1; // Reset to first page
+            renderMessages(filtered);
+        }
+        
+        // Initialize the application
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>

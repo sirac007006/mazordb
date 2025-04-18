@@ -1,0 +1,699 @@
+<!DOCTYPE html>
+<html lang="sr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - Subkategorije</title>
+    <style>
+        :root {
+            --primary-color: #3498db;
+            --secondary-color: #2c3e50;
+            --success-color: #2ecc71;
+            --danger-color: #e74c3c;
+            --warning-color: #f39c12;
+            --light-gray: #f5f5f5;
+            --border-color: #ddd;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f9f9f9;
+        }
+        
+        .container {
+            display: flex;
+            min-height: 100vh;
+        }
+        
+        /* Sidebar */
+        .sidebar {
+            width: 250px;
+            background-color: var(--secondary-color);
+            color: white;
+            padding: 20px 0;
+            transition: all 0.3s;
+        }
+        
+        .sidebar-header {
+            padding: 0 20px 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            text-align: center;
+        }
+        
+        .sidebar-header h3 {
+            margin-bottom: 5px;
+        }
+        
+        .sidebar-menu {
+            padding: 20px 0;
+        }
+        
+        .sidebar-menu ul {
+            list-style: none;
+        }
+        
+        .sidebar-menu li {
+            margin-bottom: 5px;
+        }
+        
+        .sidebar-menu a {
+            display: block;
+            padding: 12px 20px;
+            color: #ecf0f1;
+            text-decoration: none;
+            transition: all 0.3s;
+            border-left: 3px solid transparent;
+        }
+        
+        .sidebar-menu a:hover, .sidebar-menu a.active {
+            background-color: rgba(255, 255, 255, 0.1);
+            border-left: 3px solid var(--primary-color);
+        }
+        
+        .sidebar-menu a.active {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+        
+        .sidebar-menu i {
+            margin-right: 10px;
+        }
+        
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            padding: 20px;
+            overflow-x: auto;
+        }
+        
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        /* Table styles */
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+            background-color: white;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        
+        .data-table th, .data-table td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .data-table th {
+            background-color: var(--secondary-color);
+            color: white;
+            font-weight: 600;
+        }
+        
+        .data-table tr:hover {
+            background-color: var(--light-gray);
+        }
+        
+        .thumbnail {
+            width: 60px;
+            height: 60px;
+            object-fit: cover;
+            border-radius: 4px;
+            display: block;
+        }
+        
+        /* Button styles */
+        .btn {
+            padding: 8px 15px;
+            cursor: pointer;
+            border: none;
+            border-radius: 4px;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+        
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        
+        .btn-success {
+            background-color: var(--success-color);
+            color: white;
+        }
+        
+        .btn:hover {
+            opacity: 0.9;
+        }
+        
+        /* Search and filter styles */
+        .search-container {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .search-container .form-control {
+            max-width: 300px;
+            padding: 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        
+        /* Pagination */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            gap: 5px;
+            margin-top: 20px;
+        }
+        
+        .pagination button {
+            padding: 5px 10px;
+            border: 1px solid var(--border-color);
+            background: white;
+            cursor: pointer;
+            border-radius: 3px;
+        }
+        
+        .pagination button.active {
+            background-color: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+        
+        /* Modal styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            overflow: auto;
+        }
+        
+        .modal-content {
+            background-color: white;
+            margin: 5% auto;
+            padding: 20px;
+            border-radius: 5px;
+            width: 60%;
+            max-width: 600px;
+            animation: modalOpen 0.3s;
+        }
+        
+        @keyframes modalOpen {
+            from {opacity: 0; transform: translateY(-50px);}
+            to {opacity: 1; transform: translateY(0);}
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .modal-header h2 {
+            margin: 0;
+        }
+        
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        
+        .close:hover {
+            color: black;
+        }
+        
+        /* Form styles */
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        
+        .form-buttons {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+            }
+            
+            .sidebar {
+                width: 100%;
+                padding: 10px;
+            }
+            
+            .sidebar-header {
+                padding: 10px;
+            }
+            
+            .modal-content {
+                width: 90%;
+                margin: 10% auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <h3>Admin Panel</h3>
+                <p>Upravljanje bazom podataka</p>
+            </div>
+            <div class="sidebar-menu">
+                <ul>
+                    <li><a href="/">Proizvodi</a></li>
+                    <li><a href="/porudzbine">Porudžbine</a></li>
+                    <li><a href="/korisnici">Korisnici</a></li>
+                    <li><a href="/subkategorije" class="active">Subkategorije</a></li>
+                    <li><a href="/poruke">Poruke</a></li>
+                </ul>
+            </div>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="page-header">
+                <h1>Subkategorije</h1>
+                <div>
+                    <button class="btn btn-primary" id="addSubcategoryBtn">Dodaj novu subkategoriju</button>
+                </div>
+            </div>
+            
+            <div class="search-container">
+                <input type="text" id="searchInput" class="form-control" placeholder="Pretraži subkategorije...">
+                <button class="btn btn-primary" id="searchBtn">Pretraži</button>
+            </div>
+            
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Naziv</th>
+                        <th>Kategorija</th>
+                        <th>Slika</th>
+                    </tr>
+                </thead>
+                <tbody id="subcategoriesTableBody">
+                    <!-- Početne subkategorije su definirane direktno u HTML-u -->
+                    <tr>
+                        <td>1</td>
+                        <td>Laptopi</td>
+                        <td>Računari</td>
+                        <td><img src="/api/placeholder/60/60" alt="Laptopi" class="thumbnail"></td>
+                    </tr>
+                    <tr>
+                        <td>2</td>
+                        <td>Desktop računari</td>
+                        <td>Računari</td>
+                        <td><img src="/api/placeholder/60/60" alt="Desktop računari" class="thumbnail"></td>
+                    </tr>
+                    <tr>
+                        <td>3</td>
+                        <td>Monitori</td>
+                        <td>Periferije</td>
+                        <td><img src="/api/placeholder/60/60" alt="Monitori" class="thumbnail"></td>
+                    </tr>
+                    <tr>
+                        <td>4</td>
+                        <td>Tastature</td>
+                        <td>Periferije</td>
+                        <td><img src="/api/placeholder/60/60" alt="Tastature" class="thumbnail"></td>
+                    </tr>
+                    <tr>
+                        <td>5</td>
+                        <td>Miševi</td>
+                        <td>Periferije</td>
+                        <td><img src="/api/placeholder/60/60" alt="Miševi" class="thumbnail"></td>
+                    </tr>
+                    <tr>
+                        <td>6</td>
+                        <td>Grafičke kartice</td>
+                        <td>Komponente</td>
+                        <td><img src="/api/placeholder/60/60" alt="Grafičke kartice" class="thumbnail"></td>
+                    </tr>
+                    <tr>
+                        <td>7</td>
+                        <td>Procesori</td>
+                        <td>Komponente</td>
+                        <td><img src="/api/placeholder/60/60" alt="Procesori" class="thumbnail"></td>
+                    </tr>
+                    <tr>
+                        <td>8</td>
+                        <td>Memorije</td>
+                        <td>Komponente</td>
+                        <td><img src="/api/placeholder/60/60" alt="Memorije" class="thumbnail"></td>
+                    </tr>
+                </tbody>
+            </table>
+            
+            <div class="pagination" id="pagination">
+                <!-- Pagination buttons will be dynamically generated -->
+            </div>
+        </div>
+    </div>
+    
+    <!-- Add Subcategory Modal -->
+    <div id="subcategoryModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Dodaj novu subkategoriju</h2>
+                <span class="close">&times;</span>
+            </div>
+            <form id="subcategoryForm">
+                <div class="form-group">
+                    <label for="naziv">Naziv</label>
+                    <input type="text" id="naziv" class="form-control" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="category">Kategorija</label>
+                    <select id="category" class="form-control" required>
+                        <option value="">Izaberite kategoriju</option>
+                        <option value="Računari">Računari</option>
+                        <option value="Periferije">Periferije</option>
+                        <option value="Komponente">Komponente</option>
+                        <option value="Mreža">Mreža</option>
+                        <option value="Softver">Softver</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="slika">URL Slike</label>
+                    <input type="text" id="slika" class="form-control" placeholder="Unesite URL slike ili ostavite prazno za podrazumevanu sliku">
+                </div>
+                
+                <div class="form-buttons">
+                    <button type="button" class="btn btn-danger" id="cancelBtn">Odustani</button>
+                    <button type="submit" class="btn btn-success" id="saveBtn">Sačuvaj</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Inicijalizacija subkategorija iz HTML tabele
+        let subcategories = [];
+        
+        // Funkcija za inicijalno učitavanje podataka iz HTML tabele
+        function loadInitialSubcategoriesFromHTML() {
+            const rows = document.querySelectorAll('#subcategoriesTableBody tr');
+            
+            subcategories = Array.from(rows).map(row => {
+                const cells = row.querySelectorAll('td');
+                const id = parseInt(cells[0].textContent);
+                const imgSrc = cells[3].querySelector('img')?.src || '/api/placeholder/60/60';
+                
+                return {
+                    id: id,
+                    naziv: cells[1].textContent,
+                    category: cells[2].textContent,
+                    slika: imgSrc
+                };
+            });
+            
+            // Sačuvaj učitane subkategorije u localStorage
+            saveSubcategoriesToStorage();
+        }
+        
+        // Settings
+        const itemsPerPage = 8;
+        let currentPage = 1;
+        
+        // DOM Elements
+        const subcategoriesTableBody = document.getElementById('subcategoriesTableBody');
+        const pagination = document.getElementById('pagination');
+        const subcategoryModal = document.getElementById('subcategoryModal');
+        const subcategoryForm = document.getElementById('subcategoryForm');
+        const searchInput = document.getElementById('searchInput');
+        const searchBtn = document.getElementById('searchBtn');
+        
+        // Buttons
+        const addSubcategoryBtn = document.getElementById('addSubcategoryBtn');
+        const cancelBtn = document.getElementById('cancelBtn');
+        const closeModalBtn = document.querySelector('.close');
+        
+        // Load subcategories from localStorage if available
+        function loadSubcategoriesFromStorage() {
+            const storedSubcategories = localStorage.getItem('subcategories');
+            if (storedSubcategories) {
+                subcategories = JSON.parse(storedSubcategories);
+            }
+        }
+        
+        // Save subcategories to localStorage
+        function saveSubcategoriesToStorage() {
+            localStorage.setItem('subcategories', JSON.stringify(subcategories));
+        }
+        
+        // Initialize the application
+        function init() {
+            // Prvo proveravamo da li već postoje subkategorije u localStorage
+            const storedSubcategories = localStorage.getItem('subcategories');
+            
+            if (!storedSubcategories) {
+                // Ako ne postoje, učitavamo ih iz HTML-a
+                loadInitialSubcategoriesFromHTML();
+            } else {
+                // Ako postoje, učitavamo ih iz localStorage-a
+                loadSubcategoriesFromStorage();
+            }
+            
+            renderSubcategories();
+            setupEventListeners();
+        }
+        
+        // Render subcategories table
+        function renderSubcategories(filteredSubcategories = null) {
+            const displaySubcategories = filteredSubcategories || subcategories;
+            
+            // Calculate pagination
+            const totalPages = Math.ceil(displaySubcategories.length / itemsPerPage);
+            const startIndex = (currentPage - 1) * itemsPerPage;
+            const endIndex = startIndex + itemsPerPage;
+            const currentSubcategories = displaySubcategories.slice(startIndex, endIndex);
+            
+            // Clear table body
+            subcategoriesTableBody.innerHTML = '';
+            
+            // Render subcategories
+            if (currentSubcategories.length === 0) {
+                subcategoriesTableBody.innerHTML = `
+                    <tr>
+                        <td colspan="4" style="text-align: center;">Nema subkategorija za prikaz</td>
+                    </tr>
+                `;
+            } else {
+                currentSubcategories.forEach(subcategory => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${subcategory.id}</td>
+                        <td>${subcategory.naziv}</td>
+                        <td>${subcategory.category}</td>
+                        <td><img src="${subcategory.slika}" alt="${subcategory.naziv}" class="thumbnail"></td>
+                    `;
+                    subcategoriesTableBody.appendChild(row);
+                });
+            }
+            
+            // Render pagination
+            renderPagination(totalPages);
+        }
+        
+        // Render pagination controls
+        function renderPagination(totalPages) {
+            pagination.innerHTML = '';
+            
+            if (totalPages <= 1) return;
+            
+            // Previous button
+            const prevBtn = document.createElement('button');
+            prevBtn.textContent = '←';
+            prevBtn.disabled = currentPage === 1;
+            prevBtn.addEventListener('click', () => {
+                if (currentPage > 1) {
+                    currentPage--;
+                    renderSubcategories();
+                }
+            });
+            pagination.appendChild(prevBtn);
+            
+            // Page buttons
+            for (let i = 1; i <= totalPages; i++) {
+                const pageBtn = document.createElement('button');
+                pageBtn.textContent = i;
+                pageBtn.classList.toggle('active', i === currentPage);
+                pageBtn.addEventListener('click', () => {
+                    currentPage = i;
+                    renderSubcategories();
+                });
+                pagination.appendChild(pageBtn);
+            }
+            
+            // Next button
+            const nextBtn = document.createElement('button');
+            nextBtn.textContent = '→';
+            nextBtn.disabled = currentPage === totalPages;
+            nextBtn.addEventListener('click', () => {
+                if (currentPage < totalPages) {
+                    currentPage++;
+                    renderSubcategories();
+                }
+            });
+            pagination.appendChild(nextBtn);
+        }
+        
+        // Set up event listeners
+        function setupEventListeners() {
+            // Add Subcategory button
+            addSubcategoryBtn.addEventListener('click', openAddModal);
+            
+            // Close modal button
+            closeModalBtn.addEventListener('click', () => {
+                subcategoryModal.style.display = 'none';
+            });
+            
+            // Cancel button
+            cancelBtn.addEventListener('click', () => {
+                subcategoryModal.style.display = 'none';
+            });
+            
+            // Form submit
+            subcategoryForm.addEventListener('submit', addSubcategory);
+            
+            // Search button
+            searchBtn.addEventListener('click', searchSubcategories);
+            
+            // Search input enter key
+            searchInput.addEventListener('keyup', function(e) {
+                if (e.key === 'Enter') {
+                    searchSubcategories();
+                }
+            });
+            
+            // Close modal when clicking outside
+            window.addEventListener('click', function(e) {
+                if (e.target === subcategoryModal) {
+                    subcategoryModal.style.display = 'none';
+                }
+            });
+        }
+        
+        // Open Add Subcategory Modal
+        function openAddModal() {
+            subcategoryForm.reset();
+            subcategoryModal.style.display = 'block';
+        }
+        
+        // Add new subcategory
+        function addSubcategory(e) {
+            e.preventDefault();
+            
+            const naziv = document.getElementById('naziv').value;
+            const category = document.getElementById('category').value;
+            let slika = document.getElementById('slika').value;
+            
+            // Set default image if not provided
+            if (!slika) {
+                slika = '/api/placeholder/60/60';
+            }
+            
+            // Generate new ID
+            const newId = subcategories.length > 0 ? Math.max(...subcategories.map(s => s.id)) + 1 : 1;
+            
+            // Create new subcategory object
+            const newSubcategory = {
+                id: newId,
+                naziv: naziv,
+                category: category,
+                slika: slika
+            };
+            
+            // Add to array
+            subcategories.push(newSubcategory);
+            
+            // Save to localStorage
+            saveSubcategoriesToStorage();
+            
+            // Close modal and refresh table
+            subcategoryModal.style.display = 'none';
+            
+            // Check if we need to add a new page
+            const totalPages = Math.ceil(subcategories.length / itemsPerPage);
+            if (currentPage < totalPages) {
+                currentPage = totalPages;
+            }
+            
+            renderSubcategories();
+        }
+        
+        // Search Subcategories
+        function searchSubcategories() {
+            const searchTerm = searchInput.value.toLowerCase().trim();
+            
+            if (searchTerm === '') {
+                currentPage = 1;
+                renderSubcategories();
+                return;
+            }
+            
+            const filtered = subcategories.filter(subcategory => {
+                return (
+                    subcategory.id.toString().includes(searchTerm) ||
+                    subcategory.naziv.toLowerCase().includes(searchTerm) ||
+                    subcategory.category.toLowerCase().includes(searchTerm)
+                );
+            });
+            
+            currentPage = 1; // Reset to first page
+            renderSubcategories(filtered);
+        }
+        
+        // Initialize the application
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>

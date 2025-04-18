@@ -1,0 +1,988 @@
+<!DOCTYPE html>
+<html lang="sr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - Proizvodi</title>
+    <style>
+        :root {
+            --primary-color: #3498db;
+            --secondary-color: #2c3e50;
+            --success-color: #2ecc71;
+            --danger-color: #e74c3c;
+            --warning-color: #f39c12;
+            --light-gray: #f5f5f5;
+            --border-color: #ddd;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f9f9f9;
+        }
+        
+        .container {
+            display: flex;
+            min-height: 100vh;
+        }
+        
+        /* Sidebar */
+        .sidebar {
+            width: 250px;
+            background-color: var(--secondary-color);
+            color: white;
+            padding: 20px 0;
+            transition: all 0.3s;
+        }
+        
+        .sidebar-header {
+            padding: 0 20px 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            text-align: center;
+        }
+        
+        .sidebar-header h3 {
+            margin-bottom: 5px;
+        }
+        
+        .sidebar-menu {
+            padding: 20px 0;
+        }
+        
+        .sidebar-menu ul {
+            list-style: none;
+        }
+        
+        .sidebar-menu li {
+            margin-bottom: 5px;
+        }
+        
+        .sidebar-menu a {
+            display: block;
+            padding: 12px 20px;
+            color: #ecf0f1;
+            text-decoration: none;
+            transition: all 0.3s;
+            border-left: 3px solid transparent;
+        }
+        
+        .sidebar-menu a:hover, .sidebar-menu a.active {
+            background-color: rgba(255, 255, 255, 0.1);
+            border-left: 3px solid var(--primary-color);
+        }
+        
+        .sidebar-menu a.active {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+        
+        .sidebar-menu i {
+            margin-right: 10px;
+        }
+        
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            padding: 20px;
+            overflow-x: auto;
+        }
+        
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        /* Table styles */
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+            background-color: white;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        
+        .data-table th, .data-table td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .data-table th {
+            background-color: var(--secondary-color);
+            color: white;
+            font-weight: 600;
+        }
+        
+        .data-table tr:hover {
+            background-color: var(--light-gray);
+        }
+        
+        /* Button styles */
+        .btn {
+            padding: 8px 15px;
+            cursor: pointer;
+            border: none;
+            border-radius: 4px;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+        
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        
+        .btn-success {
+            background-color: var(--success-color);
+            color: white;
+        }
+        
+        .btn-danger {
+            background-color: var(--danger-color);
+            color: white;
+        }
+        
+        .btn-warning {
+            background-color: var(--warning-color);
+            color: white;
+        }
+        
+        .btn:hover {
+            opacity: 0.9;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 5px;
+        }
+        
+        /* Modal styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            overflow: auto;
+        }
+        
+        .modal-content {
+            background-color: white;
+            margin: 5% auto;
+            padding: 20px;
+            border-radius: 5px;
+            width: 70%;
+            max-width: 800px;
+            animation: modalOpen 0.3s;
+        }
+        
+        @keyframes modalOpen {
+            from {opacity: 0; transform: translateY(-50px);}
+            to {opacity: 1; transform: translateY(0);}
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .modal-header h2 {
+            margin: 0;
+        }
+        
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        
+        .close:hover {
+            color: black;
+        }
+        
+        /* Form styles */
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        
+        .form-row {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+        
+        .form-col {
+            flex: 1;
+        }
+        
+        .form-buttons {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        /* Search and filter styles */
+        .search-container {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .search-container .form-control {
+            max-width: 300px;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+            }
+            
+            .sidebar {
+                width: 100%;
+                padding: 10px;
+            }
+            
+            .sidebar-header {
+                padding: 10px;
+            }
+            
+            .form-row {
+                flex-direction: column;
+                gap: 0;
+            }
+            
+            .modal-content {
+                width: 90%;
+                margin: 10% auto;
+            }
+        }
+
+        /* Pagination */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            gap: 5px;
+            margin-top: 20px;
+        }
+        
+        .pagination button {
+            padding: 5px 10px;
+            border: 1px solid var(--border-color);
+            background: white;
+            cursor: pointer;
+            border-radius: 3px;
+        }
+        
+        .pagination button.active {
+            background-color: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+        
+        /* Tooltips */
+        .tooltip {
+            position: relative;
+            display: inline-block;
+        }
+        
+        .tooltip .tooltiptext {
+            visibility: hidden;
+            width: 120px;
+            background-color: #555;
+            color: #fff;
+            text-align: center;
+            border-radius: 6px;
+            padding: 5px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            margin-left: -60px;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        
+        .tooltip:hover .tooltiptext {
+            visibility: visible;
+            opacity: 1;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <h3>Admin Panel</h3>
+                <p>Upravljanje bazom podataka</p>
+            </div>
+            <div class="sidebar-menu">
+                <ul>
+                    <li><a href="/" class="active">Proizvodi</a></li>
+                    <li><a href="/porudzbine">Porudzbine</a></li>
+                    <li><a href="/korisnici">Korisnici</a></li>
+                    <li><a href="/subkategorije">Subkategorije</a></li>
+                    <li><a href="/poruke">Poruke</a></li>
+                </ul>
+            </div>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="page-header">
+                <h1>Proizvodi</h1>
+                <button class="btn btn-primary" id="addProductBtn">Dodaj Novi Proizvod</button>
+            </div>
+            
+            <div class="search-container">
+                <input type="text" id="searchInput" class="form-control" placeholder="Pretraži proizvode...">
+                <button class="btn btn-primary" id="searchBtn">Pretraži</button>
+            </div>
+            
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Šifra</th>
+                        <th>Naziv</th>
+                        <th>Količina</th>
+                        <th>Cena (bez PDV)</th>
+                        <th>Vrednost (bez PDV)</th>
+                        <th>Cena (sa PDV)</th>
+                        <th>Vrednost (sa PDV)</th>
+                        <th>Subkategorije</th>
+                        <th>Brend</th>
+                        <th>Boja</th>
+                        <th>Slika</th>
+                        <th>My ID</th>
+                        <th>Akcije</th>
+                    </tr>
+                </thead>
+                <tbody id="productsTableBody">
+                    <% if (proizvodi && proizvodi.length > 0) { %>
+                        <% for(let i = 0; i < proizvodi.length; i++) { %>
+                        <tr>
+                            <td><%= proizvodi[i].id %></td>
+                            <td><%= proizvodi[i].sifra %></td>
+                            <td><%= proizvodi[i].naziv %></td>
+                            <td><%= proizvodi[i].kolicina %></td>
+                            <td><%= proizvodi[i].cena_bezpdv %></td>
+                            <td><%= proizvodi[i].vrednost_bezpdv %></td>
+                            <td><%= proizvodi[i].cena_sapdv %></td>
+                            <td><%= proizvodi[i].vrednost_sapdv %></td>
+                            <td><%= proizvodi[i].subcategories %></td>
+                            <td><%= proizvodi[i].brend %></td>
+                            <td><%= proizvodi[i].boja %></td>
+                            <td><%= proizvodi[i].slka %></td>
+                            <td><%= proizvodi[i].my_id %></td>
+                            <td class="action-buttons">
+                                <button class="btn btn-warning btn-edit" data-id="<%= proizvodi[i].id %>">Izmeni</button>
+                                <button class="btn btn-danger btn-delete" data-id="<%= proizvodi[i].id %>">Obriši</button>
+                            </td>
+                        </tr>
+                        <% } %>
+                    <% } else { %>
+                        <tr>
+                            <td colspan="14" style="text-align: center;">Nema proizvoda za prikaz</td>
+                        </tr>
+                    <% } %>
+                </tbody>
+            </table>
+            
+            <div class="pagination" id="pagination">
+                <!-- Pagination buttons will be dynamically generated -->
+            </div>
+        </div>
+    </div>
+    
+    <!-- Add/Edit Product Modal -->
+    <div id="productModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle">Dodaj novi proizvod</h2>
+                <span class="close">&times;</span>
+            </div>
+            <form id="productForm">
+                <input type="hidden" id="productId">
+                
+                <div class="form-row">
+                    <div class="form-col">
+                        <div class="form-group">
+                            <label for="sifra">Šifra</label>
+                            <input type="text" id="sifra" class="form-control" required>
+                        </div>
+                    </div>
+                    <div class="form-col">
+                        <div class="form-group">
+                            <label for="naziv">Naziv</label>
+                            <input type="text" id="naziv" class="form-control" required>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-col">
+                        <div class="form-group">
+                            <label for="kolicina">Količina</label>
+                            <input type="number" id="kolicina" class="form-control" min="0" required>
+                        </div>
+                    </div>
+                    <div class="form-col">
+                        <div class="form-group">
+                            <label for="cena_bezpdv">Cena (bez PDV)</label>
+                            <input type="number" id="cena_bezpdv" class="form-control" step="0.01" min="0" required>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-col">
+                        <div class="form-group">
+                            <label for="cena_sapdv">Cena (sa PDV)</label>
+                            <input type="number" id="cena_sapdv" class="form-control" step="0.01" min="0" required>
+                        </div>
+                    </div>
+                    <div class="form-col">
+                        <div class="form-group">
+                            <label for="subcategories">Subkategorije</label>
+                            <input type="text" id="subcategories" class="form-control">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-col">
+                        <div class="form-group">
+                            <label for="brend">Brend</label>
+                            <input type="text" id="brend" class="form-control">
+                        </div>
+                    </div>
+                    <div class="form-col">
+                        <div class="form-group">
+                            <label for="boja">Boja</label>
+                            <input type="text" id="boja" class="form-control">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-col">
+                        <div class="form-group">
+                            <label for="slika">URL Slike</label>
+                            <input type="text" id="slika" class="form-control">
+                        </div>
+                    </div>
+                    <div class="form-col">
+                        <div class="form-group">
+                            <label for="my_id">My ID</label>
+                            <input type="text" id="my_id" class="form-control">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-buttons">
+                    <button type="button" class="btn btn-danger" id="cancelBtn">Odustani</button>
+                    <button type="submit" class="btn btn-success" id="saveBtn">Sačuvaj</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Delete Confirmation Modal -->
+    <div id="deleteModal" class="modal">
+        <div class="modal-content" style="max-width: 400px;">
+            <div class="modal-header">
+                <h2>Potvrda brisanja</h2>
+                <span class="close">&times;</span>
+            </div>
+            <p>Da li ste sigurni da želite da obrišete ovaj proizvod?</p>
+            <div class="form-buttons">
+                <button type="button" class="btn btn-primary" id="cancelDeleteBtn">Odustani</button>
+                <button type="button" class="btn btn-danger" id="confirmDeleteBtn">Obriši</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Inicijalizacija proizvoda iz HTML tabele
+        let products = [];
+        
+        // Funkcija za inicijalno učitavanje podataka iz HTML tabele
+        function loadInitialProductsFromHTML() {
+            const rows = document.querySelectorAll('#productsTableBody tr');
+            
+            // Proveravamo da li postoji poruka "Nema proizvoda za prikaz"
+            const noProductsRow = document.querySelector('#productsTableBody tr td[colspan="14"]');
+            if (noProductsRow && noProductsRow.textContent.includes('Nema proizvoda za prikaz')) {
+                return []; // Nema proizvoda za učitavanje
+            }
+            
+            const validProducts = [];
+            
+            for (let i = 0; i < rows.length; i++) {
+                const row = rows[i];
+                const cells = row.querySelectorAll('td');
+                
+                // Preskačemo redove sa premalo ćelija ili one sa porukom "Nema proizvoda"
+                if (cells.length < 2 || (cells.length === 1 && cells[0].hasAttribute('colspan'))) {
+                    continue;
+                }
+                
+                try {
+                    // Bezbedno izvlačimo vrednosti, koristeći pomoćne funkcije za parsiranje
+                    const product = {
+                        id: safeParseInt(cells[0]?.textContent),
+                        sifra: safeGetText(cells[1]),
+                        naziv: safeGetText(cells[2]),
+                        kolicina: safeParseInt(cells[3]?.textContent),
+                        cena_bezpdv: safeParseFloat(cells[4]?.textContent),
+                        vrednost_bezpdv: safeParseFloat(cells[5]?.textContent),
+                        cena_sapdv: safeParseFloat(cells[6]?.textContent),
+                        vrednost_sapdv: safeParseFloat(cells[7]?.textContent),
+                        subcategories: safeGetText(cells[8]),
+                        brend: safeGetText(cells[9]),
+                        boja: safeGetText(cells[10]),
+                        slika: safeGetText(cells[11]),
+                        my_id: safeGetText(cells[12])
+                    };
+                    
+                    // Dodajemo samo validne proizvode (one sa ID-jem)
+                    if (product.id) {
+                        validProducts.push(product);
+                    }
+                } catch (error) {
+                    console.error('Greška pri parsiranju reda tabele:', error);
+                }
+            }
+            
+            return validProducts;
+        }
+        
+        // Pomoćne funkcije za bezbedno izvlačenje vrednosti
+        function safeGetText(element) {
+            return element ? element.textContent.trim() : '';
+        }
+        
+        function safeParseInt(value) {
+            if (!value) return 0;
+            const cleaned = value.toString().replace(/[^\d]/g, '');
+            const parsed = parseInt(cleaned);
+            return isNaN(parsed) ? 0 : parsed;
+        }
+        
+        function safeParseFloat(value) {
+            if (!value) return 0;
+            
+            // Čistimo string: uklanjamo separatore hiljada i osiguravamo tačku kao decimalni separator
+            const cleanValue = value.toString()
+                .replace(/\s/g, '') // Uklanjamo razmake
+                .replace(/\./g, '') // Uklanjamo tačke (separatori hiljada u srpskom)
+                .replace(/,/g, '.'); // Zamenjujemo zareze tačkama za decimalu
+            
+            const parsed = parseFloat(cleanValue);
+            return isNaN(parsed) ? 0 : parsed;
+        }
+        
+        // Settings
+        const itemsPerPage = 5;
+        let currentPage = 1;
+        let currentProductId = null;
+        
+        // DOM Elements
+        const productsTableBody = document.getElementById('productsTableBody');
+        const pagination = document.getElementById('pagination');
+        const productModal = document.getElementById('productModal');
+        const deleteModal = document.getElementById('deleteModal');
+        const modalTitle = document.getElementById('modalTitle');
+        const productForm = document.getElementById('productForm');
+        const searchInput = document.getElementById('searchInput');
+        const searchBtn = document.getElementById('searchBtn');
+        
+        // Buttons
+        const addProductBtn = document.getElementById('addProductBtn');
+        const cancelBtn = document.getElementById('cancelBtn');
+        const closeModalBtns = document.querySelectorAll('.close');
+        const cancelDeleteBtn = document.getElementById('cancelDeleteBtn');
+        const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
+        
+        // Load products from localStorage if available
+        function loadProductsFromStorage() {
+            try {
+                const storedProducts = localStorage.getItem('products');
+                return storedProducts ? JSON.parse(storedProducts) : [];
+            } catch (error) {
+                console.error('Greška pri učitavanju proizvoda iz localStorage:', error);
+                return [];
+            }
+        }
+        
+        // Save products to localStorage
+        function saveProductsToStorage() {
+            try {
+                localStorage.setItem('products', JSON.stringify(products));
+            } catch (error) {
+                console.error('Greška pri čuvanju proizvoda u localStorage:', error);
+            }
+        }
+        
+        // Initialize the application
+        function init() {
+            // Provera da li je EJS renderovao proizvode
+            const htmlRows = document.querySelectorAll('#productsTableBody tr');
+            const hasEjsProducts = htmlRows.length > 0 && !htmlRows[0].querySelector('td[colspan="14"]');
+            
+            // Pokušaj učitavanja proizvoda iz localStorage-a
+            const storedProducts = loadProductsFromStorage();
+            
+            // Ako postoje proizvodi u localStorage-u, koristimo njih
+            if (storedProducts && storedProducts.length > 0) {
+                products = storedProducts;
+            } 
+            // Ako nema proizvoda u localStorage-u, ali postoje u HTML-u, učitavamo iz HTML-a
+            else if (hasEjsProducts) {
+                products = loadInitialProductsFromHTML();
+                
+                // Sačuvaj učitane proizvode u localStorage samo ako ima validnih
+                if (products && products.length > 0) {
+                    saveProductsToStorage();
+                }
+            }
+            // Inače, koristimo praznu listu
+            else {
+                products = [];
+            }
+            
+            // Renderujemo proizvode i postavljamo event listenere
+            renderProducts();
+            setupEventListeners();
+        }
+        
+        // Render products table
+        function renderProducts(filteredProducts = null) {
+            const displayProducts = filteredProducts || products;
+            
+            // Calculate pagination
+            const totalPages = Math.ceil(displayProducts.length / itemsPerPage);
+            const startIndex = (currentPage - 1) * itemsPerPage;
+            const endIndex = startIndex + itemsPerPage;
+            const currentProducts = displayProducts.slice(startIndex, endIndex);
+            
+            // Clear table body
+            productsTableBody.innerHTML = '';
+            
+            // Render products
+            if (currentProducts.length === 0) {
+                productsTableBody.innerHTML = `
+                    <tr>
+                        <td colspan="14" style="text-align: center;">Nema proizvoda za prikaz</td>
+                    </tr>
+                `;
+            } else {
+                currentProducts.forEach(product => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${product.id || ''}</td>
+                        <td>${product.sifra || ''}</td>
+                        <td>${product.naziv || ''}</td>
+                        <td>${product.kolicina || 0}</td>
+                        <td>${formatPrice(product.cena_bezpdv || 0)}</td>
+                        <td>${formatPrice(product.vrednost_bezpdv || 0)}</td>
+                        <td>${formatPrice(product.cena_sapdv || 0)}</td>
+                        <td>${formatPrice(product.vrednost_sapdv || 0)}</td>
+                        <td>${product.subcategories || ''}</td>
+                        <td>${product.brend || ''}</td>
+                        <td>${product.boja || ''}</td>
+                        <td>${product.slika ? product.slika : '-'}</td>
+                        <td>${product.my_id || ''}</td>
+                        <td class="action-buttons">
+                            <button class="btn btn-warning btn-edit" data-id="${product.id}">Izmeni</button>
+                            <button class="btn btn-danger btn-delete" data-id="${product.id}">Obriši</button>
+                        </td>
+                    `;
+                    productsTableBody.appendChild(row);
+                });
+            }
+            
+            // Render pagination
+            renderPagination(totalPages);
+            
+            // Add event listeners for edit and delete buttons
+            document.querySelectorAll('.btn-edit').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    openEditModal(parseInt(this.dataset.id));
+                });
+            });
+            
+            document.querySelectorAll('.btn-delete').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    openDeleteModal(parseInt(this.dataset.id));
+                });
+            });
+        }
+        
+        // Format price with thousand separator
+        function formatPrice(price) {
+            return price.toLocaleString('sr-RS') + ' RSD';
+        }
+        
+        // Render pagination controls
+        function renderPagination(totalPages) {
+            pagination.innerHTML = '';
+            
+            if (totalPages <= 1) return;
+            
+            // Previous button
+            const prevBtn = document.createElement('button');
+            prevBtn.textContent = '←';
+            prevBtn.disabled = currentPage === 1;
+            prevBtn.addEventListener('click', () => {
+                if (currentPage > 1) {
+                    currentPage--;
+                    renderProducts();
+                }
+            });
+            pagination.appendChild(prevBtn);
+            
+            // Page buttons
+            for (let i = 1; i <= totalPages; i++) {
+                const pageBtn = document.createElement('button');
+                pageBtn.textContent = i;
+                pageBtn.classList.toggle('active', i === currentPage);
+                pageBtn.addEventListener('click', () => {
+                    currentPage = i;
+                    renderProducts();
+                });
+                pagination.appendChild(pageBtn);
+            }
+            
+            // Next button
+            const nextBtn = document.createElement('button');
+            nextBtn.textContent = '→';
+            nextBtn.disabled = currentPage === totalPages;
+            nextBtn.addEventListener('click', () => {
+                if (currentPage < totalPages) {
+                    currentPage++;
+                    renderProducts();
+                }
+            });
+            pagination.appendChild(nextBtn);
+        }
+        
+        // Set up event listeners
+        function setupEventListeners() {
+            // Add Product button
+            addProductBtn.addEventListener('click', openAddModal);
+            
+            // Close modal buttons
+            closeModalBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    productModal.style.display = 'none';
+                    deleteModal.style.display = 'none';
+                });
+            });
+            
+            // Cancel button in product modal
+            cancelBtn.addEventListener('click', () => {
+                productModal.style.display = 'none';
+            });
+            
+            // Cancel button in delete modal
+            cancelDeleteBtn.addEventListener('click', () => {
+                deleteModal.style.display = 'none';
+            });
+            
+            // Confirm delete button
+            confirmDeleteBtn.addEventListener('click', deleteProduct);
+            
+            // Form submit
+            productForm.addEventListener('submit', saveProduct);
+            
+            // Search button
+            searchBtn.addEventListener('click', searchProducts);
+            
+            // Search input enter key
+            searchInput.addEventListener('keyup', function(e) {
+                if (e.key === 'Enter') {
+                    searchProducts();
+                }
+            });
+            
+            // Close modals when clicking outside
+            window.addEventListener('click', function(e) {
+                if (e.target === productModal) {
+                    productModal.style.display = 'none';
+                }
+                if (e.target === deleteModal) {
+                    deleteModal.style.display = 'none';
+                }
+            });
+            
+            // Automatic calculation for PDV
+            document.getElementById('cena_bezpdv').addEventListener('input', calculatePDV);
+            document.getElementById('cena_sapdv').addEventListener('input', calculateReversePDV);
+        }
+        
+        // Calculate price with PDV
+        function calculatePDV() {
+            const cenaBezPDV = parseFloat(document.getElementById('cena_bezpdv').value) || 0;
+            const cenaSaPDV = cenaBezPDV * 1.21; // 21% PDV
+            document.getElementById('cena_sapdv').value = cenaSaPDV.toFixed(2);
+        }
+        
+        // Calculate price without PDV
+        function calculateReversePDV() {
+            const cenaSaPDV = parseFloat(document.getElementById('cena_sapdv').value) || 0;
+            const cenaBezPDV = cenaSaPDV / 1.21; // 21% PDV
+            document.getElementById('cena_bezpdv').value = cenaBezPDV.toFixed(2);
+        }
+        
+        // Open Add Product Modal
+        function openAddModal() {
+            modalTitle.textContent = 'Dodaj novi proizvod';
+            productForm.reset();
+            document.getElementById('productId').value = '';
+            currentProductId = null;
+            productModal.style.display = 'block';
+        }
+        
+        // Open Edit Product Modal
+        function openEditModal(productId) {
+            const product = products.find(p => p.id === productId);
+            if (!product) return;
+            
+            modalTitle.textContent = 'Izmeni proizvod';
+            document.getElementById('productId').value = product.id;
+            document.getElementById('sifra').value = product.sifra || '';
+            document.getElementById('naziv').value = product.naziv || '';
+            document.getElementById('kolicina').value = product.kolicina || 0;
+            document.getElementById('cena_bezpdv').value = product.cena_bezpdv || 0;
+            document.getElementById('cena_sapdv').value = product.cena_sapdv || 0;
+            document.getElementById('subcategories').value = product.subcategories || '';
+            document.getElementById('brend').value = product.brend || '';
+            document.getElementById('boja').value = product.boja || '';
+            document.getElementById('slika').value = product.slika || '';
+            document.getElementById('my_id').value = product.my_id || '';
+            
+            currentProductId = productId;
+            productModal.style.display = 'block';
+        }
+        
+        // Open Delete Modal
+        function openDeleteModal(productId) {
+            currentProductId = productId;
+            deleteModal.style.display = 'block';
+        }
+        
+        // Save Product (Add or Edit)
+        function saveProduct(e) {
+            e.preventDefault();
+            
+            const formData = {
+                sifra: document.getElementById('sifra').value,
+                naziv: document.getElementById('naziv').value,
+                kolicina: parseInt(document.getElementById('kolicina').value) || 0,
+                cena_bezpdv: parseFloat(document.getElementById('cena_bezpdv').value) || 0,
+                cena_sapdv: parseFloat(document.getElementById('cena_sapdv').value) || 0,
+                subcategories: document.getElementById('subcategories').value,
+                brend: document.getElementById('brend').value,
+                boja: document.getElementById('boja').value,
+                slika: document.getElementById('slika').value,
+                my_id: document.getElementById('my_id').value
+            };
+            
+            // Calculate values
+            formData.vrednost_bezpdv = formData.kolicina * formData.cena_bezpdv;
+            formData.vrednost_sapdv = formData.kolicina * formData.cena_sapdv;
+            
+            if (currentProductId) {
+                // Edit existing product
+                const index = products.findIndex(p => p.id === currentProductId);
+                if (index !== -1) {
+                    products[index] = { ...products[index], ...formData };
+                }
+            } else {
+                // Add new product
+                const newId = products.length > 0 ? Math.max(...products.map(p => p.id)) + 1 : 1;
+                products.push({
+                    id: newId,
+                    ...formData
+                });
+            }
+            
+            // Save to localStorage and update view
+            saveProductsToStorage();
+            productModal.style.display = 'none';
+            renderProducts();
+        }
+        
+        // Delete Product
+        function deleteProduct() {
+            if (currentProductId) {
+                products = products.filter(p => p.id !== currentProductId);
+                saveProductsToStorage();
+                currentPage = 1; // Reset to first page
+                deleteModal.style.display = 'none';
+                renderProducts();
+            }
+        }
+        
+        // Search Products
+        function searchProducts() {
+            const searchTerm = searchInput.value.toLowerCase().trim();
+            
+            if (searchTerm === '') {
+                currentPage = 1;
+                renderProducts();
+                return;
+            }
+            
+            const filtered = products.filter(product => {
+                return (
+                    (product.sifra || '').toLowerCase().includes(searchTerm) ||
+                    (product.naziv || '').toLowerCase().includes(searchTerm) ||
+                    (product.brend || '').toLowerCase().includes(searchTerm) ||
+                    (product.boja || '').toLowerCase().includes(searchTerm) ||
+                    (product.subcategories || '').toLowerCase().includes(searchTerm) ||
+                    (product.my_id || '').toLowerCase().includes(searchTerm)
+                );
+            });
+            
+            currentPage = 1; // Reset to first page
+            renderProducts(filtered);
+        }
+        
+        // Initialize the application
+        document.addEventListener('DOMContentLoaded', init);

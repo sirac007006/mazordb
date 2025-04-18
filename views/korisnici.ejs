@@ -1,0 +1,687 @@
+<!DOCTYPE html>
+<html lang="sr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - Korisnici</title>
+    <style>
+        :root {
+            --primary-color: #3498db;
+            --secondary-color: #2c3e50;
+            --success-color: #2ecc71;
+            --danger-color: #e74c3c;
+            --warning-color: #f39c12;
+            --light-gray: #f5f5f5;
+            --border-color: #ddd;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f9f9f9;
+        }
+        
+        .container {
+            display: flex;
+            min-height: 100vh;
+        }
+        
+        /* Sidebar */
+        .sidebar {
+            width: 250px;
+            background-color: var(--secondary-color);
+            color: white;
+            padding: 20px 0;
+            transition: all 0.3s;
+        }
+        
+        .sidebar-header {
+            padding: 0 20px 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            text-align: center;
+        }
+        
+        .sidebar-header h3 {
+            margin-bottom: 5px;
+        }
+        
+        .sidebar-menu {
+            padding: 20px 0;
+        }
+        
+        .sidebar-menu ul {
+            list-style: none;
+        }
+        
+        .sidebar-menu li {
+            margin-bottom: 5px;
+        }
+        
+        .sidebar-menu a {
+            display: block;
+            padding: 12px 20px;
+            color: #ecf0f1;
+            text-decoration: none;
+            transition: all 0.3s;
+            border-left: 3px solid transparent;
+        }
+        
+        .sidebar-menu a:hover, .sidebar-menu a.active {
+            background-color: rgba(255, 255, 255, 0.1);
+            border-left: 3px solid var(--primary-color);
+        }
+        
+        .sidebar-menu a.active {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+        
+        .sidebar-menu i {
+            margin-right: 10px;
+        }
+        
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            padding: 20px;
+            overflow-x: auto;
+        }
+        
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        /* Table styles */
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+            background-color: white;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        
+        .data-table th, .data-table td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .data-table th {
+            background-color: var(--secondary-color);
+            color: white;
+            font-weight: 600;
+        }
+        
+        .data-table tr:hover {
+            background-color: var(--light-gray);
+        }
+        
+        /* Button styles */
+        .btn {
+            padding: 8px 15px;
+            cursor: pointer;
+            border: none;
+            border-radius: 4px;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+        
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        
+        .btn:hover {
+            opacity: 0.9;
+        }
+        
+        /* Search and filter styles */
+        .search-container {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .search-container .form-control {
+            max-width: 300px;
+            padding: 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        
+        /* Pagination */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            gap: 5px;
+            margin-top: 20px;
+        }
+        
+        .pagination button {
+            padding: 5px 10px;
+            border: 1px solid var(--border-color);
+            background: white;
+            cursor: pointer;
+            border-radius: 3px;
+        }
+        
+        .pagination button.active {
+            background-color: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+        
+        /* User details modal */
+        .user-details {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .detail-item {
+            display: flex;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 8px;
+        }
+        
+        .detail-label {
+            width: 150px;
+            font-weight: 600;
+            color: #555;
+        }
+        
+        .detail-value {
+            flex: 1;
+        }
+        
+        /* Modal styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            overflow: auto;
+        }
+        
+        .modal-content {
+            background-color: white;
+            margin: 5% auto;
+            padding: 20px;
+            border-radius: 5px;
+            width: 70%;
+            max-width: 800px;
+            animation: modalOpen 0.3s;
+        }
+        
+        @keyframes modalOpen {
+            from {opacity: 0; transform: translateY(-50px);}
+            to {opacity: 1; transform: translateY(0);}
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .modal-header h2 {
+            margin: 0;
+        }
+        
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        
+        .close:hover {
+            color: black;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+            }
+            
+            .sidebar {
+                width: 100%;
+                padding: 10px;
+            }
+            
+            .sidebar-header {
+                padding: 10px;
+            }
+            
+            .modal-content {
+                width: 90%;
+                margin: 10% auto;
+            }
+            
+            .data-table {
+                display: block;
+                overflow-x: auto;
+            }
+            
+            .detail-item {
+                flex-direction: column;
+            }
+            
+            .detail-label {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <h3>Admin Panel</h3>
+                <p>Upravljanje bazom podataka</p>
+            </div>
+            <div class="sidebar-menu">
+                <ul>
+                    <li><a href="/">Proizvodi</a></li>
+                    <li><a href="/porudzbine">Porudzbine</a></li>
+                    <li><a href="/korisnici" class="active">Korisnici</a></li>
+                    <li><a href="/subkategorije">Subkategorije</a></li>
+                    <li><a href="/poruke">Poruke</a></li>
+                </ul>
+            </div>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="page-header">
+                <h1>Korisnici</h1>
+                <div class="search-container">
+                    <input type="text" id="searchInput" class="form-control" placeholder="Pretraži korisnike...">
+                    <button class="btn btn-primary" id="searchBtn">Pretraži</button>
+                </div>
+            </div>
+            
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Ime</th>
+                        <th>Prezime</th>
+                        <th>Email</th>
+                        <th>Telefon</th>
+                        <th>Grad</th>
+                        <th>Detalji</th>
+                    </tr>
+                </thead>
+                <tbody id="usersTableBody">
+                    <!-- Početni korisnici su definirani direktno u HTML-u -->
+                    <tr>
+                        <td>1</td>
+                        <td>Marko</td>
+                        <td>Marković</td>
+                        <td>marko@example.com</td>
+                        <td>064-1234-567</td>
+                        <td>Beograd</td>
+                        <td>
+                            <button class="btn btn-primary btn-details" data-id="1">Detalji</button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>2</td>
+                        <td>Ana</td>
+                        <td>Anić</td>
+                        <td>ana@example.com</td>
+                        <td>065-9876-543</td>
+                        <td>Novi Sad</td>
+                        <td>
+                            <button class="btn btn-primary btn-details" data-id="2">Detalji</button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>3</td>
+                        <td>Jovan</td>
+                        <td>Jovanović</td>
+                        <td>jovan@example.com</td>
+                        <td>063-5555-123</td>
+                        <td>Niš</td>
+                        <td>
+                            <button class="btn btn-primary btn-details" data-id="3">Detalji</button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>4</td>
+                        <td>Milica</td>
+                        <td>Milić</td>
+                        <td>milica@example.com</td>
+                        <td>062-3333-777</td>
+                        <td>Kragujevac</td>
+                        <td>
+                            <button class="btn btn-primary btn-details" data-id="4">Detalji</button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>5</td>
+                        <td>Nikola</td>
+                        <td>Nikolić</td>
+                        <td>nikola@example.com</td>
+                        <td>061-9999-888</td>
+                        <td>Subotica</td>
+                        <td>
+                            <button class="btn btn-primary btn-details" data-id="5">Detalji</button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            
+            <div class="pagination" id="pagination">
+                <!-- Pagination buttons will be dynamically generated -->
+            </div>
+        </div>
+    </div>
+    
+    <!-- User Details Modal -->
+    <div id="userDetailsModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle">Detalji korisnika</h2>
+                <span class="close">&times;</span>
+            </div>
+            <div class="user-details" id="userDetails">
+                <!-- User details will be dynamically generated -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Inicijalizacija korisnika iz HTML tabele
+        let users = [];
+        
+        // Funkcija za inicijalno učitavanje podataka iz HTML tabele
+        function loadInitialUsersFromHTML() {
+            const rows = document.querySelectorAll('#usersTableBody tr');
+            
+            users = Array.from(rows).map(row => {
+                const cells = row.querySelectorAll('td');
+                const id = parseInt(cells[0].textContent);
+                
+                return {
+                    id: id,
+                    ime: cells[1].textContent,
+                    prezime: cells[2].textContent,
+                    email: cells[3].textContent,
+                    telefon: cells[4].textContent,
+                    adresa: `Adresa ${id}`, // Simuliramo adresu
+                    grad: cells[5].textContent
+
+                };
+            });
+            
+            // Sačuvaj učitane korisnike u localStorage
+            saveUsersToStorage();
+        }
+        
+        // Settings
+        const itemsPerPage = 5;
+        let currentPage = 1;
+        let currentUserId = null;
+        
+        // DOM Elements
+        const usersTableBody = document.getElementById('usersTableBody');
+        const pagination = document.getElementById('pagination');
+        const userDetailsModal = document.getElementById('userDetailsModal');
+        const modalTitle = document.getElementById('modalTitle');
+        const userDetails = document.getElementById('userDetails');
+        const searchInput = document.getElementById('searchInput');
+        const searchBtn = document.getElementById('searchBtn');
+        
+        // Buttons
+        const closeModalBtn = document.querySelector('.close');
+        
+        // Load users from localStorage if available
+        function loadUsersFromStorage() {
+            const storedUsers = localStorage.getItem('users');
+            if (storedUsers) {
+                users = JSON.parse(storedUsers);
+            }
+        }
+        
+        // Save users to localStorage
+        function saveUsersToStorage() {
+            localStorage.setItem('users', JSON.stringify(users));
+        }
+        
+        // Initialize the application
+        function init() {
+            // Prvo proveravamo da li već postoje korisnici u localStorage
+            const storedUsers = localStorage.getItem('users');
+            
+            if (!storedUsers) {
+                // Ako ne postoje, učitavamo ih iz HTML-a
+                loadInitialUsersFromHTML();
+            } else {
+                // Ako postoje, učitavamo ih iz localStorage-a
+                loadUsersFromStorage();
+            }
+            
+            renderUsers();
+            setupEventListeners();
+        }
+        
+        // Render users table
+        function renderUsers(filteredUsers = null) {
+            const displayUsers = filteredUsers || users;
+            
+            // Calculate pagination
+            const totalPages = Math.ceil(displayUsers.length / itemsPerPage);
+            const startIndex = (currentPage - 1) * itemsPerPage;
+            const endIndex = startIndex + itemsPerPage;
+            const currentUsers = displayUsers.slice(startIndex, endIndex);
+            
+            // Clear table body
+            usersTableBody.innerHTML = '';
+            
+            // Render users
+            if (currentUsers.length === 0) {
+                usersTableBody.innerHTML = `
+                    <tr>
+                        <td colspan="7" style="text-align: center;">Nema korisnika za prikaz</td>
+                    </tr>
+                `;
+            } else {
+                currentUsers.forEach(user => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${user.id}</td>
+                        <td>${user.ime}</td>
+                        <td>${user.prezime}</td>
+                        <td>${user.email}</td>
+                        <td>${user.telefon}</td>
+                        <td>${user.grad}</td>
+                        <td>
+                            <button class="btn btn-primary btn-details" data-id="${user.id}">Detalji</button>
+                        </td>
+                    `;
+                    usersTableBody.appendChild(row);
+                });
+            }
+            
+            // Render pagination
+            renderPagination(totalPages);
+            
+            // Add event listeners for details buttons
+            document.querySelectorAll('.btn-details').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    showUserDetails(parseInt(this.dataset.id));
+                });
+            });
+        }
+        
+        // Render pagination controls
+        function renderPagination(totalPages) {
+            pagination.innerHTML = '';
+            
+            if (totalPages <= 1) return;
+            
+            // Previous button
+            const prevBtn = document.createElement('button');
+            prevBtn.textContent = '←';
+            prevBtn.disabled = currentPage === 1;
+            prevBtn.addEventListener('click', () => {
+                if (currentPage > 1) {
+                    currentPage--;
+                    renderUsers();
+                }
+            });
+            pagination.appendChild(prevBtn);
+            
+            // Page buttons
+            for (let i = 1; i <= totalPages; i++) {
+                const pageBtn = document.createElement('button');
+                pageBtn.textContent = i;
+                pageBtn.classList.toggle('active', i === currentPage);
+                pageBtn.addEventListener('click', () => {
+                    currentPage = i;
+                    renderUsers();
+                });
+                pagination.appendChild(pageBtn);
+            }
+            
+            // Next button
+            const nextBtn = document.createElement('button');
+            nextBtn.textContent = '→';
+            nextBtn.disabled = currentPage === totalPages;
+            nextBtn.addEventListener('click', () => {
+                if (currentPage < totalPages) {
+                    currentPage++;
+                    renderUsers();
+                }
+            });
+            pagination.appendChild(nextBtn);
+        }
+        
+        // Show user details
+        function showUserDetails(userId) {
+            const user = users.find(u => u.id === userId);
+            if (!user) return;
+            
+            modalTitle.textContent = `Detalji korisnika: ${user.ime} ${user.prezime}`;
+            
+            userDetails.innerHTML = `
+                <div class="detail-item">
+                    <div class="detail-label">ID:</div>
+                    <div class="detail-value">${user.id}</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label">Ime:</div>
+                    <div class="detail-value">${user.ime}</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label">Prezime:</div>
+                    <div class="detail-value">${user.prezime}</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label">Email:</div>
+                    <div class="detail-value">${user.email}</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label">Lozinka:</div>
+                    <div class="detail-value">••••••••</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label">Telefon:</div>
+                    <div class="detail-value">${user.telefon}</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label">Adresa:</div>
+                    <div class="detail-value">${user.adresa}</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label">Grad:</div>
+                    <div class="detail-value">${user.grad}</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label">Broj:</div>
+                    <div class="detail-value">${user.broj}</div>
+                </div>
+            `;
+            
+            userDetailsModal.style.display = 'block';
+        }
+        
+        // Set up event listeners
+        function setupEventListeners() {
+            // Close modal button
+            closeModalBtn.addEventListener('click', () => {
+                userDetailsModal.style.display = 'none';
+            });
+            
+            // Search button
+            searchBtn.addEventListener('click', searchUsers);
+            
+            // Search input enter key
+            searchInput.addEventListener('keyup', function(e) {
+                if (e.key === 'Enter') {
+                    searchUsers();
+                }
+            });
+            
+            // Close modal when clicking outside
+            window.addEventListener('click', function(e) {
+                if (e.target === userDetailsModal) {
+                    userDetailsModal.style.display = 'none';
+                }
+            });
+        }
+        
+        // Search Users
+        function searchUsers() {
+            const searchTerm = searchInput.value.toLowerCase().trim();
+            
+            if (searchTerm === '') {
+                currentPage = 1;
+                renderUsers();
+                return;
+            }
+            
+            const filtered = users.filter(user => {
+                return (
+                    user.id.toString().includes(searchTerm) ||
+                    user.ime.toLowerCase().includes(searchTerm) ||
+                    user.prezime.toLowerCase().includes(searchTerm) ||
+                    user.email.toLowerCase().includes(searchTerm) ||
+                    user.telefon.toLowerCase().includes(searchTerm) ||
+                    user.adresa.toLowerCase().includes(searchTerm) ||
+                    user.grad.toLowerCase().includes(searchTerm) ||
+                    user.broj.toString().includes(searchTerm)
+                );
+            });
+            
+            currentPage = 1; // Reset to first page
+            renderUsers(filtered);
+        }
+        
+        // Initialize the application
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>
