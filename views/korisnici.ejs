@@ -181,82 +181,6 @@
             border-color: var(--primary-color);
         }
         
-        /* User details modal */
-        .user-details {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-        
-        .detail-item {
-            display: flex;
-            border-bottom: 1px solid #eee;
-            padding-bottom: 8px;
-        }
-        
-        .detail-label {
-            width: 150px;
-            font-weight: 600;
-            color: #555;
-        }
-        
-        .detail-value {
-            flex: 1;
-        }
-        
-        /* Modal styles */
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 1000;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.5);
-            overflow: auto;
-        }
-        
-        .modal-content {
-            background-color: white;
-            margin: 5% auto;
-            padding: 20px;
-            border-radius: 5px;
-            width: 70%;
-            max-width: 800px;
-            animation: modalOpen 0.3s;
-        }
-        
-        @keyframes modalOpen {
-            from {opacity: 0; transform: translateY(-50px);}
-            to {opacity: 1; transform: translateY(0);}
-        }
-        
-        .modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-            padding-bottom: 10px;
-            border-bottom: 1px solid var(--border-color);
-        }
-        
-        .modal-header h2 {
-            margin: 0;
-        }
-        
-        .close {
-            color: #aaa;
-            float: right;
-            font-size: 28px;
-            font-weight: bold;
-            cursor: pointer;
-        }
-        
-        .close:hover {
-            color: black;
-        }
-        
         /* Responsive */
         @media (max-width: 768px) {
             .container {
@@ -272,22 +196,9 @@
                 padding: 10px;
             }
             
-            .modal-content {
-                width: 90%;
-                margin: 10% auto;
-            }
-            
             .data-table {
                 display: block;
                 overflow-x: auto;
-            }
-            
-            .detail-item {
-                flex-direction: column;
-            }
-            
-            .detail-label {
-                width: 100%;
             }
         }
     </style>
@@ -329,67 +240,18 @@
                         <th>Prezime</th>
                         <th>Email</th>
                         <th>Telefon</th>
-                        <th>Grad</th>
-                        <th>Detalji</th>
                     </tr>
                 </thead>
                 <tbody id="usersTableBody">
-                    <!-- Početni korisnici su definirani direktno u HTML-u -->
+                    <%for(let i = 0; i< users.length; i++){%>
                     <tr>
-                        <td>1</td>
-                        <td>Marko</td>
-                        <td>Marković</td>
-                        <td>marko@example.com</td>
-                        <td>064-1234-567</td>
-                        <td>Beograd</td>
-                        <td>
-                            <button class="btn btn-primary btn-details" data-id="1">Detalji</button>
-                        </td>
+                        <td><%=users[i].id%></td>
+                        <td><%=users[i].ime%></td>
+                        <td><%=users[i].prezime%></td>
+                        <td><%=users[i].email%></td>
+                        <td><%=users[i].telefon%></td>
                     </tr>
-                    <tr>
-                        <td>2</td>
-                        <td>Ana</td>
-                        <td>Anić</td>
-                        <td>ana@example.com</td>
-                        <td>065-9876-543</td>
-                        <td>Novi Sad</td>
-                        <td>
-                            <button class="btn btn-primary btn-details" data-id="2">Detalji</button>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>3</td>
-                        <td>Jovan</td>
-                        <td>Jovanović</td>
-                        <td>jovan@example.com</td>
-                        <td>063-5555-123</td>
-                        <td>Niš</td>
-                        <td>
-                            <button class="btn btn-primary btn-details" data-id="3">Detalji</button>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>4</td>
-                        <td>Milica</td>
-                        <td>Milić</td>
-                        <td>milica@example.com</td>
-                        <td>062-3333-777</td>
-                        <td>Kragujevac</td>
-                        <td>
-                            <button class="btn btn-primary btn-details" data-id="4">Detalji</button>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>5</td>
-                        <td>Nikola</td>
-                        <td>Nikolić</td>
-                        <td>nikola@example.com</td>
-                        <td>061-9999-888</td>
-                        <td>Subotica</td>
-                        <td>
-                            <button class="btn btn-primary btn-details" data-id="5">Detalji</button>
-                        </td>
-                    </tr>
+                    <%}%>
                 </tbody>
             </table>
             
@@ -399,19 +261,6 @@
         </div>
     </div>
     
-    <!-- User Details Modal -->
-    <div id="userDetailsModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2 id="modalTitle">Detalji korisnika</h2>
-                <span class="close">&times;</span>
-            </div>
-            <div class="user-details" id="userDetails">
-                <!-- User details will be dynamically generated -->
-            </div>
-        </div>
-    </div>
-
     <script>
         // Inicijalizacija korisnika iz HTML tabele
         let users = [];
@@ -431,58 +280,26 @@
                     email: cells[3].textContent,
                     telefon: cells[4].textContent,
                     adresa: `Adresa ${id}`, // Simuliramo adresu
-                    grad: cells[5].textContent
-
+                    grad: `Grad ${id}`, // Simuliramo grad
+                    broj: Math.floor(Math.random() * 1000) // Simuliramo broj
                 };
             });
-            
-            // Sačuvaj učitane korisnike u localStorage
-            saveUsersToStorage();
         }
         
         // Settings
-        const itemsPerPage = 5;
+        const itemsPerPage = 500;
         let currentPage = 1;
-        let currentUserId = null;
         
         // DOM Elements
         const usersTableBody = document.getElementById('usersTableBody');
         const pagination = document.getElementById('pagination');
-        const userDetailsModal = document.getElementById('userDetailsModal');
-        const modalTitle = document.getElementById('modalTitle');
-        const userDetails = document.getElementById('userDetails');
         const searchInput = document.getElementById('searchInput');
         const searchBtn = document.getElementById('searchBtn');
         
-        // Buttons
-        const closeModalBtn = document.querySelector('.close');
-        
-        // Load users from localStorage if available
-        function loadUsersFromStorage() {
-            const storedUsers = localStorage.getItem('users');
-            if (storedUsers) {
-                users = JSON.parse(storedUsers);
-            }
-        }
-        
-        // Save users to localStorage
-        function saveUsersToStorage() {
-            localStorage.setItem('users', JSON.stringify(users));
-        }
-        
         // Initialize the application
         function init() {
-            // Prvo proveravamo da li već postoje korisnici u localStorage
-            const storedUsers = localStorage.getItem('users');
-            
-            if (!storedUsers) {
-                // Ako ne postoje, učitavamo ih iz HTML-a
-                loadInitialUsersFromHTML();
-            } else {
-                // Ako postoje, učitavamo ih iz localStorage-a
-                loadUsersFromStorage();
-            }
-            
+            // Učitavamo korisnike direktno iz HTML-a
+            loadInitialUsersFromHTML();
             renderUsers();
             setupEventListeners();
         }
@@ -504,7 +321,7 @@
             if (currentUsers.length === 0) {
                 usersTableBody.innerHTML = `
                     <tr>
-                        <td colspan="7" style="text-align: center;">Nema korisnika za prikaz</td>
+                        <td colspan="5" style="text-align: center;">Nema korisnika za prikaz</td>
                     </tr>
                 `;
             } else {
@@ -516,10 +333,6 @@
                         <td>${user.prezime}</td>
                         <td>${user.email}</td>
                         <td>${user.telefon}</td>
-                        <td>${user.grad}</td>
-                        <td>
-                            <button class="btn btn-primary btn-details" data-id="${user.id}">Detalji</button>
-                        </td>
                     `;
                     usersTableBody.appendChild(row);
                 });
@@ -527,13 +340,6 @@
             
             // Render pagination
             renderPagination(totalPages);
-            
-            // Add event listeners for details buttons
-            document.querySelectorAll('.btn-details').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    showUserDetails(parseInt(this.dataset.id));
-                });
-            });
         }
         
         // Render pagination controls
@@ -579,62 +385,8 @@
             pagination.appendChild(nextBtn);
         }
         
-        // Show user details
-        function showUserDetails(userId) {
-            const user = users.find(u => u.id === userId);
-            if (!user) return;
-            
-            modalTitle.textContent = `Detalji korisnika: ${user.ime} ${user.prezime}`;
-            
-            userDetails.innerHTML = `
-                <div class="detail-item">
-                    <div class="detail-label">ID:</div>
-                    <div class="detail-value">${user.id}</div>
-                </div>
-                <div class="detail-item">
-                    <div class="detail-label">Ime:</div>
-                    <div class="detail-value">${user.ime}</div>
-                </div>
-                <div class="detail-item">
-                    <div class="detail-label">Prezime:</div>
-                    <div class="detail-value">${user.prezime}</div>
-                </div>
-                <div class="detail-item">
-                    <div class="detail-label">Email:</div>
-                    <div class="detail-value">${user.email}</div>
-                </div>
-                <div class="detail-item">
-                    <div class="detail-label">Lozinka:</div>
-                    <div class="detail-value">••••••••</div>
-                </div>
-                <div class="detail-item">
-                    <div class="detail-label">Telefon:</div>
-                    <div class="detail-value">${user.telefon}</div>
-                </div>
-                <div class="detail-item">
-                    <div class="detail-label">Adresa:</div>
-                    <div class="detail-value">${user.adresa}</div>
-                </div>
-                <div class="detail-item">
-                    <div class="detail-label">Grad:</div>
-                    <div class="detail-value">${user.grad}</div>
-                </div>
-                <div class="detail-item">
-                    <div class="detail-label">Broj:</div>
-                    <div class="detail-value">${user.broj}</div>
-                </div>
-            `;
-            
-            userDetailsModal.style.display = 'block';
-        }
-        
         // Set up event listeners
         function setupEventListeners() {
-            // Close modal button
-            closeModalBtn.addEventListener('click', () => {
-                userDetailsModal.style.display = 'none';
-            });
-            
             // Search button
             searchBtn.addEventListener('click', searchUsers);
             
@@ -642,13 +394,6 @@
             searchInput.addEventListener('keyup', function(e) {
                 if (e.key === 'Enter') {
                     searchUsers();
-                }
-            });
-            
-            // Close modal when clicking outside
-            window.addEventListener('click', function(e) {
-                if (e.target === userDetailsModal) {
-                    userDetailsModal.style.display = 'none';
                 }
             });
         }
@@ -670,9 +415,9 @@
                     user.prezime.toLowerCase().includes(searchTerm) ||
                     user.email.toLowerCase().includes(searchTerm) ||
                     user.telefon.toLowerCase().includes(searchTerm) ||
-                    user.adresa.toLowerCase().includes(searchTerm) ||
-                    user.grad.toLowerCase().includes(searchTerm) ||
-                    user.broj.toString().includes(searchTerm)
+                    (user.adresa && user.adresa.toLowerCase().includes(searchTerm)) ||
+                    (user.grad && user.grad.toLowerCase().includes(searchTerm)) ||
+                    (user.broj && user.broj.toString().includes(searchTerm))
                 );
             });
             

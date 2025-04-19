@@ -153,6 +153,11 @@
             color: white;
         }
         
+        .btn-danger {
+            background-color: var(--danger-color);
+            color: white;
+        }
+        
         .btn:hover {
             opacity: 0.9;
         }
@@ -170,28 +175,6 @@
             border: 1px solid var(--border-color);
             border-radius: 4px;
             font-size: 14px;
-        }
-        
-        /* Pagination */
-        .pagination {
-            display: flex;
-            justify-content: center;
-            gap: 5px;
-            margin-top: 20px;
-        }
-        
-        .pagination button {
-            padding: 5px 10px;
-            border: 1px solid var(--border-color);
-            background: white;
-            cursor: pointer;
-            border-radius: 3px;
-        }
-        
-        .pagination button.active {
-            background-color: var(--primary-color);
-            color: white;
-            border-color: var(--primary-color);
         }
         
         /* Modal styles */
@@ -306,7 +289,7 @@
             <div class="sidebar-menu">
                 <ul>
                     <li><a href="/">Proizvodi</a></li>
-                    <li><a href="/porudzbine">Porudžbine</a></li>
+                    <li><a href="/porudzbine">Porudzbine</a></li>
                     <li><a href="/korisnici">Korisnici</a></li>
                     <li><a href="/subkategorije" class="active">Subkategorije</a></li>
                     <li><a href="/poruke">Poruke</a></li>
@@ -339,60 +322,16 @@
                 </thead>
                 <tbody id="subcategoriesTableBody">
                     <!-- Početne subkategorije su definirane direktno u HTML-u -->
-                    <tr>
-                        <td>1</td>
-                        <td>Laptopi</td>
-                        <td>Računari</td>
-                        <td><img src="/api/placeholder/60/60" alt="Laptopi" class="thumbnail"></td>
-                    </tr>
-                    <tr>
-                        <td>2</td>
-                        <td>Desktop računari</td>
-                        <td>Računari</td>
-                        <td><img src="/api/placeholder/60/60" alt="Desktop računari" class="thumbnail"></td>
-                    </tr>
-                    <tr>
-                        <td>3</td>
-                        <td>Monitori</td>
-                        <td>Periferije</td>
-                        <td><img src="/api/placeholder/60/60" alt="Monitori" class="thumbnail"></td>
-                    </tr>
-                    <tr>
-                        <td>4</td>
-                        <td>Tastature</td>
-                        <td>Periferije</td>
-                        <td><img src="/api/placeholder/60/60" alt="Tastature" class="thumbnail"></td>
-                    </tr>
-                    <tr>
-                        <td>5</td>
-                        <td>Miševi</td>
-                        <td>Periferije</td>
-                        <td><img src="/api/placeholder/60/60" alt="Miševi" class="thumbnail"></td>
-                    </tr>
-                    <tr>
-                        <td>6</td>
-                        <td>Grafičke kartice</td>
-                        <td>Komponente</td>
-                        <td><img src="/api/placeholder/60/60" alt="Grafičke kartice" class="thumbnail"></td>
-                    </tr>
-                    <tr>
-                        <td>7</td>
-                        <td>Procesori</td>
-                        <td>Komponente</td>
-                        <td><img src="/api/placeholder/60/60" alt="Procesori" class="thumbnail"></td>
-                    </tr>
-                    <tr>
-                        <td>8</td>
-                        <td>Memorije</td>
-                        <td>Komponente</td>
-                        <td><img src="/api/placeholder/60/60" alt="Memorije" class="thumbnail"></td>
-                    </tr>
+                    <% for(let i = 0; i < subkategorije.length; i++){ %>
+                        <tr>
+                            <td><%=subkategorije[i].id%></td>
+                            <td><%=subkategorije[i].naziv%></td>
+                            <td><%=subkategorije[i].category%></td>
+                            <td><img src="<%=subkategorije[i].slika%>" alt="<%=subkategorije[i].naziv%>" class="thumbnail"></td>
+                        </tr>
+                    <% } %>
                 </tbody>
             </table>
-            
-            <div class="pagination" id="pagination">
-                <!-- Pagination buttons will be dynamically generated -->
-            </div>
         </div>
     </div>
     
@@ -403,15 +342,15 @@
                 <h2>Dodaj novu subkategoriju</h2>
                 <span class="close">&times;</span>
             </div>
-            <form id="subcategoryForm">
+            <form id="subcategoryForm" action="/add-subcategory" method="POST">
                 <div class="form-group">
                     <label for="naziv">Naziv</label>
-                    <input type="text" id="naziv" class="form-control" required>
+                    <input type="text" id="naziv" name="naziv" class="form-control" required>
                 </div>
                 
                 <div class="form-group">
                     <label for="category">Kategorija</label>
-                    <select id="category" class="form-control" required>
+                    <select id="category" name="category" class="form-control" required>
                         <option value="">Izaberite kategoriju</option>
                         <option value="Računari">Računari</option>
                         <option value="Periferije">Periferije</option>
@@ -423,7 +362,7 @@
                 
                 <div class="form-group">
                     <label for="slika">URL Slike</label>
-                    <input type="text" id="slika" class="form-control" placeholder="Unesite URL slike ili ostavite prazno za podrazumevanu sliku">
+                    <input type="text" id="slika" name="slika" class="form-control" placeholder="Unesite URL slike ili ostavite prazno za podrazumevanu sliku">
                 </div>
                 
                 <div class="form-buttons">
@@ -435,37 +374,8 @@
     </div>
 
     <script>
-        // Inicijalizacija subkategorija iz HTML tabele
-        let subcategories = [];
-        
-        // Funkcija za inicijalno učitavanje podataka iz HTML tabele
-        function loadInitialSubcategoriesFromHTML() {
-            const rows = document.querySelectorAll('#subcategoriesTableBody tr');
-            
-            subcategories = Array.from(rows).map(row => {
-                const cells = row.querySelectorAll('td');
-                const id = parseInt(cells[0].textContent);
-                const imgSrc = cells[3].querySelector('img')?.src || '/api/placeholder/60/60';
-                
-                return {
-                    id: id,
-                    naziv: cells[1].textContent,
-                    category: cells[2].textContent,
-                    slika: imgSrc
-                };
-            });
-            
-            // Sačuvaj učitane subkategorije u localStorage
-            saveSubcategoriesToStorage();
-        }
-        
-        // Settings
-        const itemsPerPage = 8;
-        let currentPage = 1;
-        
         // DOM Elements
         const subcategoriesTableBody = document.getElementById('subcategoriesTableBody');
-        const pagination = document.getElementById('pagination');
         const subcategoryModal = document.getElementById('subcategoryModal');
         const subcategoryForm = document.getElementById('subcategoryForm');
         const searchInput = document.getElementById('searchInput');
@@ -476,114 +386,9 @@
         const cancelBtn = document.getElementById('cancelBtn');
         const closeModalBtn = document.querySelector('.close');
         
-        // Load subcategories from localStorage if available
-        function loadSubcategoriesFromStorage() {
-            const storedSubcategories = localStorage.getItem('subcategories');
-            if (storedSubcategories) {
-                subcategories = JSON.parse(storedSubcategories);
-            }
-        }
-        
-        // Save subcategories to localStorage
-        function saveSubcategoriesToStorage() {
-            localStorage.setItem('subcategories', JSON.stringify(subcategories));
-        }
-        
         // Initialize the application
         function init() {
-            // Prvo proveravamo da li već postoje subkategorije u localStorage
-            const storedSubcategories = localStorage.getItem('subcategories');
-            
-            if (!storedSubcategories) {
-                // Ako ne postoje, učitavamo ih iz HTML-a
-                loadInitialSubcategoriesFromHTML();
-            } else {
-                // Ako postoje, učitavamo ih iz localStorage-a
-                loadSubcategoriesFromStorage();
-            }
-            
-            renderSubcategories();
             setupEventListeners();
-        }
-        
-        // Render subcategories table
-        function renderSubcategories(filteredSubcategories = null) {
-            const displaySubcategories = filteredSubcategories || subcategories;
-            
-            // Calculate pagination
-            const totalPages = Math.ceil(displaySubcategories.length / itemsPerPage);
-            const startIndex = (currentPage - 1) * itemsPerPage;
-            const endIndex = startIndex + itemsPerPage;
-            const currentSubcategories = displaySubcategories.slice(startIndex, endIndex);
-            
-            // Clear table body
-            subcategoriesTableBody.innerHTML = '';
-            
-            // Render subcategories
-            if (currentSubcategories.length === 0) {
-                subcategoriesTableBody.innerHTML = `
-                    <tr>
-                        <td colspan="4" style="text-align: center;">Nema subkategorija za prikaz</td>
-                    </tr>
-                `;
-            } else {
-                currentSubcategories.forEach(subcategory => {
-                    const row = document.createElement('tr');
-                    row.innerHTML = `
-                        <td>${subcategory.id}</td>
-                        <td>${subcategory.naziv}</td>
-                        <td>${subcategory.category}</td>
-                        <td><img src="${subcategory.slika}" alt="${subcategory.naziv}" class="thumbnail"></td>
-                    `;
-                    subcategoriesTableBody.appendChild(row);
-                });
-            }
-            
-            // Render pagination
-            renderPagination(totalPages);
-        }
-        
-        // Render pagination controls
-        function renderPagination(totalPages) {
-            pagination.innerHTML = '';
-            
-            if (totalPages <= 1) return;
-            
-            // Previous button
-            const prevBtn = document.createElement('button');
-            prevBtn.textContent = '←';
-            prevBtn.disabled = currentPage === 1;
-            prevBtn.addEventListener('click', () => {
-                if (currentPage > 1) {
-                    currentPage--;
-                    renderSubcategories();
-                }
-            });
-            pagination.appendChild(prevBtn);
-            
-            // Page buttons
-            for (let i = 1; i <= totalPages; i++) {
-                const pageBtn = document.createElement('button');
-                pageBtn.textContent = i;
-                pageBtn.classList.toggle('active', i === currentPage);
-                pageBtn.addEventListener('click', () => {
-                    currentPage = i;
-                    renderSubcategories();
-                });
-                pagination.appendChild(pageBtn);
-            }
-            
-            // Next button
-            const nextBtn = document.createElement('button');
-            nextBtn.textContent = '→';
-            nextBtn.disabled = currentPage === totalPages;
-            nextBtn.addEventListener('click', () => {
-                if (currentPage < totalPages) {
-                    currentPage++;
-                    renderSubcategories();
-                }
-            });
-            pagination.appendChild(nextBtn);
         }
         
         // Set up event listeners
@@ -600,9 +405,6 @@
             cancelBtn.addEventListener('click', () => {
                 subcategoryModal.style.display = 'none';
             });
-            
-            // Form submit
-            subcategoryForm.addEventListener('submit', addSubcategory);
             
             // Search button
             searchBtn.addEventListener('click', searchSubcategories);
@@ -628,68 +430,34 @@
             subcategoryModal.style.display = 'block';
         }
         
-        // Add new subcategory
-        function addSubcategory(e) {
-            e.preventDefault();
-            
-            const naziv = document.getElementById('naziv').value;
-            const category = document.getElementById('category').value;
-            let slika = document.getElementById('slika').value;
-            
-            // Set default image if not provided
-            if (!slika) {
-                slika = '/api/placeholder/60/60';
-            }
-            
-            // Generate new ID
-            const newId = subcategories.length > 0 ? Math.max(...subcategories.map(s => s.id)) + 1 : 1;
-            
-            // Create new subcategory object
-            const newSubcategory = {
-                id: newId,
-                naziv: naziv,
-                category: category,
-                slika: slika
-            };
-            
-            // Add to array
-            subcategories.push(newSubcategory);
-            
-            // Save to localStorage
-            saveSubcategoriesToStorage();
-            
-            // Close modal and refresh table
-            subcategoryModal.style.display = 'none';
-            
-            // Check if we need to add a new page
-            const totalPages = Math.ceil(subcategories.length / itemsPerPage);
-            if (currentPage < totalPages) {
-                currentPage = totalPages;
-            }
-            
-            renderSubcategories();
-        }
-        
         // Search Subcategories
         function searchSubcategories() {
             const searchTerm = searchInput.value.toLowerCase().trim();
             
             if (searchTerm === '') {
-                currentPage = 1;
-                renderSubcategories();
+                // Ako je pretraga prazna, prikaži sve redove
+                document.querySelectorAll('#subcategoriesTableBody tr').forEach(row => {
+                    row.style.display = '';
+                });
                 return;
             }
             
-            const filtered = subcategories.filter(subcategory => {
-                return (
-                    subcategory.id.toString().includes(searchTerm) ||
-                    subcategory.naziv.toLowerCase().includes(searchTerm) ||
-                    subcategory.category.toLowerCase().includes(searchTerm)
-                );
+            // Pretraži kroz postojeće redove u HTML-u
+            document.querySelectorAll('#subcategoriesTableBody tr').forEach(row => {
+                const id = row.cells[0].textContent;
+                const naziv = row.cells[1].textContent.toLowerCase();
+                const category = row.cells[2].textContent.toLowerCase();
+                
+                if (
+                    id.includes(searchTerm) ||
+                    naziv.includes(searchTerm) ||
+                    category.includes(searchTerm)
+                ) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
             });
-            
-            currentPage = 1; // Reset to first page
-            renderSubcategories(filtered);
         }
         
         // Initialize the application
