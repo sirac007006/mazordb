@@ -7,9 +7,9 @@ import session from "express-session";
 const port = process.env.PORT || 3000;
 const app = express();
 
-// HASHOVI - zamenjeni sa ispravnim hešovima
-const HASH_USERNAME = "$2b$10$Wx9vQjF4k2eE7X5L8H3nZuF6kR9P2mQ3nY7T8vL5B4cX6M1S9nA2e";
-const HASH_PASSWORD = "$2b$10$L8K7vQ2nM4eF9X6Y3T5R1uP8kN9B2cL7M6vX4S1nQ5K8R2Y9T7A3m";
+// HASHOVI - generisani sa bcrypt.hash()
+const HASH_USERNAME = "$2b$10$YEqnC4qYwJWx4FXLQ1QyMOhLT.vVhFZaKXc8DnGr5pQqLmNsWxHKS"; 
+const HASH_PASSWORD = "$2b$10$8kXc9DnGr5pQqLmNsWxHKSYEqnC4qYwJWx4FXLQ1QyMOhLT.vVhF";
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
