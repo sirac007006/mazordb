@@ -425,78 +425,51 @@
                         <th>ID Korisnika</th>
                         <th>Datum</th>
                         <th>Iznos</th>
+                        <th>Adresa</th>
                         <th>Sadržaj</th>
                         <th>Status</th>
                         <th>Akcije</th>
                     </tr>
                 </thead>
                 <tbody id="ordersTableBody">
-                    <!-- Početne porudžbine su definirane direktno u HTML-u -->
-                    <tr>
-                        <td>1</td>
-                        <td>101</td>
-                        <td>15.04.2025</td>
-                        <td>12.500 RSD</td>
-                        <td>Laptop Asus X509, Logitech M185</td>
-                        <td><span class="status-badge status-completed">Završeno</span></td>
-                        <td class="action-buttons">
-                            <button class="btn btn-warning btn-edit" data-id="1">Izmeni status</button>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>2</td>
-                        <td>105</td>
-                        <td>14.04.2025</td>
-                        <td>8.300 RSD</td>
-                        <td>Monitor Samsung 24"</td>
-                        <td><span class="status-badge status-processing">U obradi</span></td>
-                        <td class="action-buttons">
-                            <button class="btn btn-warning btn-edit" data-id="2">Izmeni status</button>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>3</td>
-                        <td>112</td>
-                        <td>13.04.2025</td>
-                        <td>24.750 RSD</td>
-                        <td>Grafička kartica Nvidia GTX 1660, RAM 16GB DDR4</td>
-                        <td><span class="status-badge status-pending">Na čekanju</span></td>
-                        <td class="action-buttons">
-                            <button class="btn btn-warning btn-edit" data-id="3">Izmeni status</button>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>4</td>
-                        <td>103</td>
-                        <td>12.04.2025</td>
-                        <td>45.200 RSD</td>
-                        <td>CPU Intel i5-12400F, Matična ploča Asus B660M</td>
-                        <td><span class="status-badge status-completed">Završeno</span></td>
-                        <td class="action-buttons">
-                            <button class="btn btn-warning btn-edit" data-id="4">Izmeni status</button>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>5</td>
-                        <td>108</td>
-                        <td>10.04.2025</td>
-                        <td>6.800 RSD</td>
-                        <td>Tastatura Logitech K120, Miš Logitech M185</td>
-                        <td><span class="status-badge status-cancelled">Otkazano</span></td>
-                        <td class="action-buttons">
-                            <button class="btn btn-warning btn-edit" data-id="5">Izmeni status</button>
-                        </td>
-                    </tr>
+                    <% if (porudzbine && porudzbine.length > 0) { %>
+                        <% porudzbine.forEach(order => { %>
+                            <tr>
+                                <td><%= order.id %></td>
+                                <td><%= order.iduser %></td>
+                                <td><%= new Date(order.datum).toLocaleDateString('sr-RS') %></td>
+                                <td><%= order.iznos %> RSD</td>
+                                <td><%= order.adresa || '-' %></td>
+                                <td><%= order.sadrzaj || '-' %></td>
+                                <td>
+                                    <% let statusClass = ''; let statusText = ''; %>
+                                    <% if (order.status === 'pending') { %>
+                                        <% statusClass = 'status-pending'; statusText = 'Na čekanju'; %>
+                                    <% } else if (order.status === 'processing') { %>
+                                        <% statusClass = 'status-processing'; statusText = 'U obradi'; %>
+                                    <% } else if (order.status === 'completed') { %>
+                                        <% statusClass = 'status-completed'; statusText = 'Završeno'; %>
+                                    <% } else if (order.status === 'cancelled') { %>
+                                        <% statusClass = 'status-cancelled'; statusText = 'Otkazano'; %>
+                                    <% } %>
+                                    <span class="status-badge <%= statusClass %>"><%= statusText %></span>
+                                </td>
+                                <td class="action-buttons">
+                                    <button class="btn btn-warning btn-edit" data-id="<%= order.id %>">Izmeni status</button>
+                                </td>
+                            </tr>
+                        <% }); %>
+                    <% } else { %>
+                        <tr>
+                            <td colspan="8" style="text-align: center;">Nema porudžbina za prikaz</td>
+                        </tr>
+                    <% } %>
                 </tbody>
             </table>
-            
-            <div class="pagination" id="pagination">
-                <!-- Pagination buttons will be dynamically generated -->
-            </div>
         </div>
     </div>
     
-    <!-- Add/Edit Order Modal -->
+    <!-- Edit Order Modal -->
     <div id="orderModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
@@ -536,237 +509,38 @@
             </form>
         </div>
     </div>
-    
-    <!-- Delete Confirmation Modal -->
-    <div id="deleteModal" class="modal">
-        <div class="modal-content" style="max-width: 400px;">
-            <div class="modal-header">
-                <h2>Potvrda brisanja</h2>
-                <span class="close">&times;</span>
-            </div>
-            <p>Da li ste sigurni da želite da obrišete ovu porudžbinu?</p>
-            <div class="form-buttons">
-                <button type="button" class="btn btn-primary" id="cancelDeleteBtn">Odustani</button>
-                <button type="button" class="btn btn-danger" id="confirmDeleteBtn">Obriši</button>
-            </div>
-        </div>
-    </div>
 
     <script>
-        // Inicijalizacija porudžbina iz HTML tabele
-        let orders = [];
-        
-        // Funkcija za inicijalno učitavanje podataka iz HTML tabele
-        function loadInitialOrdersFromHTML() {
-            const rows = document.querySelectorAll('#ordersTableBody tr');
-            
-            orders = Array.from(rows).map(row => {
-                const cells = row.querySelectorAll('td');
-                const id = parseInt(cells[0].textContent);
-                const statusElement = cells[5].querySelector('.status-badge');
-                let status = '';
-                
-                if (statusElement.classList.contains('status-pending')) status = 'pending';
-                else if (statusElement.classList.contains('status-processing')) status = 'processing';
-                else if (statusElement.classList.contains('status-completed')) status = 'completed';
-                else if (statusElement.classList.contains('status-cancelled')) status = 'cancelled';
-                
-                return {
-                    id: id,
-                    iduser: parseInt(cells[1].textContent),
-                    datum: cells[2].textContent,
-                    iznos: parseFloat(cells[3].textContent.replace(/[^\d.,]/g, '').replace('.', '')),
-                    sadrzaj: cells[4].textContent,
-                    status: status
-                };
-            });
-            
-            // Sačuvaj učitane porudžbine u localStorage
-            saveOrdersToStorage();
-        }
-        
-        // Settings
-        const itemsPerPage = 5;
-        let currentPage = 1;
-        let currentOrderId = null;
-        let currentFilter = 'all';
+        document.addEventListener('DOMContentLoaded', init);
         
         // DOM Elements
-        const ordersTableBody = document.getElementById('ordersTableBody');
-        const pagination = document.getElementById('pagination');
         const orderModal = document.getElementById('orderModal');
-        const deleteModal = document.getElementById('deleteModal');
         const modalTitle = document.getElementById('modalTitle');
         const orderForm = document.getElementById('orderForm');
         const searchInput = document.getElementById('searchInput');
         const searchBtn = document.getElementById('searchBtn');
         const filterBtn = document.getElementById('filterBtn');
         const statusFilter = document.getElementById('statusFilter');
-        
-        // Buttons
-        const addOrderBtn = document.getElementById('addOrderBtn');
-        const cancelBtn = document.getElementById('cancelBtn');
         const closeModalBtns = document.querySelectorAll('.close');
-        const cancelDeleteBtn = document.getElementById('cancelDeleteBtn');
-        const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
+        const cancelBtn = document.getElementById('cancelBtn');
         
-        // Load orders from localStorage if available
-        function loadOrdersFromStorage() {
-            const storedOrders = localStorage.getItem('orders');
-            if (storedOrders) {
-                orders = JSON.parse(storedOrders);
-            }
-        }
-        
-        // Save orders to localStorage
-        function saveOrdersToStorage() {
-            localStorage.setItem('orders', JSON.stringify(orders));
-        }
+        // Current order ID
+        let currentOrderId = null;
         
         // Initialize the application
         function init() {
-            // Prvo proveravamo da li već postoje porudžbine u localStorage
-            const storedOrders = localStorage.getItem('orders');
-            
-            if (!storedOrders) {
-                // Ako ne postoje, učitavamo ih iz HTML-a
-                loadInitialOrdersFromHTML();
-            } else {
-                // Ako postoje, učitavamo ih iz localStorage-a
-                loadOrdersFromStorage();
-            }
-            
-            renderOrders();
             setupEventListeners();
         }
         
-        // Render orders table
-        function renderOrders(filteredOrders = null) {
-            let displayOrders = filteredOrders || orders;
-            
-            // Apply status filter if not "all"
-            if (currentFilter !== 'all' && !filteredOrders) {
-                displayOrders = orders.filter(order => order.status === currentFilter);
-            }
-            
-            // Calculate pagination
-            const totalPages = Math.ceil(displayOrders.length / itemsPerPage);
-            const startIndex = (currentPage - 1) * itemsPerPage;
-            const endIndex = startIndex + itemsPerPage;
-            const currentOrders = displayOrders.slice(startIndex, endIndex);
-            
-            // Clear table body
-            ordersTableBody.innerHTML = '';
-            
-            // Render orders
-            if (currentOrders.length === 0) {
-                ordersTableBody.innerHTML = `
-                    <tr>
-                        <td colspan="7" style="text-align: center;">Nema porudžbina za prikaz</td>
-                    </tr>
-                `;
-            } else {
-                currentOrders.forEach(order => {
-                    // Format status display
-                    let statusClass = '';
-                    let statusText = '';
-                    
-                    switch(order.status) {
-                        case 'pending':
-                            statusClass = 'status-pending';
-                            statusText = 'Na čekanju';
-                            break;
-                        case 'processing':
-                            statusClass = 'status-processing';
-                            statusText = 'U obradi';
-                            break;
-                        case 'completed':
-                            statusClass = 'status-completed';
-                            statusText = 'Završeno';
-                            break;
-                        case 'cancelled':
-                            statusClass = 'status-cancelled';
-                            statusText = 'Otkazano';
-                            break;
-                    }
-                    
-                    const row = document.createElement('tr');
-                    row.innerHTML = `
-                        <td>${order.id}</td>
-                        <td>${order.iduser}</td>
-                        <td>${order.datum}</td>
-                        <td>${formatPrice(order.iznos)}</td>
-                        <td>${order.sadrzaj || '-'}</td>
-                        <td><span class="status-badge ${statusClass}">${statusText}</span></td>
-                        <td class="action-buttons">
-                            <button class="btn btn-warning btn-edit" data-id="${order.id}">Izmeni status</button>
-                        </td>
-                    `;
-                    ordersTableBody.appendChild(row);
-                });
-            }
-            
-            // Render pagination
-            renderPagination(totalPages);
-            
-            // Add event listeners for edit buttons
+        // Set up event listeners
+        function setupEventListeners() {
+            // Edit buttons
             document.querySelectorAll('.btn-edit').forEach(btn => {
                 btn.addEventListener('click', function() {
                     openEditModal(parseInt(this.dataset.id));
                 });
             });
-        }
-        
-        // Format price with thousand separator
-        function formatPrice(price) {
-            return price.toLocaleString('sr-RS') + ' RSD';
-        }
-        
-        // Render pagination controls
-        function renderPagination(totalPages) {
-            pagination.innerHTML = '';
             
-            if (totalPages <= 1) return;
-            
-            // Previous button
-            const prevBtn = document.createElement('button');
-            prevBtn.textContent = '←';
-            prevBtn.disabled = currentPage === 1;
-            prevBtn.addEventListener('click', () => {
-                if (currentPage > 1) {
-                    currentPage--;
-                    renderOrders();
-                }
-            });
-            pagination.appendChild(prevBtn);
-            
-            // Page buttons
-            for (let i = 1; i <= totalPages; i++) {
-                const pageBtn = document.createElement('button');
-                pageBtn.textContent = i;
-                pageBtn.classList.toggle('active', i === currentPage);
-                pageBtn.addEventListener('click', () => {
-                    currentPage = i;
-                    renderOrders();
-                });
-                pagination.appendChild(pageBtn);
-            }
-            
-            // Next button
-            const nextBtn = document.createElement('button');
-            nextBtn.textContent = '→';
-            nextBtn.disabled = currentPage === totalPages;
-            nextBtn.addEventListener('click', () => {
-                if (currentPage < totalPages) {
-                    currentPage++;
-                    renderOrders();
-                }
-            });
-            pagination.appendChild(nextBtn);
-        }
-        
-        // Set up event listeners
-        function setupEventListeners() {
             // Close modal buttons
             closeModalBtns.forEach(btn => {
                 btn.addEventListener('click', () => {
@@ -801,11 +575,10 @@
             document.querySelectorAll('#statusFilter a').forEach(link => {
                 link.addEventListener('click', function(e) {
                     e.preventDefault();
-                    currentFilter = this.dataset.status;
-                    currentPage = 1;
+                    const status = this.dataset.status;
                     statusFilter.classList.remove('show');
                     filterBtn.textContent = `Filter po statusu: ${this.textContent} ▼`;
-                    renderOrders();
+                    window.location.href = `/porudzbine?status=${status}`;
                 });
             });
             
@@ -824,173 +597,89 @@
                     orderModal.style.display = 'none';
                 }
             });
-        }
-
-            
-            // Cancel button in order modal
-            cancelBtn.addEventListener('click', () => {
-                orderModal.style.display = 'none';
-            });
-            
-            // Cancel button in delete modal
-            cancelDeleteBtn.addEventListener('click', () => {
-                deleteModal.style.display = 'none';
-            });
-            
-            // Confirm delete button
-            confirmDeleteBtn.addEventListener('click', deleteOrder);
-            
-            // Form submit
-            orderForm.addEventListener('submit', saveOrder);
-            
-            // Search button
-            searchBtn.addEventListener('click', searchOrders);
-            
-            // Search input enter key
-            searchInput.addEventListener('keyup', function(e) {
-                if (e.key === 'Enter') {
-                    searchOrders();
-                }
-            });
-            
-            // Filter dropdown
-            filterBtn.addEventListener('click', function() {
-                statusFilter.classList.toggle('show');
-            });
-            
-            // Status filter options
-            document.querySelectorAll('#statusFilter a').forEach(link => {
-                link.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    currentFilter = this.dataset.status;
-                    currentPage = 1;
-                    statusFilter.classList.remove('show');
-                    filterBtn.textContent = `Filter po statusu: ${this.textContent} ▼`;
-                    renderOrders();
-                });
-            });
-            
-            // Close dropdown when clicking outside
-            window.addEventListener('click', function(e) {
-                if (!e.target.matches('#filterBtn')) {
-                    if (statusFilter.classList.contains('show')) {
-                        statusFilter.classList.remove('show');
-                    }
-                }
-            });
-            
-            // Close modals when clicking outside
-            window.addEventListener('click', function(e) {
-                if (e.target === orderModal) {
-                    orderModal.style.display = 'none';
-                }
-                if (e.target === deleteModal) {
-                    deleteModal.style.display = 'none';
-                }
-            });
-
-        
-        // Open Add Order Modal
-        function openAddModal() {
-            modalTitle.textContent = 'Dodaj novu porudžbinu';
-            orderForm.reset();
-            
-            // Set today's date as default
-            const today = new Date();
-            const yyyy = today.getFullYear();
-            let mm = today.getMonth() + 1; // Month is zero-indexed
-            let dd = today.getDate();
-            
-            if (dd < 10) dd = '0' + dd;
-            if (mm < 10) mm = '0' + mm;
-            
-            document.getElementById('datum').value = `${yyyy}-${mm}-${dd}`;
-            document.getElementById('orderId').value = '';
-            currentOrderId = null;
-            orderModal.style.display = 'block';
         }
         
         // Open Edit Order Modal
-        function openEditModal(orderId) {
-            const order = orders.find(o => o.id === orderId);
-            if (!order) return;
-            
-            modalTitle.textContent = 'Izmeni status porudžbine';
-            document.getElementById('orderId').value = order.id;
-            
-            // Prikaz informacija o porudžbini
-            const orderInfo = document.getElementById('orderInfo');
-            orderInfo.innerHTML = `
-                <strong>ID Porudžbine:</strong> ${order.id}<br>
-                <strong>ID Korisnika:</strong> ${order.iduser}<br>
-                <strong>Datum:</strong> ${order.datum}<br>
-                <strong>Iznos:</strong> ${formatPrice(order.iznos)}<br>
-                <strong>Sadržaj:</strong> ${order.sadrzaj}
-            `;
-            
-            document.getElementById('status').value = order.status;
-            
-            currentOrderId = orderId;
-            orderModal.style.display = 'block';
-        }
-        
-        // Save Order (Edit only)
-        function saveOrder(e) {
-            e.preventDefault();
-            
-            if (currentOrderId) {
-                // Get only the status
-                const newStatus = document.getElementById('status').value;
+        async function openEditModal(orderId) {
+            try {
+                const response = await fetch(`/api/orders/${orderId}`);
+                const order = await response.json();
                 
-                // Edit existing order status only
-                const index = orders.findIndex(o => o.id === currentOrderId);
-                if (index !== -1) {
-                    orders[index].status = newStatus;
+                if (response.ok) {
+                    modalTitle.textContent = 'Izmeni status porudžbine';
+                    document.getElementById('orderId').value = order.id;
+                    
+                    // Format date for display
+                    const date = new Date(order.datum);
+                    const formattedDate = date.toLocaleDateString('sr-RS');
+                    
+                    // Display order information
+                    const orderInfo = document.getElementById('orderInfo');
+                    orderInfo.innerHTML = `
+                        <strong>ID Porudžbine:</strong> ${order.id}<br>
+                        <strong>ID Korisnika:</strong> ${order.iduser}<br>
+                        <strong>Datum:</strong> ${formattedDate}<br>
+                        <strong>Iznos:</strong> ${order.iznos} RSD<br>
+                        <strong>Adresa:</strong> ${order.adresa || '-'}<br>
+                        <strong>Sadržaj:</strong> ${order.sadrzaj || '-'}
+                    `;
+                    
+                    document.getElementById('status').value = order.status;
+                    
+                    currentOrderId = orderId;
+                    orderModal.style.display = 'block';
+                } else {
+                    console.error('Failed to fetch order details:', order.error);
+                    alert('Greška pri učitavanju detalja porudžbine.');
                 }
-                
-                // Save to localStorage and update view
-                saveOrdersToStorage();
-                orderModal.style.display = 'none';
-                renderOrders();
+            } catch (error) {
+                console.error('Error fetching order details:', error);
+                alert('Greška pri učitavanju detalja porudžbine.');
             }
         }
         
-        // Delete Order
-        function deleteOrder() {
+        // Save Order (Edit status only)
+        async function saveOrder(e) {
+            e.preventDefault();
+            
             if (currentOrderId) {
-                orders = orders.filter(o => o.id !== currentOrderId);
-                saveOrdersToStorage();
-                currentPage = 1; // Reset to first page
-                deleteModal.style.display = 'none';
-                renderOrders();
+                const newStatus = document.getElementById('status').value;
+                
+                try {
+                    const response = await fetch(`/api/orders/${currentOrderId}/status`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ status: newStatus })
+                    });
+                    
+                    const data = await response.json();
+                    
+                    if (response.ok) {
+                        orderModal.style.display = 'none';
+                        // Reload the page to see the updated data
+                        window.location.reload();
+                    } else {
+                        console.error('Failed to update order status:', data.error);
+                        alert('Greška pri ažuriranju statusa porudžbine.');
+                    }
+                } catch (error) {
+                    console.error('Error updating order status:', error);
+                    alert('Greška pri ažuriranju statusa porudžbine.');
+                }
             }
         }
         
         // Search Orders
         function searchOrders() {
-            const searchTerm = searchInput.value.toLowerCase().trim();
+            const searchTerm = searchInput.value.trim();
             
             if (searchTerm === '') {
-                currentPage = 1;
-                renderOrders();
+                window.location.href = '/porudzbine';
                 return;
             }
             
-            const filtered = orders.filter(order => {
-                return (
-                    order.id.toString().includes(searchTerm) ||
-                    order.iduser.toString().includes(searchTerm) ||
-                    order.datum.toLowerCase().includes(searchTerm) ||
-                    order.iznos.toString().includes(searchTerm)
-                );
-            });
-            
-            currentPage = 1; // Reset to first page
-            renderOrders(filtered);
+            window.location.href = `/porudzbine?search=${encodeURIComponent(searchTerm)}`;
         }
-        
-        // Initialize the application
-        document.addEventListener('DOMContentLoaded', init);
     </script>
-</body>
-</html>

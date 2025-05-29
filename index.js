@@ -6,64 +6,220 @@ const port = 3000;
 const app = express();
 
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use(bodyParser.json()); // Add JSON parsing support
+app.use(bodyParser.json());
 app.use(express.static("public"));
+app.set("view engine", "ejs");
 
 const db = new pg.Client({
-    user: "postgres",
-    password: "marko123",
-    host: "localhost",
+    user: "marko",
+    password: "O95iBz6rttFi1PJDPZRcXuQIF50rn1Rh",
+    host: "d0j277ffte5s73c6kp70-a.oregon-postgres.render.com",
     port: 5432,
-    database: "Mazor"
+    database: "mazor_ngl2",
+    ssl: {
+        rejectUnauthorized: false, // for most cloud DBs like Heroku/Render
+      },
 })
-db.connect();
 
 // Main routes
 app.get("/", async(req,res) => {
     let proizvodi = (await db.query("SELECT * FROM proizvodiful_updated")).rows;
     res.render("index.ejs", { proizvodi:proizvodi })
-})
+});
 
-app.get("/porudzbine", async(req,res) => {
-    res.render("porudzbine.ejs")
-})
+// Route for orders page with search and filter
+app.get("/porudzbine", async(req, res) => {
+    try {
+        let query = "SELECT * FROM porudzbine";
+        let params = [];
+        
+        // Apply search filter if provided
+        if (req.query.search) {
+            query = `
+                SELECT * FROM porudzbine 
+                WHERE id::text ILIKE $1 
+                OR iduser::text ILIKE $1 
+                OR adresa ILIKE $1
+                OR sadrzaj ILIKE $1
+                OR iznos::text ILIKE $1
+            `;
+            params = [`%${req.query.search}%`];
+        } 
+        // Apply status filter if provided
+        else if (req.query.status && req.query.status !== 'all') {
+            query += " WHERE status = $1";
+            params = [req.query.status];
+        }
+        
+        // Add order by clause
+        query += " ORDER BY id ASC";
+        
+        // Execute the query
+        const result = await db.query(query, params);
+        
+        // Render the template with the results
+        res.render("porudzbine.ejs", { 
+            porudzbine: result.rows,
+            searchTerm: req.query.search || '',
+            currentFilter: req.query.status || 'all'
+        });
+    } catch (error) {
+        console.error("Error fetching orders:", error);
+        res.render("porudzbine.ejs", { 
+            porudzbine: [],
+            error: "Greška pri učitavanju porudžbina",
+            searchTerm: req.query.search || '',
+            currentFilter: req.query.status || 'all'
+        });
+    }
+});
 
 app.get("/korisnici", async(req,res) => {
     let users = (await db.query('select * from users')).rows;
     res.render("korisnici.ejs", {users})
-})
+});
 
 app.get("/subkategorije", async(req,res) => {
     let subkategorije = (await db.query('select * from subcategories order by id asc')).rows;
     res.render("subkategorije.ejs", {subkategorije});
-})
+});
 
-app.get("/poruke", async(req,res) => {
-    res.render("poruke.ejs")
-})
-
-// Dodana ruta za dodavanje nove subkategorije
-app.post("/add-subcategory", async(req, res) => {
+// Modified route for poruke - now fetching from database
+app.get("/poruke", async(req, res) => {
     try {
-        const { naziv, category, slika } = req.body;
-        const slikaURL = slika || '/api/placeholder/60/60'; // Default slika ako nije uneta
+        let query = "SELECT * FROM poruke";
+        let params = [];
         
-        // Dodaj novu subkategoriju u bazu
-        const result = await db.query(
-            "INSERT INTO subcategories (naziv, category, slika) VALUES ($1, $2, $3) RETURNING *",
-            [naziv, category, slikaURL]
-        );
+        // Apply search filter if provided
+        if (req.query.search) {
+            query = `
+                SELECT * FROM poruke 
+                WHERE id::text ILIKE $1 
+                OR ime_prezime ILIKE $1 
+                OR email ILIKE $1
+                OR telefon ILIKE $1
+                OR predmet ILIKE $1
+                OR poruka ILIKE $1
+            `;
+            params = [`%${req.query.search}%`];
+        }
         
-        // Nakon uspešnog dodavanja, preusmeri nazad na stranicu subkategorija
-        res.redirect("/subkategorije");
+        // Add order by clause
+        query += " ORDER BY id ASC";
+        
+        // Execute the query
+        const result = await db.query(query, params);
+        
+        // Calculate pagination
+        const itemsPerPage = 5;
+        const page = parseInt(req.query.page) || 1;
+        const totalItems = result.rows.length;
+        const totalPages = Math.ceil(totalItems / itemsPerPage);
+        const startIndex = (page - 1) * itemsPerPage;
+        const endIndex = startIndex + itemsPerPage;
+        const paginatedResults = result.rows.slice(startIndex, endIndex);
+        
+        // Render the template with the results
+        res.render("poruke.ejs", { 
+            poruke: paginatedResults,
+            pagination: {
+                current: page,
+                total: totalPages
+            },
+            searchTerm: req.query.search || ''
+        });
     } catch (error) {
-        console.error("Greška pri dodavanju subkategorije:", error);
-        res.status(500).send("Došlo je do greške pri dodavanju subkategorije.");
+        console.error("Error fetching messages:", error);
+        res.render("poruke.ejs", { 
+            poruke: [],
+            error: "Greška pri učitavanju poruka",
+            searchTerm: req.query.search || ''
+        });
     }
 });
 
-// API endpoints for product management
-// Get all products
+// API endpoint for fetching a single message
+app.get("/api/poruke/:id", async (req, res) => {
+    try {
+        const { id } = req.params;
+        const result = await db.query("SELECT * FROM poruke WHERE id = $1", [id]);
+        
+        if (result.rows.length === 0) {
+            return res.status(404).json({ error: "Poruka nije pronađena" });
+        }
+        
+        res.json(result.rows[0]);
+    } catch (error) {
+        console.error("Error fetching message:", error);
+        res.status(500).json({ error: "Greška pri dohvatanju poruke" });
+    }
+});
+
+// API endpoint for marking a message as read
+app.put("/api/poruke/:id/procitano", async (req, res) => {
+    try {
+        const { id } = req.params;
+        
+        const result = await db.query(
+            "UPDATE poruke SET procitano = true WHERE id = $1 RETURNING *",
+            [id]
+        );
+        
+        if (result.rows.length === 0) {
+            return res.status(404).json({ error: "Poruka nije pronađena" });
+        }
+        
+        res.json(result.rows[0]);
+    } catch (error) {
+        console.error("Error marking message as read:", error);
+        res.status(500).json({ error: "Greška pri označavanju poruke kao pročitane" });
+    }
+});
+
+// Order API endpoints
+app.get("/api/orders/:id", async (req, res) => {
+    try {
+        const { id } = req.params;
+        const result = await db.query("SELECT * FROM porudzbine WHERE id = $1", [id]);
+        
+        if (result.rows.length === 0) {
+            return res.status(404).json({ error: "Porudžbina nije pronađena" });
+        }
+        
+        res.json(result.rows[0]);
+    } catch (error) {
+        console.error("Error fetching order:", error);
+        res.status(500).json({ error: "Greška pri dohvatanju porudžbine" });
+    }
+});
+
+// Update order status
+app.put("/api/orders/:id/status", async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { status } = req.body;
+        
+        if (!['pending', 'processing', 'completed', 'cancelled'].includes(status)) {
+            return res.status(400).json({ error: "Nevažeći status" });
+        }
+        
+        const result = await db.query(
+            "UPDATE porudzbine SET status = $1 WHERE id = $2 RETURNING *",
+            [status, id]
+        );
+        
+        if (result.rows.length === 0) {
+            return res.status(404).json({ error: "Porudžbina nije pronađena" });
+        }
+        
+        res.json(result.rows[0]);
+    } catch (error) {
+        console.error("Error updating order status:", error);
+        res.status(500).json({ error: "Greška pri ažuriranju statusa porudžbine" });
+    }
+});
+
+// Existing API endpoints for products
 app.get("/api/products", async (req, res) => {
     try {
         const result = await db.query("SELECT * FROM proizvodiful_updated");
@@ -74,7 +230,6 @@ app.get("/api/products", async (req, res) => {
     }
 });
 
-// Get a single product
 app.get("/api/products/:id", async (req, res) => {
     try {
         const { id } = req.params;
@@ -91,7 +246,6 @@ app.get("/api/products/:id", async (req, res) => {
     }
 });
 
-// Create a new product
 app.post("/api/products", async (req, res) => {
     try {
         const { sifra, naziv, cena_sapdv, vrednost_sapdv, subcategories, brend, slka } = req.body;
@@ -108,15 +262,10 @@ app.post("/api/products", async (req, res) => {
     }
 });
 
-// Update an existing product
 app.put("/api/products", async (req, res) => {
     try {
         const { id, sifra, naziv, cena_sapdv, vrednost_sapdv, subcategories, brend, slka } = req.body;
         
-        console.log("Updating product with ID:", id);
-        console.log("Request body:", req.body);
-        
-        // Ensure the ID is present
         if (!id) {
             return res.status(400).json({ error: "ID proizvoda je obavezan" });
         }
@@ -127,11 +276,9 @@ app.put("/api/products", async (req, res) => {
         );
         
         if (result.rows.length === 0) {
-            console.log("Product not found for update, ID:", id);
             return res.status(404).json({ error: "Proizvod nije pronađen" });
         }
         
-        console.log("Product updated successfully:", result.rows[0]);
         res.json(result.rows[0]);
     } catch (error) {
         console.error("Error updating product:", error);
@@ -139,7 +286,6 @@ app.put("/api/products", async (req, res) => {
     }
 });
 
-// Delete a product
 app.delete("/api/products/:id", async (req, res) => {
     try {
         const { id } = req.params;
@@ -158,5 +304,5 @@ app.delete("/api/products/:id", async (req, res) => {
 });
 
 app.listen(port, () => {
-    console.log(`Ide radi na portu ${port}`);
+    console.log(`Server radi na portu ${port}`);
 });

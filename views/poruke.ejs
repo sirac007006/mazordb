@@ -335,10 +335,18 @@
             <div class="page-header">
                 <h1>Poruke</h1>
                 <div class="search-container">
-                    <input type="text" id="searchInput" class="form-control" placeholder="Pretraži poruke...">
-                    <button class="btn btn-primary" id="searchBtn">Pretraži</button>
+                    <form action="/poruke" method="GET">
+                        <input type="text" id="searchInput" name="search" class="form-control" placeholder="Pretraži poruke..." value="<%= locals.searchTerm || '' %>">
+                        <button type="submit" class="btn btn-primary" id="searchBtn">Pretraži</button>
+                    </form>
                 </div>
             </div>
+            
+            <% if (locals.error) { %>
+                <div class="alert alert-danger">
+                    <%= error %>
+                </div>
+            <% } %>
             
             <table class="data-table">
                 <thead>
@@ -353,67 +361,35 @@
                     </tr>
                 </thead>
                 <tbody id="messagesTableBody">
-                    <!-- Početne poruke su definirane direktno u HTML-u -->
-                    <tr>
-                        <td>1</td>
-                        <td>Marko Marković</td>
-                        <td>marko@example.com</td>
-                        <td>064-1234-567</td>
-                        <td>Upit o dostupnosti proizvoda</td>
-                        <td class="truncate">Poštovani, interesuje me da li imate dostupan laptop Asus X509 na stanju i kada očekujete novu isporuku...</td>
-                        <td>
-                            <button class="btn btn-primary btn-details" data-id="1">Pogledaj</button>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>2</td>
-                        <td>Ana Anić</td>
-                        <td>ana@example.com</td>
-                        <td>065-9876-543</td>
-                        <td>Problem sa porudžbinom</td>
-                        <td class="truncate">Poštovani, imala sam problem sa poslednjom porudžbinom. Naručila sam monitor Samsung 24" ali...</td>
-                        <td>
-                            <button class="btn btn-primary btn-details" data-id="2">Pogledaj</button>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>3</td>
-                        <td>Jovan Jovanović</td>
-                        <td>jovan@example.com</td>
-                        <td>063-5555-123</td>
-                        <td>Reklamacija</td>
-                        <td class="truncate">Poštovani, kupio sam grafičku karticu Nvidia GTX 1660 pre 10 dana i ona ne radi kako treba. Prilikom...</td>
-                        <td>
-                            <button class="btn btn-primary btn-details" data-id="3">Pogledaj</button>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>4</td>
-                        <td>Milica Milić</td>
-                        <td>milica@example.com</td>
-                        <td>062-3333-777</td>
-                        <td>Zahtev za saradnju</td>
-                        <td class="truncate">Poštovani, predstavljam kompaniju koja se bavi proizvodnjom računarske opreme i zainteresovani smo za saradnju...</td>
-                        <td>
-                            <button class="btn btn-primary btn-details" data-id="4">Pogledaj</button>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>5</td>
-                        <td>Nikola Nikolić</td>
-                        <td>nikola@example.com</td>
-                        <td>061-9999-888</td>
-                        <td>Upit o garanciji</td>
-                        <td class="truncate">Poštovani, kupio sam kod vas laptop pre 11 meseci i zanima me kakva je procedura za servis pod garancijom...</td>
-                        <td>
-                            <button class="btn btn-primary btn-details" data-id="5">Pogledaj</button>
-                        </td>
-                    </tr>
+                    <% if (locals.poruke && poruke.length > 0) { %>
+                        <% poruke.forEach(poruka => { %>
+                            <tr>
+                                <td><%= poruka.id %></td>
+                                <td><%= poruka.ime_prezime %></td>
+                                <td><%= poruka.email %></td>
+                                <td><%= poruka.telefon %></td>
+                                <td><%= poruka.predmet %></td>
+                                <td class="truncate"><%= poruka.poruka.substring(0, 100) + (poruka.poruka.length > 100 ? '...' : '') %></td>
+                                <td>
+                                    <button class="btn btn-primary btn-details" data-id="<%= poruka.id %>">
+                                        Pogledaj
+                                        <% if (!poruka.procitano) { %>
+                                            <span class="badge-new">Novo</span>
+                                        <% } %>
+                                    </button>
+                                </td>
+                            </tr>
+                        <% }) %>
+                    <% } else { %>
+                        <tr>
+                            <td colspan="7" style="text-align: center;">Nema poruka za prikaz</td>
+                        </tr>
+                    <% } %>
                 </tbody>
             </table>
             
             <div class="pagination" id="pagination">
-                <!-- Pagination buttons will be dynamically generated -->
+                <!-- Pagination will be rendered by JavaScript -->
             </div>
         </div>
     </div>
@@ -432,36 +408,10 @@
     </div>
 
     <script>
-        // Inicijalizacija poruka iz HTML tabele
-        let messages = [];
-        
-        // Funkcija za inicijalno učitavanje podataka iz HTML tabele
-        function loadInitialMessagesFromHTML() {
-            const rows = document.querySelectorAll('#messagesTableBody tr');
-            
-            messages = Array.from(rows).map(row => {
-                const cells = row.querySelectorAll('td');
-                const id = parseInt(cells[0].textContent);
-                
-                return {
-                    id: id,
-                    ime_prezime: cells[1].textContent,
-                    email: cells[2].textContent,
-                    telefon: cells[3].textContent,
-                    predmet: cells[4].textContent,
-                    poruka: cells[5].textContent.replace('...', ' Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam auctor, nisl eget ultricies tincidunt, nisl nisl aliquam nisl, eget ultricies nisl nisl eget nisl. Nullam auctor, nisl eget ultricies tincidunt, nisl nisl aliquam nisl, eget ultricies nisl nisl eget nisl.'),
-                    procitano: Math.random() > 0.5 // Slučajno određujemo da li je poruka pročitana
-                };
-            });
-            
-            // Sačuvaj učitane poruke u localStorage
-            saveMessagesToStorage();
-        }
-        
         // Settings
         const itemsPerPage = 5;
         let currentPage = 1;
-        let currentMessageId = null;
+        let messages = [];
         
         // DOM Elements
         const messagesTableBody = document.getElementById('messagesTableBody');
@@ -469,100 +419,42 @@
         const messageDetailsModal = document.getElementById('messageDetailsModal');
         const modalTitle = document.getElementById('modalTitle');
         const messageDetails = document.getElementById('messageDetails');
-        const searchInput = document.getElementById('searchInput');
-        const searchBtn = document.getElementById('searchBtn');
         
-        // Buttons
-        const closeModalBtn = document.querySelector('.close');
-        
-        // Load messages from localStorage if available
-        function loadMessagesFromStorage() {
-            const storedMessages = localStorage.getItem('contactMessages');
-            if (storedMessages) {
-                messages = JSON.parse(storedMessages);
-            }
-        }
-        
-        // Save messages to localStorage
-        function saveMessagesToStorage() {
-            localStorage.setItem('contactMessages', JSON.stringify(messages));
-        }
-        
-        // Initialize the application
-        function init() {
-            // Prvo proveravamo da li već postoje poruke u localStorage
-            const storedMessages = localStorage.getItem('contactMessages');
+        // Load messages from the table rows
+        function loadMessagesFromDOM() {
+            const rows = document.querySelectorAll('#messagesTableBody tr');
             
-            if (!storedMessages) {
-                // Ako ne postoje, učitavamo ih iz HTML-a
-                loadInitialMessagesFromHTML();
-            } else {
-                // Ako postoje, učitavamo ih iz localStorage-a
-                loadMessagesFromStorage();
+            // Skip the "no messages" row if present
+            if (rows.length === 1 && rows[0].cells.length === 1 && rows[0].cells[0].colSpan === 7) {
+                return [];
             }
             
-            renderMessages();
-            setupEventListeners();
-        }
-        
-        // Render messages table
-        function renderMessages(filteredMessages = null) {
-            const displayMessages = filteredMessages || messages;
-            
-            // Calculate pagination
-            const totalPages = Math.ceil(displayMessages.length / itemsPerPage);
-            const startIndex = (currentPage - 1) * itemsPerPage;
-            const endIndex = startIndex + itemsPerPage;
-            const currentMessages = displayMessages.slice(startIndex, endIndex);
-            
-            // Clear table body
-            messagesTableBody.innerHTML = '';
-            
-            // Render messages
-            if (currentMessages.length === 0) {
-                messagesTableBody.innerHTML = `
-                    <tr>
-                        <td colspan="7" style="text-align: center;">Nema poruka za prikaz</td>
-                    </tr>
-                `;
-            } else {
-                currentMessages.forEach(message => {
-                    const truncatedMessage = message.poruka.length > 100 
-                        ? message.poruka.substring(0, 100) + '...' 
-                        : message.poruka;
-                    
-                    const row = document.createElement('tr');
-                    row.innerHTML = `
-                        <td>${message.id}</td>
-                        <td>${message.ime_prezime}</td>
-                        <td>${message.email}</td>
-                        <td>${message.telefon}</td>
-                        <td>${message.predmet}</td>
-                        <td class="truncate">${truncatedMessage}</td>
-                        <td>
-                            <button class="btn btn-primary btn-details" data-id="${message.id}">
-                                Pogledaj
-                                ${!message.procitano ? '<span class="badge-new">Novo</span>' : ''}
-                            </button>
-                        </td>
-                    `;
-                    messagesTableBody.appendChild(row);
-                });
-            }
-            
-            // Render pagination
-            renderPagination(totalPages);
-            
-            // Add event listeners for details buttons
-            document.querySelectorAll('.btn-details').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    showMessageDetails(parseInt(this.dataset.id));
-                });
+            return Array.from(rows).map(row => {
+                const cells = row.querySelectorAll('td');
+                const id = parseInt(cells[0].textContent);
+                const hasNewBadge = row.querySelector('.badge-new') !== null;
+                
+                return {
+                    id: id,
+                    ime_prezime: cells[1].textContent,
+                    email: cells[2].textContent,
+                    telefon: cells[3].textContent,
+                    predmet: cells[4].textContent,
+                    poruka: cells[5].textContent.replace('...', ''),
+                    procitano: !hasNewBadge
+                };
             });
         }
         
+        // Calculate pagination
+        function calculatePagination() {
+            const totalMessages = messages.length;
+            return Math.ceil(totalMessages / itemsPerPage);
+        }
+        
         // Render pagination controls
-        function renderPagination(totalPages) {
+        function renderPagination() {
+            const totalPages = calculatePagination();
             pagination.innerHTML = '';
             
             if (totalPages <= 1) return;
@@ -605,64 +497,90 @@
         }
         
         // Show message details
-        function showMessageDetails(messageId) {
-            const message = messages.find(m => m.id === messageId);
-            if (!message) return;
-            
-            // Mark as read
-            message.procitano = true;
-            saveMessagesToStorage();
-            
-            modalTitle.textContent = `Poruka: ${message.predmet}`;
-            
-            messageDetails.innerHTML = `
-                <div class="detail-item">
-                    <div class="detail-label">ID poruke:</div>
-                    <div class="detail-value">${message.id}</div>
-                </div>
-                <div class="detail-item">
-                    <div class="detail-label">Ime i prezime:</div>
-                    <div class="detail-value">${message.ime_prezime}</div>
-                </div>
-                <div class="detail-item">
-                    <div class="detail-label">Email adresa:</div>
-                    <div class="detail-value">${message.email}</div>
-                </div>
-                <div class="detail-item">
-                    <div class="detail-label">Broj telefona:</div>
-                    <div class="detail-value">${message.telefon}</div>
-                </div>
-                <div class="detail-item">
-                    <div class="detail-label">Predmet poruke:</div>
-                    <div class="detail-value">${message.predmet}</div>
-                </div>
-                <div class="detail-item">
-                    <div class="detail-label">Poruka:</div>
-                    <div class="detail-value message-text">${message.poruka}</div>
-                </div>
-            `;
-            
-            messageDetailsModal.style.display = 'block';
-            
-            // Update the UI to remove the "New" badge
-            renderMessages();
+        async function showMessageDetails(messageId) {
+            try {
+                // Call API to get message details
+                const response = await fetch(`/api/poruke/${messageId}`);
+                if (!response.ok) {
+                    throw new Error('Failed to fetch message details');
+                }
+                
+                const message = await response.json();
+                
+                // Mark message as read via API
+                await fetch(`/api/poruke/${messageId}/procitano`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                // Update UI
+                modalTitle.textContent = `Poruka: ${message.predmet}`;
+                
+                messageDetails.innerHTML = `
+                    <div class="detail-item">
+                        <div class="detail-label">ID poruke:</div>
+                        <div class="detail-value">${message.id}</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Ime i prezime:</div>
+                        <div class="detail-value">${message.ime_prezime}</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Email adresa:</div>
+                        <div class="detail-value">${message.email}</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Broj telefona:</div>
+                        <div class="detail-value">${message.telefon}</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Predmet poruke:</div>
+                        <div class="detail-value">${message.predmet}</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Poruka:</div>
+                        <div class="detail-value message-text">${message.poruka}</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Vreme:</div>
+                        <div class="detail-value">${new Date(message.vreme).toLocaleString()}</div>
+                    </div>
+                `;
+                
+                messageDetailsModal.style.display = 'block';
+                
+                // Remove the "New" badge from the UI
+                const badge = document.querySelector(`button[data-id="${messageId}"] .badge-new`);
+                if (badge) {
+                    badge.remove();
+                }
+                
+                // Update the local messages array
+                const messageIndex = messages.findIndex(m => m.id === messageId);
+                if (messageIndex !== -1) {
+                    messages[messageIndex].procitano = true;
+                }
+                
+            } catch (error) {
+                console.error('Error showing message details:', error);
+                alert('Greška pri učitavanju detalja poruke');
+            }
         }
         
         // Set up event listeners
         function setupEventListeners() {
             // Close modal button
-            closeModalBtn.addEventListener('click', () => {
+            document.querySelector('.close').addEventListener('click', () => {
                 messageDetailsModal.style.display = 'none';
             });
             
-            // Search button
-            searchBtn.addEventListener('click', searchMessages);
-            
-            // Search input enter key
-            searchInput.addEventListener('keyup', function(e) {
-                if (e.key === 'Enter') {
-                    searchMessages();
-                }
+            // Add event listeners for details buttons
+            document.querySelectorAll('.btn-details').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    showMessageDetails(parseInt(this.dataset.id));
+                });
             });
             
             // Close modal when clicking outside
@@ -673,32 +591,19 @@
             });
         }
         
-        // Search Messages
-        function searchMessages() {
-            const searchTerm = searchInput.value.toLowerCase().trim();
+        // Initialize the application
+        function init() {
+            // Load messages from the DOM
+            messages = loadMessagesFromDOM();
             
-            if (searchTerm === '') {
-                currentPage = 1;
-                renderMessages();
-                return;
-            }
+            // Setup pagination
+            renderPagination();
             
-            const filtered = messages.filter(message => {
-                return (
-                    message.id.toString().includes(searchTerm) ||
-                    message.ime_prezime.toLowerCase().includes(searchTerm) ||
-                    message.email.toLowerCase().includes(searchTerm) ||
-                    message.telefon.toLowerCase().includes(searchTerm) ||
-                    message.predmet.toLowerCase().includes(searchTerm) ||
-                    message.poruka.toLowerCase().includes(searchTerm)
-                );
-            });
-            
-            currentPage = 1; // Reset to first page
-            renderMessages(filtered);
+            // Setup event listeners
+            setupEventListeners();
         }
         
-        // Initialize the application
+        // Initialize the application when DOM is loaded
         document.addEventListener('DOMContentLoaded', init);
     </script>
 </body>
