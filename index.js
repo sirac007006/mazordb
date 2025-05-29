@@ -2,7 +2,7 @@ import pg from "pg";
 import express from "express";
 import bodyParser from "body-parser";
 
-const port = 5432;
+const port = process.env.PORT || 3000;
 const app = express();
 
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -17,10 +17,11 @@ const db = new pg.Client({
     port: 5432,
     database: "mazor_ngl2",
     ssl: {
-        rejectUnauthorized: false, // for most cloud DBs like Heroku/Render
-      },
-})
+        rejectUnauthorized: false,
+    },
+});
 
+db.connect();
 // Main routes
 app.get("/", async(req,res) => {
     let proizvodi = (await db.query("SELECT * FROM proizvodiful_updated")).rows;
@@ -301,6 +302,10 @@ app.delete("/api/products/:id", async (req, res) => {
         console.error("Error deleting product:", error);
         res.status(500).json({ error: "Greška pri brisanju proizvoda" });
     }
+});
+
+app.listen(port, '0.0.0.0', () => {
+    console.log(`Server radi na portu ${port}`);
 });
 
 app.listen(port, () => {
