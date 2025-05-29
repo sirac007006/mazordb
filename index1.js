@@ -4,45 +4,43 @@ import bodyParser from "body-parser";
 import bcrypt from "bcrypt";
 import session from "express-session";
 
-const port = process.env.PORT || 3000;
+const port = 3000;
 const app = express();
-
-// HASHOVI
-const HASH_USERNAME = "$2b$10$QkMIfIjWrZLDDxIt6kIqjeXYECqgRh0aXnUd.CmAv5VbsWZbhHT3W"; // korisnicko ime
-const HASH_PASSWORD = "$2b$10$q7dw58zKNG1brRQ14bP6GuWD6U9xUuq9k.4oJ2iYjzSFMh3ZdhzQe"; // lozinka
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use(express.static("public"));
 app.set("view engine", "ejs");
 
-// Sesije
+// Dodaj session
 app.use(session({
-    secret: "tajna-sesija",
+    secret: "tajna_sifra_sesije",
     resave: false,
     saveUninitialized: false,
 }));
 
-// Middleware za proveru ulogovanosti
+// Middleware za zaštitu svih ruta osim login
 app.use((req, res, next) => {
-    if (req.path === "/login") return next();
+    if (req.path === "/login" || req.path === "/logout") {
+        return next();
+    }
     if (!req.session.loggedIn) {
         return res.redirect("/login");
     }
     next();
 });
 
-const db = new pg.Client({
-    user: "marko",
-    password: "O95iBz6rttFi1PJDPZRcXuQIF50rn1Rh",
-    host: "d0j277ffte5s73c6kp70-a.oregon-postgres.render.com",
-    port: 5432,
-    database: "mazor_ngl2",
-    ssl: {
-        rejectUnauthorized: false,
-    },
-});
+// Hardcoded bcrypt hashovani podaci
+const hashUsername = "$2a$12$T8hIcBarfOkay2FDEijmnOlHa79PVXFBa1L6cZJUfljLmfUfYBxUa";
+const hashPassword = "$2a$12$/EEyUOMrrRBvJPnIGk9oBOPv4i3iRydRgyne.xtsKbdXB1AbA6Nba";
 
+const db = new pg.Client({
+    user: "postgres",
+    password: "marko123",
+    host: "localhost",
+    port: 5432,
+    database: "Mazor"
+});
 db.connect();
 
 // Login rute
@@ -53,14 +51,14 @@ app.get("/login", (req, res) => {
 app.post("/login", async (req, res) => {
     const { username, password } = req.body;
 
-    const validUsername = await bcrypt.compare(username, HASH_USERNAME);
-    const validPassword = await bcrypt.compare(password, HASH_PASSWORD);
+    const isUserValid = await bcrypt.compare(username, hashUsername);
+    const isPassValid = await bcrypt.compare(password, hashPassword);
 
-    if (validUsername && validPassword) {
+    if (isUserValid && isPassValid) {
         req.session.loggedIn = true;
         res.redirect("/");
     } else {
-        res.render("login.ejs", { error: "Pogrešno korisničko ime ili lozinka." });
+        res.render("login.ejs", { error: "Pogrešan username ili šifra." });
     }
 });
 
@@ -74,6 +72,13 @@ app.get("/", async(req,res) => {
     res.render("index.ejs", { proizvodi:proizvodi })
 });
 
+app.get("/login", async(req,res) => {
+    res.render("login.ejs")
+});
+app.post("/login", async(req,res) => {
+    console.log(req.body);
+
+});
 // Route for orders page with search and filter
 app.get("/porudzbine", async(req, res) => {
     try {
@@ -350,6 +355,6 @@ app.delete("/api/products/:id", async (req, res) => {
     }
 });
 
-app.listen(port, '0.0.0.0', () => {
+app.listen(port, () => {
     console.log(`Server radi na portu ${port}`);
 });
