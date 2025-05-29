@@ -8,8 +8,8 @@ const port = process.env.PORT || 3000;
 const app = express();
 
 // HASHOVI - generisani sa bcrypt.hash()
-const HASH_USERNAME = "$2b$10$YEqnC4qYwJWx4FXLQ1QyMOhLT.vVhFZaKXc8DnGr5pQqLmNsWxHKS"; 
-const HASH_PASSWORD = "$2b$10$8kXc9DnGr5pQqLmNsWxHKSYEqnC4qYwJWx4FXLQ1QyMOhLT.vVhF";
+const HASH_USERNAME = "$2a$12$T8hIcBarfOkay2FDEijmnOlHa79PVXFBa1L6cZJUfljLmfUfYBxUa"; 
+const HASH_PASSWORD = "$2a$12$/EEyUOMrrRBvJPnIGk9oBOPv4i3iRydRgyne.xtsKbdXB1AbA6Nba";
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
