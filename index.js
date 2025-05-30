@@ -318,8 +318,8 @@ app.put("/api/products", async (req, res) => {
         }
         
         const result = await db.query(
-            "UPDATE proizvodiful_updated SET sifra = $1, naziv = $2, cena_sapdv = $3, vrednost_sapdv = $4, subcategories = $5, brend = $6, slka = $7, deskripcija = $9 WHERE id = $8 RETURNING *",
-            [sifra, naziv, cena_sapdv, vrednost_sapdv, subcategories, brend, slka, id, deskripcija]
+            "UPDATE proizvodiful_updated SET sifra = $1, naziv = $2, cena_sapdv = $3, vrednost_sapdv = $4, subcategories = $5, brend = $6, slka = $7, deskripcija = $8 WHERE id = $9 RETURNING *",
+            [sifra, naziv, cena_sapdv, vrednost_sapdv, subcategories, brend, slka, deskripcija, id]
         );
         
         if (result.rows.length === 0) {

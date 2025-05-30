@@ -592,16 +592,45 @@ const helpers = {
     },
     
     safeParseFloat(value) {
-        if (!value) return 0;
+    if (!value) return 0;
+    
+    const cleanValue = value.toString()
+        .replace(/\s/g, '')     // ukloni sve space-ove
+        .replace(/,/g, '.');    // zameni zarez sa tačkom za decimalne
+    
+    const parsed = parseFloat(cleanValue);
+    return isNaN(parsed) ? 0 : parsed;
+},
+
+// Ili još bolja verzija koja rukuje i hiljadama:
+safeParseFloat(value) {
+    if (!value) return 0;
+    
+    let cleanValue = value.toString().replace(/\s/g, '');
+    
+    // Ako ima više tačaka ili kombinaciju tačke i zareza
+    if ((cleanValue.match(/\./g) || []).length > 1 || (cleanValue.includes('.') && cleanValue.includes(','))) {
+        // Ukloni sve tačke osim poslednje (hiljadni separatori)
+        const lastDotIndex = cleanValue.lastIndexOf('.');
+        const lastCommaIndex = cleanValue.lastIndexOf(',');
         
-        const cleanValue = value.toString()
-            .replace(/\s/g, '')
-            .replace(/\./g, '')
-            .replace(/,/g, '.');
-        
-        const parsed = parseFloat(cleanValue);
-        return isNaN(parsed) ? 0 : parsed;
-    },
+        if (lastCommaIndex > lastDotIndex) {
+            // Zarez je decimalni separator
+            cleanValue = cleanValue.replace(/\./g, '').replace(',', '.');
+        } else {
+            // Tačka je decimalni separator
+            cleanValue = cleanValue.replace(/\./g, (match, offset) => {
+                return offset === lastDotIndex ? '.' : '';
+            }).replace(/,/g, '');
+        }
+    } else {
+        // Standardno: zameni zarez sa tačkom
+        cleanValue = cleanValue.replace(',', '.');
+    }
+    
+    const parsed = parseFloat(cleanValue);
+    return isNaN(parsed) ? 0 : parsed;
+},
     
     formatPrice(price) {
         return price.toFixed(2);
