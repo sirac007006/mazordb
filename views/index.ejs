@@ -150,6 +150,7 @@
         .col-subcategories { width: 130px; }
         .col-brend { width: 120px; }
         .col-slka { width: 200px; font-size: 12px; word-break: break-all; }
+        .col-deskripcija { width: 150px; }
         
         /* Buttons */
         .btn {
@@ -262,6 +263,11 @@
             border: 1px solid var(--border-color);
             border-radius: 4px;
             font-size: 14px;
+        }
+        
+        .form-control.textarea {
+            min-height: 80px;
+            resize: vertical;
         }
         
         .form-row {
@@ -433,6 +439,7 @@
                         <th class="col-subcategories">Subkategorije</th>
                         <th class="col-brend">Brend</th>
                         <th class="col-slka">URL Slike</th>
+                        <th class="col-deskripcija">Deskripcija</th>
                     </tr>
                 </thead>
                 <tbody id="productsTableBody">
@@ -451,11 +458,12 @@
                             <td class="col-subcategories truncated-cell" data-full-text="<%= proizvodi[i].subcategories %>"><%= proizvodi[i].subcategories %></td>
                             <td class="col-brend"><%= proizvodi[i].brend %></td>
                             <td class="col-slka truncated-cell" data-full-text="<%= proizvodi[i].slka %>"><%= proizvodi[i].slka %></td>
+                            <td class="col-deskripcija truncated-cell" data-full-text="<%= proizvodi[i].deskripcija %>"><%= proizvodi[i].deskripcija %></td>
                         </tr>
                         <% } %>
                     <% } else { %>
                         <tr>
-                            <td colspan="9" style="text-align: center;">Nema proizvoda za prikaz</td>
+                            <td colspan="10" style="text-align: center;">Nema proizvoda za prikaz</td>
                         </tr>
                     <% } %>
                 </tbody>
@@ -516,6 +524,15 @@
                         <div class="form-group">
                             <label for="slka">URL Slike</label>
                             <input type="text" id="slka" name="slka" class="form-control">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-col">
+                        <div class="form-group">
+                            <label for="deskripcija">Deskripcija</label>
+                            <textarea id="deskripcija" name="deskripcija" class="form-control textarea" placeholder="Unesite detaljan opis proizvoda..."></textarea>
                         </div>
                     </div>
                 </div>
@@ -661,7 +678,9 @@ const api = {
             return null;
         }
     }
-};// State management
+};
+
+// State management
 let products = [];
 let uniqueBrands = ['Svi brendovi'];
 let currentBrandFilter = 'all';
@@ -679,7 +698,8 @@ const mockData = [
         vrednost_sapdv: 139,
         subcategories: 'Stono posuđe',
         brend: 'Fisher',
-        slka: 'https://via.placeholder.com/150'
+        slka: 'https://via.placeholder.com/150',
+        deskripcija: "Elegantni set solja od porcelana, idealan za svakodnevnu upotrebu. Uključuje 6 solja sa tacnama."
     },
     {
         id: 1754,
@@ -689,7 +709,8 @@ const mockData = [
         vrednost_sapdv: 954,
         subcategories: 'Peći',
         brend: 'Bez rasporeda po brendovima',
-        slka: 'https://via.placeholder.com/150'
+        slka: 'https://via.placeholder.com/150',
+        deskripcija: "Električna peć sa funkcijama pečenja i grilovanja. Snaga 2000W, temperatura do 250°C."
     },
     {
         id: 1749,
@@ -699,7 +720,8 @@ const mockData = [
         vrednost_sapdv: 118,
         subcategories: 'Aparati za hranu',
         brend: 'Gorenje',
-        slka: 'https://via.placeholder.com/150'
+        slka: 'https://via.placeholder.com/150',
+        deskripcija: "Električna mesoreznica sa oštrim nožem od nerđajućeg čelika. Idealna za sečenje mesa i kobasica."
     },
     {
         id: 1747,
@@ -709,7 +731,8 @@ const mockData = [
         vrednost_sapdv: 199,
         subcategories: 'Frižideri',
         brend: 'Vox',
-        slka: 'https://via.placeholder.com/150'
+        slka: 'https://via.placeholder.com/150',
+        deskripcija: "Kompaktni frižider sa freezer odeljkom. Zapremina 160L, energetska klasa A+."
     }
 ];
 
@@ -718,7 +741,7 @@ const app = {
     loadInitialProductsFromHTML() {
         const rows = document.querySelectorAll('#productsTableBody tr');
         
-        const noProductsRow = document.querySelector('#productsTableBody tr td[colspan="9"]');
+        const noProductsRow = document.querySelector('#productsTableBody tr td[colspan="10"]');
         if (noProductsRow && noProductsRow.textContent.includes('Nema proizvoda za prikaz')) {
             return [];
         }
@@ -750,7 +773,12 @@ const app = {
                                imageCell.dataset.fullText : 
                                helpers.safeGetText(imageCell);
                 
-                console.log('Loading from HTML, image URL:', imageUrl);
+                const descriptionCell = cells[9];
+                const descriptionText = descriptionCell && descriptionCell.dataset.fullText ? 
+                                      descriptionCell.dataset.fullText : 
+                                      helpers.safeGetText(descriptionCell);
+                
+                console.log('Loading from HTML, description:', descriptionText);
                 
                 const product = {
                     id: helpers.safeParseInt(cells[1]?.textContent),
@@ -760,7 +788,8 @@ const app = {
                     vrednost_sapdv: helpers.safeParseFloat(cells[5]?.textContent),
                     subcategories: subcategoriesText,
                     brend: helpers.safeGetText(cells[7]),
-                    slka: imageUrl
+                    slka: imageUrl,
+                    deskripcija: descriptionText
                 };
                 
                 console.log('Parsed product from HTML:', product);
@@ -816,7 +845,7 @@ const app = {
     
     async init() {
         const htmlRows = document.querySelectorAll('#productsTableBody tr');
-        const hasEjsProducts = htmlRows.length > 0 && !htmlRows[0].querySelector('td[colspan="9"]');
+        const hasEjsProducts = htmlRows.length > 0 && !htmlRows[0].querySelector('td[colspan="10"]');
         
         if (hasEjsProducts) {
             products = this.loadInitialProductsFromHTML();
@@ -905,6 +934,7 @@ const ui = {
                     <td class="col-subcategories truncated-cell" data-full-text="${(product.subcategories || '').replace(/"/g, '&quot;')}">${product.subcategories || ''}</td>
                     <td class="col-brend">${product.brend || ''}</td>
                     <td class="col-slka truncated-cell" data-full-text="${safeImageUrl}">${displayUrl || 'Nema URL-a'}</td>
+                    <td class="col-deskripcija">${product.deskripcija || ''}</td>
                 `;
                 elements.productsTableBody.appendChild(row);
             });
@@ -1055,6 +1085,7 @@ const ui = {
         document.getElementById('subcategories').value = product.subcategories || '';
         document.getElementById('brend').value = product.brend || '';
         document.getElementById('slka').value = product.slka || '';
+        document.getElementById('deskripcija').value = product.deskripcija || '';
         
         // Add debugging to confirm the image URL is correctly populated
         console.log('Image URL field set to:', product.slka);
@@ -1079,7 +1110,8 @@ const ui = {
                 cena_sapdv: parseFloat(document.getElementById('cena_sapdv').value) || 0,
                 subcategories: document.getElementById('subcategories').value.trim(),
                 brend: document.getElementById('brend').value.trim(),
-                slka: document.getElementById('slka').value.trim()
+                slka: document.getElementById('slka').value.trim(),
+                deskripcija: document.getElementById('deskripcija').value.trim()
             };
             
             // Automatski računamo vrednost

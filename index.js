@@ -295,11 +295,11 @@ app.get("/api/products/:id", async (req, res) => {
 
 app.post("/api/products", async (req, res) => {
     try {
-        const { sifra, naziv, cena_sapdv, vrednost_sapdv, subcategories, brend, slka } = req.body;
+        const { sifra, naziv, cena_sapdv, vrednost_sapdv, subcategories, brend, slka, deskripcija } = req.body;
         
         const result = await db.query(
-            "INSERT INTO proizvodiful_updated (sifra, naziv, cena_sapdv, vrednost_sapdv, subcategories, brend, slka) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *",
-            [sifra, naziv, cena_sapdv, vrednost_sapdv, subcategories, brend, slka]
+            "INSERT INTO proizvodiful_updated (sifra, naziv, cena_sapdv, vrednost_sapdv, subcategories, brend, slka, deskripcija) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *",
+            [sifra, naziv, cena_sapdv, vrednost_sapdv, subcategories, brend, slka, deskripcija]
         );
         
         res.status(201).json(result.rows[0]);
@@ -311,15 +311,15 @@ app.post("/api/products", async (req, res) => {
 
 app.put("/api/products", async (req, res) => {
     try {
-        const { id, sifra, naziv, cena_sapdv, vrednost_sapdv, subcategories, brend, slka } = req.body;
+        const { id, sifra, naziv, cena_sapdv, vrednost_sapdv, subcategories, brend, slka, deskripcija } = req.body;
         
         if (!id) {
             return res.status(400).json({ error: "ID proizvoda je obavezan" });
         }
         
         const result = await db.query(
-            "UPDATE proizvodiful_updated SET sifra = $1, naziv = $2, cena_sapdv = $3, vrednost_sapdv = $4, subcategories = $5, brend = $6, slka = $7 WHERE id = $8 RETURNING *",
-            [sifra, naziv, cena_sapdv, vrednost_sapdv, subcategories, brend, slka, id]
+            "UPDATE proizvodiful_updated SET sifra = $1, naziv = $2, cena_sapdv = $3, vrednost_sapdv = $4, subcategories = $5, brend = $6, slka = $7, deskripcija = $9 WHERE id = $8 RETURNING *",
+            [sifra, naziv, cena_sapdv, vrednost_sapdv, subcategories, brend, slka, id, deskripcija]
         );
         
         if (result.rows.length === 0) {
