@@ -266,6 +266,52 @@ app.put("/api/orders/:id/status", async (req, res) => {
     }
 });
 
+// Subcategory routes
+app.post("/add-subcategory", async (req, res) => {
+    try {
+        const { naziv, category, slika } = req.body;
+        
+        const result = await db.query(
+            "INSERT INTO subcategories (naziv, category, slika) VALUES ($1, $2, $3) RETURNING *",
+            [naziv, category, slika || null]
+        );
+        
+        res.redirect("/subkategorije");
+    } catch (error) {
+        console.error("Error adding subcategory:", error);
+        res.redirect("/subkategorije");
+    }
+});
+
+app.post("/edit-subcategory", async (req, res) => {
+    try {
+        const { id, naziv, category, slika } = req.body;
+        
+        const result = await db.query(
+            "UPDATE subcategories SET naziv = $1, category = $2, slika = $3 WHERE id = $4 RETURNING *",
+            [naziv, category, slika || null, id]
+        );
+        
+        res.redirect("/subkategorije");
+    } catch (error) {
+        console.error("Error editing subcategory:", error);
+        res.redirect("/subkategorije");
+    }
+});
+
+app.post("/delete-subcategory", async (req, res) => {
+    try {
+        const { id } = req.body;
+        
+        const result = await db.query("DELETE FROM subcategories WHERE id = $1 RETURNING *", [id]);
+        
+        res.redirect("/subkategorije");
+    } catch (error) {
+        console.error("Error deleting subcategory:", error);
+        res.redirect("/subkategorije");
+    }
+});
+
 // Existing API endpoints for products
 app.get("/api/products", async (req, res) => {
     try {

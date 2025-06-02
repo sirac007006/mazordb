@@ -141,6 +141,7 @@
             border-radius: 4px;
             font-size: 14px;
             transition: all 0.3s;
+            margin: 2px;
         }
         
         .btn-primary {
@@ -156,6 +157,16 @@
         .btn-danger {
             background-color: var(--danger-color);
             color: white;
+        }
+        
+        .btn-warning {
+            background-color: var(--warning-color);
+            color: white;
+        }
+        
+        .btn-sm {
+            padding: 5px 10px;
+            font-size: 12px;
         }
         
         .btn:hover {
@@ -256,6 +267,15 @@
             margin-top: 20px;
         }
         
+        .actions-cell {
+            white-space: nowrap;
+        }
+
+        /* Delete form styles */
+        .delete-form {
+            display: inline;
+        }
+        
         /* Responsive */
         @media (max-width: 768px) {
             .container {
@@ -318,6 +338,7 @@
                         <th>Naziv</th>
                         <th>Kategorija</th>
                         <th>Slika</th>
+                        <th>Akcije</th>
                     </tr>
                 </thead>
                 <tbody id="subcategoriesTableBody">
@@ -328,6 +349,20 @@
                             <td><%=subkategorije[i].naziv%></td>
                             <td><%=subkategorije[i].category%></td>
                             <td><img src="<%=subkategorije[i].slika%>" alt="<%=subkategorije[i].naziv%>" class="thumbnail"></td>
+                            <td class="actions-cell">
+                                <button class="btn btn-warning btn-sm edit-btn" 
+                                        data-id="<%=subkategorije[i].id%>" 
+                                        data-naziv="<%=subkategorije[i].naziv%>" 
+                                        data-category="<%=subkategorije[i].category%>" 
+                                        data-slika="<%=subkategorije[i].slika%>">
+                                    Izmeni
+                                </button>
+                                <form class="delete-form" action="/delete-subcategory" method="POST" 
+                                      onsubmit="return confirm('Da li ste sigurni da želite da obrišete ovu subkategoriju?')">
+                                    <input type="hidden" name="id" value="<%=subkategorije[i].id%>">
+                                    <button type="submit" class="btn btn-danger btn-sm">Obriši</button>
+                                </form>
+                            </td>
                         </tr>
                     <% } %>
                 </tbody>
@@ -335,14 +370,16 @@
         </div>
     </div>
     
-    <!-- Add Subcategory Modal -->
+    <!-- Add/Edit Subcategory Modal -->
     <div id="subcategoryModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h2>Dodaj novu subkategoriju</h2>
+                <h2 id="modalTitle">Dodaj novu subkategoriju</h2>
                 <span class="close">&times;</span>
             </div>
             <form id="subcategoryForm" action="/add-subcategory" method="POST">
+                <input type="hidden" id="subcategoryId" name="id">
+                
                 <div class="form-group">
                     <label for="naziv">Naziv</label>
                     <input type="text" id="naziv" name="naziv" class="form-control" required>
@@ -350,14 +387,7 @@
                 
                 <div class="form-group">
                     <label for="category">Kategorija</label>
-                    <select id="category" name="category" class="form-control" required>
-                        <option value="">Izaberite kategoriju</option>
-                        <option value="Računari">Računari</option>
-                        <option value="Periferije">Periferije</option>
-                        <option value="Komponente">Komponente</option>
-                        <option value="Mreža">Mreža</option>
-                        <option value="Softver">Softver</option>
-                    </select>
+                    <input type="text" id="category" name="category" class="form-control" required>
                 </div>
                 
                 <div class="form-group">
@@ -373,18 +403,60 @@
         </div>
     </div>
 
+    <!-- Edit Subcategory Modal -->
+    <div id="editSubcategoryModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Izmeni subkategoriju</h2>
+                <span class="close" id="closeEditModal">&times;</span>
+            </div>
+            <form id="editSubcategoryForm" action="/edit-subcategory" method="POST">
+                <input type="hidden" id="editSubcategoryId" name="id">
+                
+                <div class="form-group">
+                    <label for="editNaziv">Naziv</label>
+                    <input type="text" id="editNaziv" name="naziv" class="form-control" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="editCategory">Kategorija</label>
+                    <input type="text" id="editCategory" name="category" class="form-control" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="editSlika">URL Slike</label>
+                    <input type="text" id="editSlika" name="slika" class="form-control" placeholder="Unesite URL slike ili ostavite prazno za podrazumevanu sliku">
+                </div>
+                
+                <div class="form-buttons">
+                    <button type="button" class="btn btn-danger" id="cancelEditBtn">Odustani</button>
+                    <button type="submit" class="btn btn-success">Sačuvaj izmene</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <script>
         // DOM Elements
         const subcategoriesTableBody = document.getElementById('subcategoriesTableBody');
         const subcategoryModal = document.getElementById('subcategoryModal');
         const subcategoryForm = document.getElementById('subcategoryForm');
+        const editSubcategoryModal = document.getElementById('editSubcategoryModal');
+        const editSubcategoryForm = document.getElementById('editSubcategoryForm');
         const searchInput = document.getElementById('searchInput');
         const searchBtn = document.getElementById('searchBtn');
+        const modalTitle = document.getElementById('modalTitle');
+        const subcategoryId = document.getElementById('subcategoryId');
         
         // Buttons
         const addSubcategoryBtn = document.getElementById('addSubcategoryBtn');
         const cancelBtn = document.getElementById('cancelBtn');
+        const cancelEditBtn = document.getElementById('cancelEditBtn');
         const closeModalBtn = document.querySelector('.close');
+        const closeEditModalBtn = document.getElementById('closeEditModal');
+        
+        // Current mode
+        let isEditMode = false;
         
         // Initialize the application
         function init() {
@@ -396,15 +468,13 @@
             // Add Subcategory button
             addSubcategoryBtn.addEventListener('click', openAddModal);
             
-            // Close modal button
-            closeModalBtn.addEventListener('click', () => {
-                subcategoryModal.style.display = 'none';
-            });
+            // Close modal buttons
+            closeModalBtn.addEventListener('click', closeModal);
+            closeEditModalBtn.addEventListener('click', closeEditModal);
             
-            // Cancel button
-            cancelBtn.addEventListener('click', () => {
-                subcategoryModal.style.display = 'none';
-            });
+            // Cancel buttons
+            cancelBtn.addEventListener('click', closeModal);
+            cancelEditBtn.addEventListener('click', closeEditModal);
             
             // Search button
             searchBtn.addEventListener('click', searchSubcategories);
@@ -419,15 +489,57 @@
             // Close modal when clicking outside
             window.addEventListener('click', function(e) {
                 if (e.target === subcategoryModal) {
-                    subcategoryModal.style.display = 'none';
+                    closeModal();
+                }
+                if (e.target === editSubcategoryModal) {
+                    closeEditModal();
+                }
+            });
+            
+            // Edit buttons
+            document.addEventListener('click', function(e) {
+                if (e.target.classList.contains('edit-btn')) {
+                    openEditModal(e.target);
                 }
             });
         }
         
         // Open Add Subcategory Modal
         function openAddModal() {
+            isEditMode = false;
+            modalTitle.textContent = 'Dodaj novu subkategoriju';
             subcategoryForm.reset();
+            subcategoryForm.action = '/add-subcategory';
+            subcategoryId.value = '';
             subcategoryModal.style.display = 'block';
+        }
+        
+        // Open Edit Subcategory Modal
+        function openEditModal(button) {
+            const id = button.getAttribute('data-id');
+            const naziv = button.getAttribute('data-naziv');
+            const category = button.getAttribute('data-category');
+            const slika = button.getAttribute('data-slika');
+            
+            document.getElementById('editSubcategoryId').value = id;
+            document.getElementById('editNaziv').value = naziv;
+            document.getElementById('editCategory').value = category;
+            document.getElementById('editSlika').value = slika;
+            
+            editSubcategoryModal.style.display = 'block';
+        }
+        
+        // Close Add Modal
+        function closeModal() {
+            subcategoryModal.style.display = 'none';
+            subcategoryForm.reset();
+            isEditMode = false;
+        }
+        
+        // Close Edit Modal
+        function closeEditModal() {
+            editSubcategoryModal.style.display = 'none';
+            editSubcategoryForm.reset();
         }
         
         // Search Subcategories
