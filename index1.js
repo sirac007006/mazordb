@@ -69,7 +69,8 @@ app.get("/logout", (req, res) => {
 });
 app.get("/", async(req,res) => {
     let proizvodi = (await db.query("SELECT * FROM proizvodiful_updated")).rows;
-    res.render("index.ejs", { proizvodi:proizvodi })
+    let subcategories = (await db.query("SELECT * FROM subcategories")).rows;
+    res.render("index.ejs", { proizvodi, subcategories })
 });
 
 app.get("/login", async(req,res) => {

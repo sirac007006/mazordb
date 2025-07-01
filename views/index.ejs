@@ -14,23 +14,23 @@
             --light-gray: #f5f5f5;
             --border-color: #ddd;
         }
-        
+
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
-        
+
         body {
             background-color: #f9f9f9;
         }
-        
+
         .container {
             display: flex;
             min-height: 100vh;
         }
-        
+
         /* Sidebar */
         .sidebar {
             width: 250px;
@@ -39,29 +39,29 @@
             padding: 20px 0;
             transition: all 0.3s;
         }
-        
+
         .sidebar-header {
             padding: 0 20px 20px;
             border-bottom: 1px solid rgba(255, 255, 255, 0.1);
             text-align: center;
         }
-        
+
         .sidebar-header h3 {
             margin-bottom: 5px;
         }
-        
+
         .sidebar-menu {
             padding: 20px 0;
         }
-        
+
         .sidebar-menu ul {
             list-style: none;
         }
-        
+
         .sidebar-menu li {
             margin-bottom: 5px;
         }
-        
+
         .sidebar-menu a {
             display: block;
             padding: 12px 20px;
@@ -70,23 +70,23 @@
             transition: all 0.3s;
             border-left: 3px solid transparent;
         }
-        
+
         .sidebar-menu a:hover, .sidebar-menu a.active {
             background-color: rgba(255, 255, 255, 0.1);
             border-left: 3px solid var(--primary-color);
         }
-        
+
         .sidebar-menu a.active {
             background-color: rgba(255, 255, 255, 0.2);
         }
-        
+
         /* Main Content */
         .main-content {
             flex: 1;
             padding: 20px;
             overflow-x: auto;
         }
-        
+
         .page-header {
             display: flex;
             justify-content: space-between;
@@ -95,7 +95,7 @@
             padding-bottom: 10px;
             border-bottom: 1px solid var(--border-color);
         }
-        
+
         /* Table styles */
         .data-table {
             width: 100%;
@@ -106,7 +106,7 @@
             table-layout: fixed;
             border-spacing: 0;
         }
-        
+
         .data-table th, .data-table td {
             padding: 8px 12px;
             text-align: left;
@@ -117,30 +117,30 @@
             vertical-align: middle;
             margin: 0;
         }
-        
+
         .data-table td.col-akcije {
             border-bottom: none;
         }
-        
+
         .data-table th {
             background-color: var(--secondary-color);
             color: white;
             font-weight: 600;
         }
-        
+
         .data-table tr:nth-child(even) {
             background-color: #f8f9fa;
         }
-        
+
         .data-table tr {
             height: 40px;
             line-height: 1.2;
         }
-        
+
         .data-table tr:hover {
             background-color: var(--light-gray);
         }
-        
+
         .col-akcije { width: 130px; text-align: center; }
         .col-id { width: 50px; text-align: center; }
         .col-sifra { width: 80px; }
@@ -149,9 +149,10 @@
         .col-vrednost { width: 110px; text-align: right; }
         .col-subcategories { width: 130px; }
         .col-brend { width: 120px; }
+        .col-izdvajanje { width: 100px; text-align: center; }
         .col-slka { width: 200px; font-size: 12px; word-break: break-all; }
         .col-deskripcija { width: 150px; }
-        
+
         /* Buttons */
         .btn {
             padding: 5px 10px;
@@ -161,38 +162,38 @@
             font-size: 13px;
             transition: all 0.3s;
         }
-        
+
         .btn-primary {
             background-color: var(--primary-color);
             color: white;
         }
-        
+
         .btn-success {
             background-color: var(--success-color);
             color: white;
         }
-        
+
         .btn-danger {
             background-color: var(--danger-color);
             color: white;
         }
-        
+
         .btn-warning {
             background-color: var(--warning-color);
             color: white;
         }
-        
+
         .btn:hover {
             opacity: 0.9;
         }
-        
+
         .action-buttons {
             display: flex;
             gap: 5px;
             white-space: nowrap;
             justify-content: center;
         }
-        
+
         /* Modals */
         .modal {
             display: none;
@@ -205,7 +206,7 @@
             background-color: rgba(0, 0, 0, 0.5);
             overflow: auto;
         }
-        
+
         .modal-content {
             background-color: white;
             margin: 5% auto;
@@ -215,12 +216,12 @@
             max-width: 800px;
             animation: modalOpen 0.3s;
         }
-        
+
         @keyframes modalOpen {
             from {opacity: 0; transform: translateY(-50px);}
             to {opacity: 1; transform: translateY(0);}
         }
-        
+
         .modal-header {
             display: flex;
             justify-content: space-between;
@@ -229,11 +230,11 @@
             padding-bottom: 10px;
             border-bottom: 1px solid var(--border-color);
         }
-        
+
         .modal-header h2 {
             margin: 0;
         }
-        
+
         .close {
             color: #aaa;
             float: right;
@@ -241,22 +242,22 @@
             font-weight: bold;
             cursor: pointer;
         }
-        
+
         .close:hover {
             color: black;
         }
-        
+
         /* Forms */
         .form-group {
             margin-bottom: 15px;
         }
-        
+
         .form-group label {
             display: block;
             margin-bottom: 5px;
             font-weight: 600;
         }
-        
+
         .form-control {
             width: 100%;
             padding: 10px;
@@ -264,29 +265,29 @@
             border-radius: 4px;
             font-size: 14px;
         }
-        
+
         .form-control.textarea {
             min-height: 80px;
             resize: vertical;
         }
-        
+
         .form-row {
             display: flex;
             gap: 15px;
             margin-bottom: 15px;
         }
-        
+
         .form-col {
             flex: 1;
         }
-        
+
         .form-buttons {
             display: flex;
             justify-content: flex-end;
             gap: 10px;
             margin-top: 20px;
         }
-        
+
         /* Search and filter */
         .search-filter-container {
             display: flex;
@@ -295,24 +296,24 @@
             flex-wrap: wrap;
             gap: 10px;
         }
-        
+
         .search-container {
             display: flex;
             gap: 10px;
         }
-        
+
         .filter-container {
             display: flex;
             gap: 10px;
             align-items: center;
         }
-        
+
         .search-container .form-control,
         .filter-container .form-control {
             max-width: 200px;
             padding: 8px 10px;
         }
-        
+
         /* Pagination */
         .pagination {
             display: flex;
@@ -320,7 +321,7 @@
             gap: 5px;
             margin-top: 20px;
         }
-        
+
         .pagination button {
             padding: 5px 10px;
             border: 1px solid var(--border-color);
@@ -328,18 +329,18 @@
             cursor: pointer;
             border-radius: 3px;
         }
-        
+
         .pagination button.active {
             background-color: var(--primary-color);
             color: white;
             border-color: var(--primary-color);
         }
-        
+
         /* Truncated cells */
         .truncated-cell {
             position: relative;
         }
-        
+
         .truncated-cell:hover::after {
             content: attr(data-full-text);
             position: absolute;
@@ -354,32 +355,32 @@
             white-space: normal;
             word-break: break-all;
         }
-        
+
         /* Responsive */
         @media (max-width: 768px) {
             .container {
                 flex-direction: column;
             }
-            
+
             .sidebar {
                 width: 100%;
                 padding: 10px;
             }
-            
+
             .sidebar-header {
                 padding: 10px;
             }
-            
+
             .form-row {
                 flex-direction: column;
                 gap: 0;
             }
-            
+
             .modal-content {
                 width: 90%;
                 margin: 10% auto;
             }
-            
+
             .search-filter-container {
                 flex-direction: column;
             }
@@ -387,570 +388,581 @@
     </style>
 </head>
 <body>
-    <div class="container">
-        <!-- Sidebar -->
-        <div class="sidebar">
-            <div class="sidebar-header">
-                <h3>Admin Panel</h3>
-                <p>Upravljanje bazom podataka</p>
-            </div>
-            <div class="sidebar-menu">
-                <ul>
-                    <li><a href="/" class="active">Proizvodi</a></li>
-                    <li><a href="/porudzbine">Porudzbine</a></li>
-                    <li><a href="/korisnici">Korisnici</a></li>
-                    <li><a href="/subkategorije">Subkategorije</a></li>
-                    <li><a href="/poruke">Poruke</a></li>
-                </ul>
+<div class="container">
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <h3>Admin Panel</h3>
+            <p>Upravljanje bazom podataka</p>
+        </div>
+        <div class="sidebar-menu">
+            <ul>
+                <li><a href="/" class="active">Proizvodi</a></li>
+                <li><a href="/porudzbine">Porudzbine</a></li>
+                <li><a href="/korisnici">Korisnici</a></li>
+                <li><a href="/subkategorije">Subkategorije</a></li>
+                <li><a href="/poruke">Poruke</a></li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="page-header">
+            <h1>Proizvodi</h1>
+            <div>
+                <button class="btn btn-primary" id="addProductBtn">Dodaj Novi Proizvod</button>
             </div>
         </div>
-        
-        <!-- Main Content -->
-        <div class="main-content">
-            <div class="page-header">
-                <h1>Proizvodi</h1>
-                <div>
-                    <button class="btn btn-primary" id="addProductBtn">Dodaj Novi Proizvod</button>
-                </div>
+
+        <div class="search-filter-container">
+            <div class="search-container">
+                <input type="text" id="searchInput" class="form-control" placeholder="Pretraži proizvode...">
+                <button class="btn btn-primary" id="searchBtn">Pretraži</button>
             </div>
-            
-            <div class="search-filter-container">
-                <div class="search-container">
-                    <input type="text" id="searchInput" class="form-control" placeholder="Pretraži proizvode...">
-                    <button class="btn btn-primary" id="searchBtn">Pretraži</button>
-                </div>
-                <div class="filter-container">
-                    <label for="brendFilter">Filter po brendu:</label>
-                    <select id="brendFilter" class="form-control">
-                        <option value="all">Svi brendovi</option>
-                    </select>
-                </div>
+            <div class="filter-container">
+                <label for="brendFilter">Filter po brendu:</label>
+                <select id="brendFilter" class="form-control">
+                    <option value="all">Svi brendovi</option>
+                </select>
             </div>
-            
-            <table class="data-table">
-                <thead>
+        </div>
+
+        <table class="data-table">
+            <thead>
+            <tr>
+                <th class="col-akcije">Akcije</th>
+                <th class="col-id">ID</th>
+                <th class="col-sifra">Šifra</th>
+                <th class="col-naziv">Naziv</th>
+                <th class="col-cena">Cena (sa PDV)</th>
+                <th class="col-vrednost">Vrednost (sa PDV)</th>
+                <th class="col-subcategories">Subkategorije</th>
+                <th class="col-brend">Brend</th>
+                <th class="col-izdvajanje">Izdvajanje</th>
+                <th class="col-slka">URL Slike</th>
+                <th class="col-deskripcija">Deskripcija</th>
+            </tr>
+            </thead>
+            <tbody id="productsTableBody">
+            <% if (typeof proizvodi !== 'undefined' && proizvodi && proizvodi.length > 0) { %>
+                <% for(let i = 0; i < proizvodi.length; i++) { %>
                     <tr>
-                        <th class="col-akcije">Akcije</th>
-                        <th class="col-id">ID</th>
-                        <th class="col-sifra">Šifra</th>
-                        <th class="col-naziv">Naziv</th>
-                        <th class="col-cena">Cena (sa PDV)</th>
-                        <th class="col-vrednost">Vrednost (sa PDV)</th>
-                        <th class="col-subcategories">Subkategorije</th>
-                        <th class="col-brend">Brend</th>
-                        <th class="col-slka">URL Slike</th>
-                        <th class="col-deskripcija">Deskripcija</th>
+                        <td class="col-akcije action-buttons">
+                            <button class="btn btn-warning btn-edit" data-id="<%= proizvodi[i].id %>">Izmeni</button>
+                            <button class="btn btn-danger btn-delete" data-id="<%= proizvodi[i].id %>">Obriši</button>
+                        </td>
+                        <td class="col-id"><%= proizvodi[i].id %></td>
+                        <td class="col-sifra"><%= proizvodi[i].sifra %></td>
+                        <td class="col-naziv truncated-cell" data-full-text="<%= proizvodi[i].naziv %>"><%= proizvodi[i].naziv %></td>
+                        <td class="col-cena"><%= proizvodi[i].cena_sapdv %></td>
+                        <td class="col-vrednost"><%= proizvodi[i].vrednost_sapdv %></td>
+                        <td class="col-subcategories truncated-cell" data-full-text="<%= proizvodi[i].subcategories %>"><%= proizvodi[i].subcategories %></td>
+                        <td class="col-brend"><%= proizvodi[i].brend %></td>
+                        <td class="col-izdvajanje"><%= proizvodi[i].izdvajanje %></td>
+                        <td class="col-slka truncated-cell" data-full-text="<%= proizvodi[i].slka %>"><%= proizvodi[i].slka %></td>
+                        <td class="col-deskripcija truncated-cell" data-full-text="<%= proizvodi[i].deskripcija %>"><%= proizvodi[i].deskripcija %></td>
                     </tr>
-                </thead>
-                <tbody id="productsTableBody">
-                    <% if (typeof proizvodi !== 'undefined' && proizvodi && proizvodi.length > 0) { %>
-                        <% for(let i = 0; i < proizvodi.length; i++) { %>
-                        <tr>
-                            <td class="col-akcije action-buttons">
-                                <button class="btn btn-warning btn-edit" data-id="<%= proizvodi[i].id %>">Izmeni</button>
-                                <button class="btn btn-danger btn-delete" data-id="<%= proizvodi[i].id %>">Obriši</button>
-                            </td>
-                            <td class="col-id"><%= proizvodi[i].id %></td>
-                            <td class="col-sifra"><%= proizvodi[i].sifra %></td>
-                            <td class="col-naziv truncated-cell" data-full-text="<%= proizvodi[i].naziv %>"><%= proizvodi[i].naziv %></td>
-                            <td class="col-cena"><%= proizvodi[i].cena_sapdv %></td>
-                            <td class="col-vrednost"><%= proizvodi[i].vrednost_sapdv %></td>
-                            <td class="col-subcategories truncated-cell" data-full-text="<%= proizvodi[i].subcategories %>"><%= proizvodi[i].subcategories %></td>
-                            <td class="col-brend"><%= proizvodi[i].brend %></td>
-                            <td class="col-slka truncated-cell" data-full-text="<%= proizvodi[i].slka %>"><%= proizvodi[i].slka %></td>
-                            <td class="col-deskripcija truncated-cell" data-full-text="<%= proizvodi[i].deskripcija %>"><%= proizvodi[i].deskripcija %></td>
-                        </tr>
-                        <% } %>
-                    <% } else { %>
-                        <tr>
-                            <td colspan="10" style="text-align: center;">Nema proizvoda za prikaz</td>
-                        </tr>
-                    <% } %>
-                </tbody>
-            </table>
-            
-            <div class="pagination" id="pagination"></div>
-        </div>
+                <% } %>
+            <% } else { %>
+                <tr>
+                    <td colspan="10" style="text-align: center;">Nema proizvoda za prikaz</td>
+                </tr>
+            <% } %>
+            </tbody>
+        </table>
+
+        <div class="pagination" id="pagination"></div>
     </div>
-    
-    <!-- Add/Edit Product Modal -->
-    <div id="productModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2 id="modalTitle">Dodaj novi proizvod</h2>
-                <span class="close">&times;</span>
-            </div>
-            <form id="productForm">
-                <input type="hidden" id="productId">
-                
-                <div class="form-row">
-                    <div class="form-col">
-                        <div class="form-group">
-                            <label for="sifra">Šifra</label>
-                            <input type="text" id="sifra" class="form-control" required>
-                        </div>
-                    </div>
-                    <div class="form-col">
-                        <div class="form-group">
-                            <label for="naziv">Naziv</label>
-                            <input type="text" id="naziv" class="form-control" required>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="form-row">
-                    <div class="form-col">
-                        <div class="form-group">
-                            <label for="cena_sapdv">Cena (sa PDV)</label>
-                            <input type="number" id="cena_sapdv" class="form-control" step="0.01" min="0" required>
-                        </div>
-                    </div>
-                    <div class="form-col">
-                        <div class="form-group">
-                            <label for="subcategories">Subkategorije</label>
-                            <input type="text" id="subcategories" class="form-control">
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="form-row">
-                    <div class="form-col">
-                        <div class="form-group">
-                            <label for="brend">Brend</label>
-                            <input type="text" id="brend" class="form-control">
-                        </div>
-                    </div>
-                    <div class="form-col">
-                        <div class="form-group">
-                            <label for="slka">URL Slike</label>
-                            <input type="text" id="slka" name="slka" class="form-control">
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="form-row">
-                    <div class="form-col">
-                        <div class="form-group">
-                            <label for="deskripcija">Deskripcija</label>
-                            <textarea id="deskripcija" name="deskripcija" class="form-control textarea" placeholder="Unesite detaljan opis proizvoda..."></textarea>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="form-buttons">
-                    <button type="button" class="btn btn-danger" id="cancelBtn">Odustani</button>
-                    <button type="submit" class="btn btn-success" id="saveBtn">Sačuvaj</button>
-                </div>
-            </form>
+</div>
+
+<!-- Add/Edit Product Modal -->
+<div id="productModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2 id="modalTitle">Dodaj novi proizvod</h2>
+            <span class="close">&times;</span>
         </div>
-    </div>
-    
-    <div id="deleteModal" class="modal">
-        <div class="modal-content" style="max-width: 400px;">
-            <div class="modal-header">
-                <h2>Potvrda brisanja</h2>
-                <span class="close">&times;</span>
+        <form id="productForm">
+            <input type="hidden" id="productId">
+
+            <div class="form-row">
+                <div class="form-col">
+                    <div class="form-group">
+                        <label for="sifra">Šifra</label>
+                        <input type="text" id="sifra" class="form-control" required>
+                    </div>
+                </div>
+                <div class="form-col">
+                    <div class="form-group">
+                        <label for="naziv">Naziv</label>
+                        <input type="text" id="naziv" class="form-control" required>
+                    </div>
+                </div>
             </div>
-            <p>Da li ste sigurni da želite da obrišete ovaj proizvod?</p>
+
+            <div class="form-row">
+                <div class="form-col">
+                    <div class="form-group">
+                        <label for="cena_sapdv">Cena (sa PDV)</label>
+                        <input type="number" id="cena_sapdv" class="form-control" step="0.01" min="0" required>
+                    </div>
+                </div>
+                <div class="form-col">
+                    <div class="form-group">
+                        <label for="subcategories">Subkategorije</label>
+                        <input type="text" id="subcategories" class="form-control">
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-col">
+                    <div class="form-group">
+                        <label for="brend">Brend</label>
+                        <input type="text" id="brend" class="form-control">
+                    </div>
+                </div>
+                <div class="form-col">
+                    <div class="form-group">
+                        <label for="izdvajanje">Izdvajanje</label>
+                        <input type="text" id="izdvajanje" class="form-control">
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-col">
+                    <div class="form-group">
+                        <label for="slka">URL Slike</label>
+                        <input type="text" id="slka" name="slka" class="form-control">
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-col">
+                    <div class="form-group">
+                        <label for="deskripcija">Deskripcija</label>
+                        <textarea id="deskripcija" name="deskripcija" class="form-control textarea" placeholder="Unesite detaljan opis proizvoda..."></textarea>
+                    </div>
+                </div>
+            </div>
+
             <div class="form-buttons">
-                <button type="button" class="btn btn-primary" id="cancelDeleteBtn">Odustani</button>
-                <button type="button" class="btn btn-danger" id="confirmDeleteBtn">Obriši</button>
+                <button type="button" class="btn btn-danger" id="cancelBtn">Odustani</button>
+                <button type="submit" class="btn btn-success" id="saveBtn">Sačuvaj</button>
             </div>
+        </form>
+    </div>
+</div>
+
+<div id="deleteModal" class="modal">
+    <div class="modal-content" style="max-width: 400px;">
+        <div class="modal-header">
+            <h2>Potvrda brisanja</h2>
+            <span class="close">&times;</span>
+        </div>
+        <p>Da li ste sigurni da želite da obrišete ovaj proizvod?</p>
+        <div class="form-buttons">
+            <button type="button" class="btn btn-primary" id="cancelDeleteBtn">Odustani</button>
+            <button type="button" class="btn btn-danger" id="confirmDeleteBtn">Obriši</button>
         </div>
     </div>
+</div>
 
-    <script>
-// DOM Elements
-const elements = {
-    productsTableBody: document.getElementById('productsTableBody'),
-    productModal: document.getElementById('productModal'),
-    deleteModal: document.getElementById('deleteModal'),
-    modalTitle: document.getElementById('modalTitle'),
-    productForm: document.getElementById('productForm'),
-    searchInput: document.getElementById('searchInput'),
-    searchBtn: document.getElementById('searchBtn'),
-    brendFilter: document.getElementById('brendFilter'),
-    addProductBtn: document.getElementById('addProductBtn'),
-    cancelBtn: document.getElementById('cancelBtn'),
-    closeModalBtns: document.querySelectorAll('.close'),
-    cancelDeleteBtn: document.getElementById('cancelDeleteBtn'),
-    confirmDeleteBtn: document.getElementById('confirmDeleteBtn'),
-    pagination: document.getElementById('pagination')
-};
+<script>
+    // DOM Elements
+    const elements = {
+        productsTableBody: document.getElementById('productsTableBody'),
+        productModal: document.getElementById('productModal'),
+        deleteModal: document.getElementById('deleteModal'),
+        modalTitle: document.getElementById('modalTitle'),
+        productForm: document.getElementById('productForm'),
+        searchInput: document.getElementById('searchInput'),
+        searchBtn: document.getElementById('searchBtn'),
+        brendFilter: document.getElementById('brendFilter'),
+        addProductBtn: document.getElementById('addProductBtn'),
+        cancelBtn: document.getElementById('cancelBtn'),
+        closeModalBtns: document.querySelectorAll('.close'),
+        cancelDeleteBtn: document.getElementById('cancelDeleteBtn'),
+        confirmDeleteBtn: document.getElementById('confirmDeleteBtn'),
+        pagination: document.getElementById('pagination')
+    };
 
-// Helper functions
-const helpers = {
-    safeGetText(element) {
-        return element ? element.textContent.trim() : '';
-    },
-    
-    safeParseInt(value) {
-        if (!value) return 0;
-        const cleaned = value.toString().replace(/[^\d]/g, '');
-        const parsed = parseInt(cleaned);
-        return isNaN(parsed) ? 0 : parsed;
-    },
-    
-    safeParseFloat(value) {
-    if (!value) return 0;
-    
-    const cleanValue = value.toString()
-        .replace(/\s/g, '')     // ukloni sve space-ove
-        .replace(/,/g, '.');    // zameni zarez sa tačkom za decimalne
-    
-    const parsed = parseFloat(cleanValue);
-    return isNaN(parsed) ? 0 : parsed;
-},
+    // Helper functions
+    const helpers = {
+        safeGetText(element) {
+            return element ? element.textContent.trim() : '';
+        },
+
+        safeParseInt(value) {
+            if (!value) return 0;
+            const cleaned = value.toString().replace(/[^\d]/g, '');
+            const parsed = parseInt(cleaned);
+            return isNaN(parsed) ? 0 : parsed;
+        },
+
+        safeParseFloat(value) {
+            if (!value) return 0;
+
+            const cleanValue = value.toString()
+                .replace(/\s/g, '')     // ukloni sve space-ove
+                .replace(/,/g, '.');    // zameni zarez sa tačkom za decimalne
+
+            const parsed = parseFloat(cleanValue);
+            return isNaN(parsed) ? 0 : parsed;
+        },
 
 // Ili još bolja verzija koja rukuje i hiljadama:
-safeParseFloat(value) {
-    if (!value) return 0;
-    
-    let cleanValue = value.toString().replace(/\s/g, '');
-    
-    // Ako ima više tačaka ili kombinaciju tačke i zareza
-    if ((cleanValue.match(/\./g) || []).length > 1 || (cleanValue.includes('.') && cleanValue.includes(','))) {
-        // Ukloni sve tačke osim poslednje (hiljadni separatori)
-        const lastDotIndex = cleanValue.lastIndexOf('.');
-        const lastCommaIndex = cleanValue.lastIndexOf(',');
-        
-        if (lastCommaIndex > lastDotIndex) {
-            // Zarez je decimalni separator
-            cleanValue = cleanValue.replace(/\./g, '').replace(',', '.');
-        } else {
-            // Tačka je decimalni separator
-            cleanValue = cleanValue.replace(/\./g, (match, offset) => {
-                return offset === lastDotIndex ? '.' : '';
-            }).replace(/,/g, '');
-        }
-    } else {
-        // Standardno: zameni zarez sa tačkom
-        cleanValue = cleanValue.replace(',', '.');
-    }
-    
-    const parsed = parseFloat(cleanValue);
-    return isNaN(parsed) ? 0 : parsed;
-},
-    
-    formatPrice(price) {
-        return price.toFixed(2);
-    }
-};
+        safeParseFloat(value) {
+            if (!value) return 0;
 
+            let cleanValue = value.toString().replace(/\s/g, '');
 
-const api = {
-    async saveProduct(productData) {
-        try {
-            console.log('API: Saving product with data:', productData);
-            
-            const response = await fetch('/api/products', {
-                method: productData.id ? 'PUT' : 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(productData)
-            });
-            
-            // Check if the response is JSON
-            const contentType = response.headers.get('content-type');
-            if (!contentType || !contentType.includes('application/json')) {
-                // Handle non-JSON response
-                const textResponse = await response.text();
-                console.error('Non-JSON response received:', textResponse);
-                throw new Error('Neočekivan odgovor od servera');
-            }
-            
-            if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.error || 'Greška pri čuvanju proizvoda');
-            }
-            
-            const result = await response.json();
-            console.log('API: Server response:', result);
-            return result;
-        } catch (error) {
-            console.error('API error:', error);
-            alert('Došlo je do greške prilikom čuvanja proizvoda: ' + error.message);
-            throw error;
-        }
-    },
-    
-    async deleteProduct(productId) {
-        try {
-            const response = await fetch(`/api/products/${productId}`, {
-                method: 'DELETE'
-            });
-            
-            if (!response.ok) {
-                throw new Error('Greška pri brisanju proizvoda');
-            }
-            
-            return true;
-        } catch (error) {
-            console.error('API error:', error);
-            alert('Došlo je do greške prilikom brisanja proizvoda: ' + error.message);
-            throw error;
-        }
-    },
-    
-    async getProducts() {
-        try {
-            const response = await fetch('/api/products');
-            
-            if (!response.ok) {
-                throw new Error('Greška pri dohvatanju proizvoda');
-            }
-            
-            return await response.json();
-        } catch (error) {
-            console.error('API error:', error);
-            return null;
-        }
-    }
-};
+            // Ako ima više tačaka ili kombinaciju tačke i zareza
+            if ((cleanValue.match(/\./g) || []).length > 1 || (cleanValue.includes('.') && cleanValue.includes(','))) {
+                // Ukloni sve tačke osim poslednje (hiljadni separatori)
+                const lastDotIndex = cleanValue.lastIndexOf('.');
+                const lastCommaIndex = cleanValue.lastIndexOf(',');
 
-// State management
-let products = [];
-let uniqueBrands = ['Svi brendovi'];
-let currentBrandFilter = 'all';
-let currentProductId = null;
-let currentPage = 1;
-const productsPerPage = 500;
-
-// Default products for testing
-const mockData = [
-    {
-        id: 1758,
-        sifra: '101926',
-        naziv: 'Set solja BR 3002 Fiser',
-        cena_sapdv: 139,
-        vrednost_sapdv: 139,
-        subcategories: 'Stono posuđe',
-        brend: 'Fisher',
-        slka: 'https://via.placeholder.com/150',
-        deskripcija: "Elegantni set solja od porcelana, idealan za svakodnevnu upotrebu. Uključuje 6 solja sa tacnama."
-    },
-    {
-        id: 1754,
-        sifra: '101920',
-        naziv: 'Pec Atina',
-        cena_sapdv: 954,
-        vrednost_sapdv: 954,
-        subcategories: 'Peći',
-        brend: 'Bez rasporeda po brendovima',
-        slka: 'https://via.placeholder.com/150',
-        deskripcija: "Električna peć sa funkcijama pečenja i grilovanja. Snaga 2000W, temperatura do 250°C."
-    },
-    {
-        id: 1749,
-        sifra: '101913',
-        naziv: 'Mesoreznica R708A Gorenje',
-        cena_sapdv: 118,
-        vrednost_sapdv: 118,
-        subcategories: 'Aparati za hranu',
-        brend: 'Gorenje',
-        slka: 'https://via.placeholder.com/150',
-        deskripcija: "Električna mesoreznica sa oštrim nožem od nerđajućeg čelika. Idealna za sečenje mesa i kobasica."
-    },
-    {
-        id: 1747,
-        sifra: '101909',
-        naziv: 'Frizider KS 1610 F Vox',
-        cena_sapdv: 199,
-        vrednost_sapdv: 199,
-        subcategories: 'Frižideri',
-        brend: 'Vox',
-        slka: 'https://via.placeholder.com/150',
-        deskripcija: "Kompaktni frižider sa freezer odeljkom. Zapremina 160L, energetska klasa A+."
-    }
-];
-
-// Application functions
-const app = {
-    loadInitialProductsFromHTML() {
-        const rows = document.querySelectorAll('#productsTableBody tr');
-        
-        const noProductsRow = document.querySelector('#productsTableBody tr td[colspan="10"]');
-        if (noProductsRow && noProductsRow.textContent.includes('Nema proizvoda za prikaz')) {
-            return [];
-        }
-        
-        const validProducts = [];
-        
-        for (let i = 0; i < rows.length; i++) {
-            const row = rows[i];
-            const cells = row.querySelectorAll('td');
-            
-            if (cells.length < 2 || (cells.length === 1 && cells[0].hasAttribute('colspan'))) {
-                continue;
-            }
-            
-            try {
-                // Extract the full text from the data attribute if available for all appropriate cells
-                const nazivCell = cells[3];
-                const nazivText = nazivCell && nazivCell.dataset.fullText ? 
-                               nazivCell.dataset.fullText : 
-                               helpers.safeGetText(nazivCell);
-                
-                const subcategoriesCell = cells[6];
-                const subcategoriesText = subcategoriesCell && subcategoriesCell.dataset.fullText ? 
-                                        subcategoriesCell.dataset.fullText : 
-                                        helpers.safeGetText(subcategoriesCell);
-                
-                const imageCell = cells[8];
-                const imageUrl = imageCell && imageCell.dataset.fullText ? 
-                               imageCell.dataset.fullText : 
-                               helpers.safeGetText(imageCell);
-                
-                const descriptionCell = cells[9];
-                const descriptionText = descriptionCell && descriptionCell.dataset.fullText ? 
-                                      descriptionCell.dataset.fullText : 
-                                      helpers.safeGetText(descriptionCell);
-                
-                console.log('Loading from HTML, description:', descriptionText);
-                
-                const product = {
-                    id: helpers.safeParseInt(cells[1]?.textContent),
-                    sifra: helpers.safeGetText(cells[2]),
-                    naziv: nazivText,
-                    cena_sapdv: helpers.safeParseFloat(cells[4]?.textContent),
-                    vrednost_sapdv: helpers.safeParseFloat(cells[5]?.textContent),
-                    subcategories: subcategoriesText,
-                    brend: helpers.safeGetText(cells[7]),
-                    slka: imageUrl,
-                    deskripcija: descriptionText
-                };
-                
-                console.log('Parsed product from HTML:', product);
-                
-                if (product.id) {
-                    validProducts.push(product);
-                    
-                    if (product.brend && !uniqueBrands.includes(product.brend)) {
-                        uniqueBrands.push(product.brend);
-                    }
+                if (lastCommaIndex > lastDotIndex) {
+                    // Zarez je decimalni separator
+                    cleanValue = cleanValue.replace(/\./g, '').replace(',', '.');
+                } else {
+                    // Tačka je decimalni separator
+                    cleanValue = cleanValue.replace(/\./g, (match, offset) => {
+                        return offset === lastDotIndex ? '.' : '';
+                    }).replace(/,/g, '');
                 }
+            } else {
+                // Standardno: zameni zarez sa tačkom
+                cleanValue = cleanValue.replace(',', '.');
+            }
+
+            const parsed = parseFloat(cleanValue);
+            return isNaN(parsed) ? 0 : parsed;
+        },
+
+        formatPrice(price) {
+            return price.toFixed(2);
+        }
+    };
+
+
+    const api = {
+        async saveProduct(productData) {
+            try {
+                console.log('API: Saving product with data:', productData);
+
+                const response = await fetch('/api/products', {
+                    method: productData.id ? 'PUT' : 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(productData)
+                });
+
+                // Check if the response is JSON
+                const contentType = response.headers.get('content-type');
+                if (!contentType || !contentType.includes('application/json')) {
+                    // Handle non-JSON response
+                    const textResponse = await response.text();
+                    console.error('Non-JSON response received:', textResponse);
+                    throw new Error('Neočekivan odgovor od servera');
+                }
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || 'Greška pri čuvanju proizvoda');
+                }
+
+                const result = await response.json();
+                console.log('API: Server response:', result);
+                return result;
             } catch (error) {
-                console.error('Greška pri parsiranju reda tabele:', error);
+                console.error('API error:', error);
+                alert('Došlo je do greške prilikom čuvanja proizvoda: ' + error.message);
+                throw error;
+            }
+        },
+
+        async deleteProduct(productId) {
+            try {
+                const response = await fetch(`/api/products/${productId}`, {
+                    method: 'DELETE'
+                });
+
+                if (!response.ok) {
+                    throw new Error('Greška pri brisanju proizvoda');
+                }
+
+                return true;
+            } catch (error) {
+                console.error('API error:', error);
+                alert('Došlo je do greške prilikom brisanja proizvoda: ' + error.message);
+                throw error;
+            }
+        },
+
+        async getProducts() {
+            try {
+                const response = await fetch('/api/products');
+
+                if (!response.ok) {
+                    throw new Error('Greška pri dohvatanju proizvoda');
+                }
+
+                return await response.json();
+            } catch (error) {
+                console.error('API error:', error);
+                return null;
             }
         }
-        
-        console.log('Loaded products from HTML:', validProducts.length);
-        return validProducts;
-    },
-    
-    populateBrandFilter() {
-        elements.brendFilter.innerHTML = '<option value="all">Svi brendovi</option>';
-        
-        uniqueBrands = ['Svi brendovi'];
-        products.forEach(product => {
-            if (product.brend && !uniqueBrands.includes(product.brend)) {
-                uniqueBrands.push(product.brend);
-            }
-        });
-        
-        const sortedBrands = uniqueBrands.slice(1).sort();
-        
-        sortedBrands.forEach(brend => {
-            const option = document.createElement('option');
-            option.value = brend;
-            option.textContent = brend;
-            elements.brendFilter.appendChild(option);
-        });
-    },
-    
-    async refreshProducts() {
-        try {
-            const fetchedProducts = await api.getProducts();
-            if (fetchedProducts) {
-                products = fetchedProducts;
-                this.populateBrandFilter();
-                ui.renderProducts();
-            }
-        } catch (error) {
-            console.error('Greška pri osvežavanju proizvoda:', error);
+    };
+
+    // State management
+    let products = [];
+    let uniqueBrands = ['Svi brendovi'];
+    let currentBrandFilter = 'all';
+    let currentProductId = null;
+    let currentPage = 1;
+    const productsPerPage = 500;
+
+    // Default products for testing
+    const mockData = [
+        {
+            id: 1758,
+            sifra: '101926',
+            naziv: 'Set solja BR 3002 Fiser',
+            cena_sapdv: 139,
+            vrednost_sapdv: 139,
+            subcategories: 'Stono posuđe',
+            brend: 'Fisher',
+            slka: 'https://via.placeholder.com/150',
+            deskripcija: "Elegantni set solja od porcelana, idealan za svakodnevnu upotrebu. Uključuje 6 solja sa tacnama."
+        },
+        {
+            id: 1754,
+            sifra: '101920',
+            naziv: 'Pec Atina',
+            cena_sapdv: 954,
+            vrednost_sapdv: 954,
+            subcategories: 'Peći',
+            brend: 'Bez rasporeda po brendovima',
+            slka: 'https://via.placeholder.com/150',
+            deskripcija: "Električna peć sa funkcijama pečenja i grilovanja. Snaga 2000W, temperatura do 250°C."
+        },
+        {
+            id: 1749,
+            sifra: '101913',
+            naziv: 'Mesoreznica R708A Gorenje',
+            cena_sapdv: 118,
+            vrednost_sapdv: 118,
+            subcategories: 'Aparati za hranu',
+            brend: 'Gorenje',
+            slka: 'https://via.placeholder.com/150',
+            deskripcija: "Električna mesoreznica sa oštrim nožem od nerđajućeg čelika. Idealna za sečenje mesa i kobasica."
+        },
+        {
+            id: 1747,
+            sifra: '101909',
+            naziv: 'Frizider KS 1610 F Vox',
+            cena_sapdv: 199,
+            vrednost_sapdv: 199,
+            subcategories: 'Frižideri',
+            brend: 'Vox',
+            slka: 'https://via.placeholder.com/150',
+            deskripcija: "Kompaktni frižider sa freezer odeljkom. Zapremina 160L, energetska klasa A+."
         }
-    },
-    
-    async init() {
-        const htmlRows = document.querySelectorAll('#productsTableBody tr');
-        const hasEjsProducts = htmlRows.length > 0 && !htmlRows[0].querySelector('td[colspan="10"]');
-        
-        if (hasEjsProducts) {
-            products = this.loadInitialProductsFromHTML();
-        } else {
-            // Fetch products from the server
+    ];
+
+    // Application functions
+    const app = {
+        loadInitialProductsFromHTML() {
+            const rows = document.querySelectorAll('#productsTableBody tr');
+
+            const noProductsRow = document.querySelector('#productsTableBody tr td[colspan="10"]');
+            if (noProductsRow && noProductsRow.textContent.includes('Nema proizvoda za prikaz')) {
+                return [];
+            }
+
+            const validProducts = [];
+
+            for (let i = 0; i < rows.length; i++) {
+                const row = rows[i];
+                const cells = row.querySelectorAll('td');
+
+                if (cells.length < 2 || (cells.length === 1 && cells[0].hasAttribute('colspan'))) {
+                    continue;
+                }
+
+                try {
+                    // Extract the full text from the data attribute if available for all appropriate cells
+                    const nazivCell = cells[3];
+                    const nazivText = nazivCell && nazivCell.dataset.fullText ?
+                        nazivCell.dataset.fullText :
+                        helpers.safeGetText(nazivCell);
+
+                    const subcategoriesCell = cells[6];
+                    const subcategoriesText = subcategoriesCell && subcategoriesCell.dataset.fullText ?
+                        subcategoriesCell.dataset.fullText :
+                        helpers.safeGetText(subcategoriesCell);
+
+                    const imageCell = cells[8];
+                    const imageUrl = imageCell && imageCell.dataset.fullText ?
+                        imageCell.dataset.fullText :
+                        helpers.safeGetText(imageCell);
+
+                    const descriptionCell = cells[9];
+                    const descriptionText = descriptionCell && descriptionCell.dataset.fullText ?
+                        descriptionCell.dataset.fullText :
+                        helpers.safeGetText(descriptionCell);
+
+                    console.log('Loading from HTML, description:', descriptionText);
+
+                    const product = {
+                        id: helpers.safeParseInt(cells[1]?.textContent),
+                        sifra: helpers.safeGetText(cells[2]),
+                        naziv: nazivText,
+                        cena_sapdv: helpers.safeParseFloat(cells[4]?.textContent),
+                        vrednost_sapdv: helpers.safeParseFloat(cells[5]?.textContent),
+                        subcategories: subcategoriesText,
+                        brend: helpers.safeGetText(cells[7]),
+                        slka: imageUrl,
+                        deskripcija: descriptionText
+                    };
+
+                    console.log('Parsed product from HTML:', product);
+
+                    if (product.id) {
+                        validProducts.push(product);
+
+                        if (product.brend && !uniqueBrands.includes(product.brend)) {
+                            uniqueBrands.push(product.brend);
+                        }
+                    }
+                } catch (error) {
+                    console.error('Greška pri parsiranju reda tabele:', error);
+                }
+            }
+
+            console.log('Loaded products from HTML:', validProducts.length);
+            return validProducts;
+        },
+
+        populateBrandFilter() {
+            elements.brendFilter.innerHTML = '<option value="all">Svi brendovi</option>';
+
+            uniqueBrands = ['Svi brendovi'];
+            products.forEach(product => {
+                if (product.brend && !uniqueBrands.includes(product.brend)) {
+                    uniqueBrands.push(product.brend);
+                }
+            });
+
+            const sortedBrands = uniqueBrands.slice(1).sort();
+
+            sortedBrands.forEach(brend => {
+                const option = document.createElement('option');
+                option.value = brend;
+                option.textContent = brend;
+                elements.brendFilter.appendChild(option);
+            });
+        },
+
+        async refreshProducts() {
             try {
                 const fetchedProducts = await api.getProducts();
-                if (fetchedProducts && fetchedProducts.length > 0) {
+                if (fetchedProducts) {
                     products = fetchedProducts;
-                } else {
-                    // Use mock data only if no products from server and no EJS products
-                    products = mockData;
+                    this.populateBrandFilter();
+                    ui.renderProducts();
                 }
             } catch (error) {
-                console.error('Error fetching products:', error);
-                products = mockData;
+                console.error('Greška pri osvežavanju proizvoda:', error);
+            }
+        },
+
+        async init() {
+            const htmlRows = document.querySelectorAll('#productsTableBody tr');
+            const hasEjsProducts = htmlRows.length > 0 && !htmlRows[0].querySelector('td[colspan="10"]');
+
+            if (hasEjsProducts) {
+                products = this.loadInitialProductsFromHTML();
+            } else {
+                // Fetch products from the server
+                try {
+                    const fetchedProducts = await api.getProducts();
+                    if (fetchedProducts && fetchedProducts.length > 0) {
+                        products = fetchedProducts;
+                    } else {
+                        // Use mock data only if no products from server and no EJS products
+                        products = mockData;
+                    }
+                } catch (error) {
+                    console.error('Error fetching products:', error);
+                    products = mockData;
+                }
+            }
+
+            this.populateBrandFilter();
+            ui.setupEventListeners();
+
+            if (!hasEjsProducts) {
+                ui.renderProducts();
+            } else {
+                ui.setActionButtonListeners();
             }
         }
-        
-        this.populateBrandFilter();
-        ui.setupEventListeners();
-        
-        if (!hasEjsProducts) {
-            ui.renderProducts();
-        } else {
-            ui.setActionButtonListeners();
-        }
-    }
-};
+    };
 
-// UI functions
-const ui = {
-    renderProducts(filteredProducts = null) {
-        let displayProducts = products;
-        
-        if (currentBrandFilter !== 'all') {
-            displayProducts = displayProducts.filter(product => 
-                product.brend && product.brend.toLowerCase() === currentBrandFilter.toLowerCase()
-            );
-        }
-        
-        if (filteredProducts) {
-            displayProducts = filteredProducts;
-        }
-        
-        console.log('Rendering products, total count:', displayProducts.length);
-        
-        const totalPages = Math.ceil(displayProducts.length / productsPerPage);
-        if (currentPage > totalPages && totalPages > 0) {
-            currentPage = totalPages;
-        }
-        
-        const startIndex = (currentPage - 1) * productsPerPage;
-        const paginatedProducts = displayProducts.slice(startIndex, startIndex + productsPerPage);
-        
-        elements.productsTableBody.innerHTML = '';
-        
-        if (paginatedProducts.length === 0) {
-            elements.productsTableBody.innerHTML = `
+    // UI functions
+    const ui = {
+        renderProducts(filteredProducts = null) {
+            let displayProducts = products;
+
+            if (currentBrandFilter !== 'all') {
+                displayProducts = displayProducts.filter(product =>
+                    product.brend && product.brend.toLowerCase() === currentBrandFilter.toLowerCase()
+                );
+            }
+
+            if (filteredProducts) {
+                displayProducts = filteredProducts;
+            }
+
+            console.log('Rendering products, total count:', displayProducts.length);
+
+            const totalPages = Math.ceil(displayProducts.length / productsPerPage);
+            if (currentPage > totalPages && totalPages > 0) {
+                currentPage = totalPages;
+            }
+
+            const startIndex = (currentPage - 1) * productsPerPage;
+            const paginatedProducts = displayProducts.slice(startIndex, startIndex + productsPerPage);
+
+            elements.productsTableBody.innerHTML = '';
+
+            if (paginatedProducts.length === 0) {
+                elements.productsTableBody.innerHTML = `
                 <tr>
                     <td colspan="9" style="text-align: center;">Nema proizvoda za prikaz</td>
                 </tr>
             `;
-        } else {
-            paginatedProducts.forEach(product => {
-                const row = document.createElement('tr');
-                
-                // Make sure to properly escape the image URL for HTML attributes
-                const safeImageUrl = (product.slka || '').replace(/"/g, '&quot;');
-                
-                // Truncate displayed URL but keep full URL in data attribute
-                const displayUrl = safeImageUrl.length > 30 
-                    ? safeImageUrl.substring(0, 27) + '...' 
-                    : safeImageUrl;
-                
-                row.innerHTML = `
+            } else {
+                paginatedProducts.forEach(product => {
+                    const row = document.createElement('tr');
+
+                    // Make sure to properly escape the image URL for HTML attributes
+                    const safeImageUrl = (product.slka || '').replace(/"/g, '&quot;');
+
+                    // Truncate displayed URL but keep full URL in data attribute
+                    const displayUrl = safeImageUrl.length > 30
+                        ? safeImageUrl.substring(0, 27) + '...'
+                        : safeImageUrl;
+
+                    row.innerHTML = `
                     <td class="col-akcije action-buttons" style="border-bottom: none;">
                         <button class="btn btn-warning btn-edit" data-id="${product.id}">Izmeni</button>
                         <button class="btn btn-danger btn-delete" data-id="${product.id}">Obriši</button>
@@ -962,295 +974,298 @@ const ui = {
                     <td class="col-vrednost">${helpers.formatPrice(product.vrednost_sapdv || 0)}</td>
                     <td class="col-subcategories truncated-cell" data-full-text="${(product.subcategories || '').replace(/"/g, '&quot;')}">${product.subcategories || ''}</td>
                     <td class="col-brend">${product.brend || ''}</td>
+                    <td class="col-izdvajanje">${product.izdvajanje || ''}</td>
                     <td class="col-slka truncated-cell" data-full-text="${safeImageUrl}">${displayUrl || 'Nema URL-a'}</td>
                     <td class="col-deskripcija">${product.deskripcija || ''}</td>
                 `;
-                elements.productsTableBody.appendChild(row);
-            });
-        }
-        
-        this.renderPagination(totalPages);
-        this.setActionButtonListeners();
-    },
-    
-    renderPagination(totalPages) {
-        elements.pagination.innerHTML = '';
-        
-        if (totalPages <= 1) {
-            return;
-        }
-        
-        const prevButton = document.createElement('button');
-        prevButton.textContent = '«';
-        prevButton.disabled = currentPage === 1;
-        prevButton.addEventListener('click', () => {
-            if (currentPage > 1) {
-                currentPage--;
-                this.renderProducts();
+                    elements.productsTableBody.appendChild(row);
+                });
             }
-        });
-        elements.pagination.appendChild(prevButton);
-        
-        let startPage = Math.max(1, currentPage - 2);
-        let endPage = Math.min(totalPages, startPage + 4);
-        
-        if (endPage - startPage < 4) {
-            startPage = Math.max(1, endPage - 4);
-        }
-        
-        for (let i = startPage; i <= endPage; i++) {
-            const pageButton = document.createElement('button');
-            pageButton.textContent = i;
-            pageButton.classList.toggle('active', i === currentPage);
-            pageButton.addEventListener('click', () => {
-                currentPage = i;
-                this.renderProducts();
-            });
-            elements.pagination.appendChild(pageButton);
-        }
-        
-        const nextButton = document.createElement('button');
-        nextButton.textContent = '»';
-        nextButton.disabled = currentPage === totalPages;
-        nextButton.addEventListener('click', () => {
-            if (currentPage < totalPages) {
-                currentPage++;
-                this.renderProducts();
+
+            this.renderPagination(totalPages);
+            this.setActionButtonListeners();
+        },
+
+        renderPagination(totalPages) {
+            elements.pagination.innerHTML = '';
+
+            if (totalPages <= 1) {
+                return;
             }
-        });
-        elements.pagination.appendChild(nextButton);
-    },
-    
-    setActionButtonListeners() {
-        document.querySelectorAll('.btn-edit').forEach(btn => {
-            btn.addEventListener('click', function() {
-                ui.openEditModal(parseInt(this.dataset.id));
+
+            const prevButton = document.createElement('button');
+            prevButton.textContent = '«';
+            prevButton.disabled = currentPage === 1;
+            prevButton.addEventListener('click', () => {
+                if (currentPage > 1) {
+                    currentPage--;
+                    this.renderProducts();
+                }
             });
-        });
-        
-        document.querySelectorAll('.btn-delete').forEach(btn => {
-            btn.addEventListener('click', function() {
-                ui.openDeleteModal(parseInt(this.dataset.id));
+            elements.pagination.appendChild(prevButton);
+
+            let startPage = Math.max(1, currentPage - 2);
+            let endPage = Math.min(totalPages, startPage + 4);
+
+            if (endPage - startPage < 4) {
+                startPage = Math.max(1, endPage - 4);
+            }
+
+            for (let i = startPage; i <= endPage; i++) {
+                const pageButton = document.createElement('button');
+                pageButton.textContent = i;
+                pageButton.classList.toggle('active', i === currentPage);
+                pageButton.addEventListener('click', () => {
+                    currentPage = i;
+                    this.renderProducts();
+                });
+                elements.pagination.appendChild(pageButton);
+            }
+
+            const nextButton = document.createElement('button');
+            nextButton.textContent = '»';
+            nextButton.disabled = currentPage === totalPages;
+            nextButton.addEventListener('click', () => {
+                if (currentPage < totalPages) {
+                    currentPage++;
+                    this.renderProducts();
+                }
             });
-        });
-    },
-    
-    setupEventListeners() {
-        elements.addProductBtn.addEventListener('click', () => this.openAddModal());
-        
-        elements.closeModalBtns.forEach(btn => {
-            btn.addEventListener('click', () => {
+            elements.pagination.appendChild(nextButton);
+        },
+
+        setActionButtonListeners() {
+            document.querySelectorAll('.btn-edit').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    ui.openEditModal(parseInt(this.dataset.id));
+                });
+            });
+
+            document.querySelectorAll('.btn-delete').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    ui.openDeleteModal(parseInt(this.dataset.id));
+                });
+            });
+        },
+
+        setupEventListeners() {
+            elements.addProductBtn.addEventListener('click', () => this.openAddModal());
+
+            elements.closeModalBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    elements.productModal.style.display = 'none';
+                    elements.deleteModal.style.display = 'none';
+                });
+            });
+
+            elements.cancelBtn.addEventListener('click', () => {
                 elements.productModal.style.display = 'none';
+            });
+
+            elements.cancelDeleteBtn.addEventListener('click', () => {
                 elements.deleteModal.style.display = 'none';
             });
-        });
-        
-        elements.cancelBtn.addEventListener('click', () => {
-            elements.productModal.style.display = 'none';
-        });
-        
-        elements.cancelDeleteBtn.addEventListener('click', () => {
-            elements.deleteModal.style.display = 'none';
-        });
-        
-        elements.confirmDeleteBtn.addEventListener('click', () => this.deleteProduct());
-        
-        elements.productForm.addEventListener('submit', e => this.saveProduct(e));
-        
-        elements.searchBtn.addEventListener('click', () => this.searchProducts());
-        
-        elements.searchInput.addEventListener('keyup', function(e) {
-            if (e.key === 'Enter') {
-                ui.searchProducts();
+
+            elements.confirmDeleteBtn.addEventListener('click', () => this.deleteProduct());
+
+            elements.productForm.addEventListener('submit', e => this.saveProduct(e));
+
+            elements.searchBtn.addEventListener('click', () => this.searchProducts());
+
+            elements.searchInput.addEventListener('keyup', function(e) {
+                if (e.key === 'Enter') {
+                    ui.searchProducts();
+                }
+            });
+
+            elements.brendFilter.addEventListener('change', function() {
+                currentBrandFilter = this.value;
+                currentPage = 1;
+                ui.renderProducts();
+            });
+
+            window.addEventListener('click', function(e) {
+                if (e.target === elements.productModal) {
+                    elements.productModal.style.display = 'none';
+                }
+                if (e.target === elements.deleteModal) {
+                    elements.deleteModal.style.display = 'none';
+                }
+            });
+
+            document.getElementById('cena_sapdv').addEventListener('input', () => this.calculateProductValue());
+        },
+
+        openAddModal() {
+            elements.modalTitle.textContent = 'Dodaj novi proizvod';
+            elements.productForm.reset();
+            document.getElementById('productId').value = '';
+            currentProductId = null;
+            elements.productModal.style.display = 'block';
+        },
+
+        openEditModal(productId) {
+            console.log('Opening edit modal for product ID:', productId);
+            console.log('Current products array:', products);
+
+            // Make sure we're comparing numbers to numbers
+            const product = products.find(p => parseInt(p.id) === parseInt(productId));
+
+            if (!product) {
+                console.error('Product not found with ID:', productId);
+                alert('Proizvod nije pronađen u listi.');
+                return;
             }
-        });
-        
-        elements.brendFilter.addEventListener('change', function() {
-            currentBrandFilter = this.value;
-            currentPage = 1;
-            ui.renderProducts();
-        });
-        
-        window.addEventListener('click', function(e) {
-            if (e.target === elements.productModal) {
-                elements.productModal.style.display = 'none';
-            }
-            if (e.target === elements.deleteModal) {
-                elements.deleteModal.style.display = 'none';
-            }
-        });
-        
-        document.getElementById('cena_sapdv').addEventListener('input', () => this.calculateProductValue());
-    },
-    
-    openAddModal() {
-        elements.modalTitle.textContent = 'Dodaj novi proizvod';
-        elements.productForm.reset();
-        document.getElementById('productId').value = '';
-        currentProductId = null;
-        elements.productModal.style.display = 'block';
-    },
-    
-    openEditModal(productId) {
-        console.log('Opening edit modal for product ID:', productId);
-        console.log('Current products array:', products);
-        
-        // Make sure we're comparing numbers to numbers
-        const product = products.find(p => parseInt(p.id) === parseInt(productId));
-        
-        if (!product) {
-            console.error('Product not found with ID:', productId);
-            alert('Proizvod nije pronađen u listi.');
-            return;
-        }
-        
-        console.log('Found product to edit:', product);
-        
-        elements.modalTitle.textContent = 'Izmeni proizvod';
-        document.getElementById('productId').value = product.id;
-        document.getElementById('sifra').value = product.sifra || '';
-        document.getElementById('naziv').value = product.naziv || '';
-        document.getElementById('cena_sapdv').value = product.cena_sapdv || 0;
-        document.getElementById('subcategories').value = product.subcategories || '';
-        document.getElementById('brend').value = product.brend || '';
-        document.getElementById('slka').value = product.slka || '';
-        document.getElementById('deskripcija').value = product.deskripcija || '';
-        
-        // Add debugging to confirm the image URL is correctly populated
-        console.log('Image URL field set to:', product.slka);
-        
-        currentProductId = parseInt(productId);
-        elements.productModal.style.display = 'block';
-    },
-    
-    openDeleteModal(productId) {
-        currentProductId = productId;
-        elements.deleteModal.style.display = 'block';
-    },
-    
-    async saveProduct(e) {
-        e.preventDefault();
-        
-        try {
-            const formData = {
-                id: currentProductId,
-                sifra: document.getElementById('sifra').value.trim(),
-                naziv: document.getElementById('naziv').value.trim(),
-                cena_sapdv: parseFloat(document.getElementById('cena_sapdv').value) || 0,
-                subcategories: document.getElementById('subcategories').value.trim(),
-                brend: document.getElementById('brend').value.trim(),
-                slka: document.getElementById('slka').value.trim(),
-                deskripcija: document.getElementById('deskripcija').value.trim()
-            };
-            
-            // Automatski računamo vrednost
-            formData.vrednost_sapdv = formData.cena_sapdv;
-            
-            console.log('Saving product with data:', formData);
-            
-            // Save to database through API
-            const savedProduct = await api.saveProduct(formData);
-            
-            console.log('Received saved product from server:', savedProduct);
-            
-            if (currentProductId) {
-                // Update the product in the array by id
-                const index = products.findIndex(p => p.id === parseInt(currentProductId));
-                if (index !== -1) {
-                    // Make sure to preserve the id as an integer
-                    products[index] = { 
-                        ...savedProduct,
-                        id: parseInt(savedProduct.id)
-                    };
-                    console.log('Updated product in array:', products[index]);
+
+            console.log('Found product to edit:', product);
+
+            elements.modalTitle.textContent = 'Izmeni proizvod';
+            document.getElementById('productId').value = product.id;
+            document.getElementById('sifra').value = product.sifra || '';
+            document.getElementById('naziv').value = product.naziv || '';
+            document.getElementById('cena_sapdv').value = product.cena_sapdv || 0;
+            document.getElementById('subcategories').value = product.subcategories || '';
+            document.getElementById('brend').value = product.brend || '';
+            document.getElementById('izdvajanje').value = product.izdvajanje || '';
+            document.getElementById('slka').value = product.slka || '';
+            document.getElementById('deskripcija').value = product.deskripcija || '';
+
+            // Add debugging to confirm the image URL is correctly populated
+            console.log('Image URL field set to:', product.slka);
+
+            currentProductId = parseInt(productId);
+            elements.productModal.style.display = 'block';
+        },
+
+        openDeleteModal(productId) {
+            currentProductId = productId;
+            elements.deleteModal.style.display = 'block';
+        },
+
+        async saveProduct(e) {
+            e.preventDefault();
+
+            try {
+                const formData = {
+                    id: currentProductId,
+                    sifra: document.getElementById('sifra').value.trim(),
+                    naziv: document.getElementById('naziv').value.trim(),
+                    cena_sapdv: parseFloat(document.getElementById('cena_sapdv').value) || 0,
+                    subcategories: document.getElementById('subcategories').value.trim(),
+                    brend: document.getElementById('brend').value.trim(),
+                    izdvajanje: document.getElementById('izdvajanje').value.trim(),
+                    slka: document.getElementById('slka').value.trim(),
+                    deskripcija: document.getElementById('deskripcija').value.trim()
+                };
+
+                // Automatski računamo vrednost
+                formData.vrednost_sapdv = formData.cena_sapdv;
+
+                console.log('Saving product with data:', formData);
+
+                // Save to database through API
+                const savedProduct = await api.saveProduct(formData);
+
+                console.log('Received saved product from server:', savedProduct);
+
+                if (currentProductId) {
+                    // Update the product in the array by id
+                    const index = products.findIndex(p => p.id === parseInt(currentProductId));
+                    if (index !== -1) {
+                        // Make sure to preserve the id as an integer
+                        products[index] = {
+                            ...savedProduct,
+                            id: parseInt(savedProduct.id)
+                        };
+                        console.log('Updated product in array:', products[index]);
+                    } else {
+                        // If product not found by id, add it as new
+                        savedProduct.id = parseInt(savedProduct.id);
+                        products.push(savedProduct);
+                        console.log('Added product to array as not found by ID:', savedProduct);
+                    }
                 } else {
-                    // If product not found by id, add it as new
+                    // For new products
                     savedProduct.id = parseInt(savedProduct.id);
                     products.push(savedProduct);
-                    console.log('Added product to array as not found by ID:', savedProduct);
+                    console.log('Added new product to array:', savedProduct);
                 }
-            } else {
-                // For new products
-                savedProduct.id = parseInt(savedProduct.id);
-                products.push(savedProduct);
-                console.log('Added new product to array:', savedProduct);
-            }
-            
-            // Reset currentProductId to ensure it's cleared
-            currentProductId = null;
-            
-            // Refresh products from server
-            await app.refreshProducts();
-            
-            elements.productModal.style.display = 'none';
-            
-            // Show success message
-            alert(formData.id ? 'Proizvod uspešno izmenjen!' : 'Proizvod uspešno dodat!');
-            
-        } catch (error) {
-            console.error('Error saving product:', error);
-            alert('Greška pri čuvanju proizvoda: ' + error.message);
-        }
-    },
-    
-    async deleteProduct() {
-        if (currentProductId) {
-            try {
-                await api.deleteProduct(currentProductId);
-                
-                products = products.filter(p => p.id !== currentProductId);
-                elements.deleteModal.style.display = 'none';
-                
-                // Refresh products from the server
-                await app.refreshProducts();
-                
-                // Show success message
-                alert('Proizvod uspešno obrisan!');
-                
-            } catch (error) {
-                console.error('Error deleting product:', error);
-                // Error handling is done in the API call
-            }
-        }
-    },
-    
-    searchProducts() {
-        const searchTerm = elements.searchInput.value.toLowerCase().trim();
-        
-        if (searchTerm === '') {
-            currentPage = 1;
-            this.renderProducts();
-            return;
-        }
-        
-        let filteredByBrand = products;
-        if (currentBrandFilter !== 'all') {
-            filteredByBrand = products.filter(product => 
-                product.brend && product.brend.toLowerCase() === currentBrandFilter.toLowerCase()
-            );
-        }
-        
-        const filtered = filteredByBrand.filter(product => {
-            return (
-                (product.sifra || '').toLowerCase().includes(searchTerm) ||
-                (product.naziv || '').toLowerCase().includes(searchTerm) ||
-                (product.brend || '').toLowerCase().includes(searchTerm) ||
-                (product.subcategories || '').toLowerCase().includes(searchTerm)
-            );
-        });
-        
-        currentPage = 1;
-        this.renderProducts(filtered);
-    },
-    
-    calculateProductValue() {
-        // Jednostavno vraćamo cenu kao vrednost
-        const cena = parseFloat(document.getElementById('cena_sapdv').value) || 0;
-    }
-};
 
-// Initialize the application
-document.addEventListener('DOMContentLoaded', () => app.init());
-    </script>
+                // Reset currentProductId to ensure it's cleared
+                currentProductId = null;
+
+                // Refresh products from server
+                await app.refreshProducts();
+
+                elements.productModal.style.display = 'none';
+
+                // Show success message
+                alert(formData.id ? 'Proizvod uspešno izmenjen!' : 'Proizvod uspešno dodat!');
+
+            } catch (error) {
+                console.error('Error saving product:', error);
+                alert('Greška pri čuvanju proizvoda: ' + error.message);
+            }
+        },
+
+        async deleteProduct() {
+            if (currentProductId) {
+                try {
+                    await api.deleteProduct(currentProductId);
+
+                    products = products.filter(p => p.id !== currentProductId);
+                    elements.deleteModal.style.display = 'none';
+
+                    // Refresh products from the server
+                    await app.refreshProducts();
+
+                    // Show success message
+                    alert('Proizvod uspešno obrisan!');
+
+                } catch (error) {
+                    console.error('Error deleting product:', error);
+                    // Error handling is done in the API call
+                }
+            }
+        },
+
+        searchProducts() {
+            const searchTerm = elements.searchInput.value.toLowerCase().trim();
+
+            if (searchTerm === '') {
+                currentPage = 1;
+                this.renderProducts();
+                return;
+            }
+
+            let filteredByBrand = products;
+            if (currentBrandFilter !== 'all') {
+                filteredByBrand = products.filter(product =>
+                    product.brend && product.brend.toLowerCase() === currentBrandFilter.toLowerCase()
+                );
+            }
+
+            const filtered = filteredByBrand.filter(product => {
+                return (
+                    (product.sifra || '').toLowerCase().includes(searchTerm) ||
+                    (product.naziv || '').toLowerCase().includes(searchTerm) ||
+                    (product.brend || '').toLowerCase().includes(searchTerm) ||
+                    (product.subcategories || '').toLowerCase().includes(searchTerm)
+                );
+            });
+
+            currentPage = 1;
+            this.renderProducts(filtered);
+        },
+
+        calculateProductValue() {
+            // Jednostavno vraćamo cenu kao vrednost
+            const cena = parseFloat(document.getElementById('cena_sapdv').value) || 0;
+        }
+    };
+
+    // Initialize the application
+    document.addEventListener('DOMContentLoaded', () => app.init());
+</script>
 </body>
 </html>
