@@ -812,12 +812,15 @@
                         subcategoriesCell.dataset.fullText :
                         helpers.safeGetText(subcategoriesCell);
 
-                    const imageCell = cells[8];
+                    const izdvajanjeCell = cells[8];
+                    const izdvajanjeText = izdvajanjeCell ? helpers.safeGetText(izdvajanjeCell) : '';
+
+                    const imageCell = cells[9];
                     const imageUrl = imageCell && imageCell.dataset.fullText ?
                         imageCell.dataset.fullText :
                         helpers.safeGetText(imageCell);
 
-                    const descriptionCell = cells[9];
+                    const descriptionCell = cells[10];
                     const descriptionText = descriptionCell && descriptionCell.dataset.fullText ?
                         descriptionCell.dataset.fullText :
                         helpers.safeGetText(descriptionCell);
@@ -832,6 +835,7 @@
                         vrednost_sapdv: helpers.safeParseFloat(cells[5]?.textContent),
                         subcategories: subcategoriesText,
                         brend: helpers.safeGetText(cells[7]),
+                        izdvajanje: izdvajanjeText,
                         slka: imageUrl,
                         deskripcija: descriptionText
                     };
