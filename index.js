@@ -31,7 +31,18 @@ app.use((req, res, next) => {
     }
     next();
 });
-
+// CORS middleware
+app.use((req, res, next) => {
+    res.header('Access-Control-Allow-Origin', '*');
+    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
+    
+    if (req.method === 'OPTIONS') {
+        return res.sendStatus(200);
+    }
+    
+    next();
+});
 const db = new pg.Client({
     user: "marko",
     password: "O95iBz6rttFi1PJDPZRcXuQIF50rn1Rh",
@@ -312,7 +323,6 @@ app.post("/delete-subcategory", async (req, res) => {
     }
 });
 
-// Existing API endpoints for products
 app.get("/api/products", async (req, res) => {
     try {
         const result = await db.query("SELECT * FROM proizvodiful_updated");
@@ -338,20 +348,77 @@ app.get("/api/products/:id", async (req, res) => {
         res.status(500).json({ error: "Greška pri dohvatanju proizvoda" });
     }
 });
+app.put("/api/products/:id", async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { sifra, naziv, cena_sapdv, vrednost_sapdv, subcategories, brend, slka, deskripcija, izdvajanje } = req.body;
 
+        console.log('UPDATE product - ID:', id, 'Data:', req.body);
+
+        if (!id) {
+            return res.status(400).json({ error: "ID proizvoda je obavezan" });
+        }
+
+        // Proveri da li proizvod postoji
+        const productExists = await db.query(
+            "SELECT id FROM proizvodiful_updated WHERE id = $1",
+            [id]
+        );
+
+        if (productExists.rows.length === 0) {
+            return res.status(404).json({ error: "Proizvod nije pronađen" });
+        }
+
+        // Proveri da li šifra već postoji za drugi proizvod
+        const existingProduct = await db.query(
+            "SELECT id FROM proizvodiful_updated WHERE sifra = $1 AND id != $2",
+            [sifra, id]
+        );
+
+        if (existingProduct.rows.length > 0) {
+            console.log('Šifra već postoji za drugi proizvod:', sifra);
+            return res.status(400).json({ error: "Šifra već postoji za drugi proizvod" });
+        }
+
+        const result = await db.query(
+            "UPDATE proizvodiful_updated SET sifra = $1, naziv = $2, cena_sapdv = $3, vrednost_sapdv = $4, subcategories = $5, brend = $6, slka = $7, deskripcija = $8, izdvajanje = $9 WHERE id = $10 RETURNING *",
+            [sifra, naziv, cena_sapdv, vrednost_sapdv, subcategories, brend, slka, deskripcija, izdvajanje, id]
+        );
+
+        console.log('UPDATE product - Success:', result.rows[0]);
+        res.json(result.rows[0]);
+    } catch (error) {
+        console.error("Error updating product:", error);
+        res.status(500).json({ error: "Greška pri ažuriranju proizvoda: " + error.message });
+    }
+});
 app.post("/api/products", async (req, res) => {
     try {
+        console.log('CREATE product - Received data:', req.body);
+        
         const { sifra, naziv, cena_sapdv, vrednost_sapdv, subcategories, brend, slka, deskripcija, izdvajanje } = req.body;
+
+        // Proveri da li šifra već postoji
+        const existingProduct = await db.query(
+            "SELECT id FROM proizvodiful_updated WHERE sifra = $1",
+            [sifra]
+        );
+
+        if (existingProduct.rows.length > 0) {
+            console.log('Šifra već postoji:', sifra);
+            return res.status(400).json({ error: "Šifra već postoji u bazi podataka" });
+        }
 
         const result = await db.query(
             "INSERT INTO proizvodiful_updated (sifra, naziv, cena_sapdv, vrednost_sapdv, subcategories, brend, slka, deskripcija, izdvajanje) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING *",
             [sifra, naziv, cena_sapdv, vrednost_sapdv, subcategories, brend, slka, deskripcija, izdvajanje]
         );
 
+        console.log('CREATE product - Success:', result.rows[0]);
         res.status(201).json(result.rows[0]);
     } catch (error) {
         console.error("Error creating product:", error);
-        res.status(500).json({ error: "Greška pri kreiranju proizvoda" });
+        res.status(500).json({ error: "Greška pri kreiranju proizvoda: " + error.message });
     }
 });
 
@@ -361,6 +428,16 @@ app.put("/api/products", async (req, res) => {
 
         if (!id) {
             return res.status(400).json({ error: "ID proizvoda je obavezan" });
+        }
+
+        // Proveri da li šifra već postoji za drugi proizvod
+        const existingProduct = await db.query(
+            "SELECT id FROM proizvodiful_updated WHERE sifra = $1 AND id != $2",
+            [sifra, id]
+        );
+
+        if (existingProduct.rows.length > 0) {
+            return res.status(400).json({ error: "Šifra već postoji za drugi proizvod" });
         }
 
         const result = await db.query(

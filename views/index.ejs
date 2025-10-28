@@ -607,122 +607,124 @@
         },
 
         safeParseFloat(value) {
-            if (!value) return 0;
-
-            const cleanValue = value.toString()
-                .replace(/\s/g, '')     // ukloni sve space-ove
-                .replace(/,/g, '.');    // zameni zarez sa tačkom za decimalne
-
-            const parsed = parseFloat(cleanValue);
-            return isNaN(parsed) ? 0 : parsed;
-        },
-
-// Ili još bolja verzija koja rukuje i hiljadama:
-        safeParseFloat(value) {
-            if (!value) return 0;
-
-            let cleanValue = value.toString().replace(/\s/g, '');
-
-            // Ako ima više tačaka ili kombinaciju tačke i zareza
-            if ((cleanValue.match(/\./g) || []).length > 1 || (cleanValue.includes('.') && cleanValue.includes(','))) {
-                // Ukloni sve tačke osim poslednje (hiljadni separatori)
-                const lastDotIndex = cleanValue.lastIndexOf('.');
-                const lastCommaIndex = cleanValue.lastIndexOf(',');
-
-                if (lastCommaIndex > lastDotIndex) {
-                    // Zarez je decimalni separator
-                    cleanValue = cleanValue.replace(/\./g, '').replace(',', '.');
-                } else {
-                    // Tačka je decimalni separator
-                    cleanValue = cleanValue.replace(/\./g, (match, offset) => {
-                        return offset === lastDotIndex ? '.' : '';
-                    }).replace(/,/g, '');
-                }
-            } else {
-                // Standardno: zameni zarez sa tačkom
-                cleanValue = cleanValue.replace(',', '.');
+            if (value === null || value === undefined || value === '') {
+                return 0;
             }
 
+            if (typeof value === 'number') {
+                return value;
+            }
+
+            let cleanValue = value.toString().trim();
+            cleanValue = cleanValue.replace(/\s/g, '');
+            
+            if (cleanValue === '') {
+                return 0;
+            }
+
+            if (cleanValue.includes('.') && cleanValue.includes(',')) {
+                cleanValue = cleanValue.replace(/\./g, '').replace(',', '.');
+            } else if (cleanValue.includes(',') && !cleanValue.includes('.')) {
+                cleanValue = cleanValue.replace(',', '.');
+            }
+            
+            cleanValue = cleanValue.replace(/[^\d.-]/g, '');
+            
             const parsed = parseFloat(cleanValue);
             return isNaN(parsed) ? 0 : parsed;
         },
 
         formatPrice(price) {
-            return price.toFixed(2);
+            const num = parseFloat(price);
+            if (isNaN(num)) {
+                return '0.00';
+            }
+            return num.toFixed(2);
         }
     };
 
 
-    const api = {
-        async saveProduct(productData) {
-            try {
-                console.log('API: Saving product with data:', productData);
+// ISPRAVLJENE API FUNKCIJE U FRONTENDU
+const api = {
+    async saveProduct(productData) {
+        try {
+            console.log('API: Saving product with data:', productData);
 
-                const response = await fetch('/api/products', {
-                    method: productData.id ? 'PUT' : 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(productData)
-                });
-
-                // Check if the response is JSON
-                const contentType = response.headers.get('content-type');
-                if (!contentType || !contentType.includes('application/json')) {
-                    // Handle non-JSON response
-                    const textResponse = await response.text();
-                    console.error('Non-JSON response received:', textResponse);
-                    throw new Error('Neočekivan odgovor od servera');
-                }
-
-                if (!response.ok) {
-                    const errorData = await response.json();
-                    throw new Error(errorData.error || 'Greška pri čuvanju proizvoda');
-                }
-
-                const result = await response.json();
-                console.log('API: Server response:', result);
-                return result;
-            } catch (error) {
-                console.error('API error:', error);
-                alert('Došlo je do greške prilikom čuvanja proizvoda: ' + error.message);
-                throw error;
+            let url = '/api/products';
+            let method = 'POST';
+            
+            // Ako ima ID, onda je izmena postojećeg proizvoda
+            if (productData.id) {
+                url = `/api/products/${productData.id}`;
+                method = 'PUT';
             }
-        },
 
-        async deleteProduct(productId) {
-            try {
-                const response = await fetch(`/api/products/${productId}`, {
-                    method: 'DELETE'
-                });
+            const response = await fetch(url, {
+                method: method,
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(productData)
+            });
 
-                if (!response.ok) {
-                    throw new Error('Greška pri brisanju proizvoda');
-                }
-
-                return true;
-            } catch (error) {
-                console.error('API error:', error);
-                alert('Došlo je do greške prilikom brisanja proizvoda: ' + error.message);
-                throw error;
+            const contentType = response.headers.get('content-type');
+            if (!contentType || !contentType.includes('application/json')) {
+                const textResponse = await response.text();
+                console.error('Non-JSON response received:', textResponse);
+                throw new Error('Neočekivan odgovor od servera: ' + textResponse);
             }
-        },
 
-        async getProducts() {
-            try {
-                const response = await fetch('/api/products');
+            const result = await response.json();
 
-                if (!response.ok) {
-                    throw new Error('Greška pri dohvatanju proizvoda');
-                }
-
-                return await response.json();
-            } catch (error) {
-                console.error('API error:', error);
-                return null;
+            if (!response.ok) {
+                throw new Error(result.error || 'Greška pri čuvanju proizvoda');
             }
+
+            console.log('API: Server response:', result);
+            return result;
+        } catch (error) {
+            console.error('API error:', error);
+            alert('Došlo je do greške prilikom čuvanja proizvoda: ' + error.message);
+            throw error;
         }
-    };
+    },
+
+    async deleteProduct(productId) {
+        try {
+            const response = await fetch(`/api/products/${productId}`, {
+                method: 'DELETE'
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || 'Greška pri brisanju proizvoda');
+            }
+
+            return await response.json();
+        } catch (error) {
+            console.error('API error:', error);
+            alert('Došlo je do greške prilikom brisanja proizvoda: ' + error.message);
+            throw error;
+        }
+    },
+
+    async getProducts() {
+        try {
+            const response = await fetch('/api/products');
+
+            if (!response.ok) {
+                throw new Error('Greška pri dohvatanju proizvoda');
+            }
+
+            return await response.json();
+        } catch (error) {
+            console.error('API error:', error);
+            return null;
+        }
+    }
+};
+
+
 
     // State management
     let products = [];
@@ -731,54 +733,6 @@
     let currentProductId = null;
     let currentPage = 1;
     const productsPerPage = 500;
-
-    // Default products for testing
-    const mockData = [
-        {
-            id: 1758,
-            sifra: '101926',
-            naziv: 'Set solja BR 3002 Fiser',
-            cena_sapdv: 139,
-            vrednost_sapdv: 139,
-            subcategories: 'Stono posuđe',
-            brend: 'Fisher',
-            slka: 'https://via.placeholder.com/150',
-            deskripcija: "Elegantni set solja od porcelana, idealan za svakodnevnu upotrebu. Uključuje 6 solja sa tacnama."
-        },
-        {
-            id: 1754,
-            sifra: '101920',
-            naziv: 'Pec Atina',
-            cena_sapdv: 954,
-            vrednost_sapdv: 954,
-            subcategories: 'Peći',
-            brend: 'Bez rasporeda po brendovima',
-            slka: 'https://via.placeholder.com/150',
-            deskripcija: "Električna peć sa funkcijama pečenja i grilovanja. Snaga 2000W, temperatura do 250°C."
-        },
-        {
-            id: 1749,
-            sifra: '101913',
-            naziv: 'Mesoreznica R708A Gorenje',
-            cena_sapdv: 118,
-            vrednost_sapdv: 118,
-            subcategories: 'Aparati za hranu',
-            brend: 'Gorenje',
-            slka: 'https://via.placeholder.com/150',
-            deskripcija: "Električna mesoreznica sa oštrim nožem od nerđajućeg čelika. Idealna za sečenje mesa i kobasica."
-        },
-        {
-            id: 1747,
-            sifra: '101909',
-            naziv: 'Frizider KS 1610 F Vox',
-            cena_sapdv: 199,
-            vrednost_sapdv: 199,
-            subcategories: 'Frižideri',
-            brend: 'Vox',
-            slka: 'https://via.placeholder.com/150',
-            deskripcija: "Kompaktni frižider sa freezer odeljkom. Zapremina 160L, energetska klasa A+."
-        }
-    ];
 
     // Application functions
     const app = {
@@ -801,7 +755,6 @@
                 }
 
                 try {
-                    // Extract the full text from the data attribute if available for all appropriate cells
                     const nazivCell = cells[3];
                     const nazivText = nazivCell && nazivCell.dataset.fullText ?
                         nazivCell.dataset.fullText :
@@ -825,8 +778,6 @@
                         descriptionCell.dataset.fullText :
                         helpers.safeGetText(descriptionCell);
 
-                    console.log('Loading from HTML, description:', descriptionText);
-
                     const product = {
                         id: helpers.safeParseInt(cells[1]?.textContent),
                         sifra: helpers.safeGetText(cells[2]),
@@ -840,8 +791,6 @@
                         deskripcija: descriptionText
                     };
 
-                    console.log('Parsed product from HTML:', product);
-
                     if (product.id) {
                         validProducts.push(product);
 
@@ -854,7 +803,6 @@
                 }
             }
 
-            console.log('Loaded products from HTML:', validProducts.length);
             return validProducts;
         },
 
@@ -898,18 +846,14 @@
             if (hasEjsProducts) {
                 products = this.loadInitialProductsFromHTML();
             } else {
-                // Fetch products from the server
                 try {
                     const fetchedProducts = await api.getProducts();
                     if (fetchedProducts && fetchedProducts.length > 0) {
                         products = fetchedProducts;
-                    } else {
-                        // Use mock data only if no products from server and no EJS products
-                        products = mockData;
                     }
                 } catch (error) {
                     console.error('Error fetching products:', error);
-                    products = mockData;
+                products = [];
                 }
             }
 
@@ -939,7 +883,13 @@
                 displayProducts = filteredProducts;
             }
 
-            console.log('Rendering products, total count:', displayProducts.length);
+            displayProducts = displayProducts.map(product => {
+                return {
+                    ...product,
+                    cena_sapdv: helpers.safeParseFloat(product.cena_sapdv),
+                    vrednost_sapdv: helpers.safeParseFloat(product.vrednost_sapdv)
+                };
+            });
 
             const totalPages = Math.ceil(displayProducts.length / productsPerPage);
             if (currentPage > totalPages && totalPages > 0) {
@@ -954,23 +904,19 @@
             if (paginatedProducts.length === 0) {
                 elements.productsTableBody.innerHTML = `
                 <tr>
-                    <td colspan="9" style="text-align: center;">Nema proizvoda za prikaz</td>
+                    <td colspan="11" style="text-align: center;">Nema proizvoda za prikaz</td>
                 </tr>
             `;
             } else {
                 paginatedProducts.forEach(product => {
                     const row = document.createElement('tr');
-
-                    // Make sure to properly escape the image URL for HTML attributes
                     const safeImageUrl = (product.slka || '').replace(/"/g, '&quot;');
-
-                    // Truncate displayed URL but keep full URL in data attribute
                     const displayUrl = safeImageUrl.length > 30
                         ? safeImageUrl.substring(0, 27) + '...'
                         : safeImageUrl;
 
                     row.innerHTML = `
-                    <td class="col-akcije action-buttons" style="border-bottom: none;">
+                    <td class="col-akcije action-buttons">
                         <button class="btn btn-warning btn-edit" data-id="${product.id}">Izmeni</button>
                         <button class="btn btn-danger btn-delete" data-id="${product.id}">Obriši</button>
                     </td>
@@ -1075,7 +1021,8 @@
 
             elements.confirmDeleteBtn.addEventListener('click', () => this.deleteProduct());
 
-            elements.productForm.addEventListener('submit', e => this.saveProduct(e));
+            // ISPRAVLJENO: Dodajemo event parametar
+            elements.productForm.addEventListener('submit', (e) => this.saveProduct(e));
 
             elements.searchBtn.addEventListener('click', () => this.searchProducts());
 
@@ -1112,19 +1059,12 @@
         },
 
         openEditModal(productId) {
-            console.log('Opening edit modal for product ID:', productId);
-            console.log('Current products array:', products);
-
-            // Make sure we're comparing numbers to numbers
             const product = products.find(p => parseInt(p.id) === parseInt(productId));
 
             if (!product) {
-                console.error('Product not found with ID:', productId);
                 alert('Proizvod nije pronađen u listi.');
                 return;
             }
-
-            console.log('Found product to edit:', product);
 
             elements.modalTitle.textContent = 'Izmeni proizvod';
             document.getElementById('productId').value = product.id;
@@ -1137,9 +1077,6 @@
             document.getElementById('slka').value = product.slka || '';
             document.getElementById('deskripcija').value = product.deskripcija || '';
 
-            // Add debugging to confirm the image URL is correctly populated
-            console.log('Image URL field set to:', product.slka);
-
             currentProductId = parseInt(productId);
             elements.productModal.style.display = 'block';
         },
@@ -1149,6 +1086,7 @@
             elements.deleteModal.style.display = 'block';
         },
 
+        // ISPRAVLJENO: Dodajemo event parametar i preventDefault
         async saveProduct(e) {
             e.preventDefault();
 
@@ -1157,7 +1095,7 @@
                     id: currentProductId,
                     sifra: document.getElementById('sifra').value.trim(),
                     naziv: document.getElementById('naziv').value.trim(),
-                    cena_sapdv: parseFloat(document.getElementById('cena_sapdv').value) || 0,
+                    cena_sapdv: helpers.safeParseFloat(document.getElementById('cena_sapdv').value),
                     subcategories: document.getElementById('subcategories').value.trim(),
                     brend: document.getElementById('brend').value.trim(),
                     izdvajanje: document.getElementById('izdvajanje').value.trim(),
@@ -1165,48 +1103,41 @@
                     deskripcija: document.getElementById('deskripcija').value.trim()
                 };
 
-                // Automatski računamo vrednost
+                if (!formData.sifra) {
+                    alert('Šifra je obavezna!');
+                    return;
+                }
+
+                if (!formData.naziv) {
+                    alert('Naziv je obavezan!');
+                    return;
+                }
+
                 formData.vrednost_sapdv = formData.cena_sapdv;
 
                 console.log('Saving product with data:', formData);
 
-                // Save to database through API
                 const savedProduct = await api.saveProduct(formData);
 
-                console.log('Received saved product from server:', savedProduct);
-
                 if (currentProductId) {
-                    // Update the product in the array by id
                     const index = products.findIndex(p => p.id === parseInt(currentProductId));
                     if (index !== -1) {
-                        // Make sure to preserve the id as an integer
                         products[index] = {
                             ...savedProduct,
                             id: parseInt(savedProduct.id)
                         };
-                        console.log('Updated product in array:', products[index]);
                     } else {
-                        // If product not found by id, add it as new
                         savedProduct.id = parseInt(savedProduct.id);
                         products.push(savedProduct);
-                        console.log('Added product to array as not found by ID:', savedProduct);
                     }
                 } else {
-                    // For new products
                     savedProduct.id = parseInt(savedProduct.id);
                     products.push(savedProduct);
-                    console.log('Added new product to array:', savedProduct);
                 }
 
-                // Reset currentProductId to ensure it's cleared
                 currentProductId = null;
-
-                // Refresh products from server
                 await app.refreshProducts();
-
                 elements.productModal.style.display = 'none';
-
-                // Show success message
                 alert(formData.id ? 'Proizvod uspešno izmenjen!' : 'Proizvod uspešno dodat!');
 
             } catch (error) {
@@ -1219,19 +1150,12 @@
             if (currentProductId) {
                 try {
                     await api.deleteProduct(currentProductId);
-
                     products = products.filter(p => p.id !== currentProductId);
                     elements.deleteModal.style.display = 'none';
-
-                    // Refresh products from the server
                     await app.refreshProducts();
-
-                    // Show success message
                     alert('Proizvod uspešno obrisan!');
-
                 } catch (error) {
                     console.error('Error deleting product:', error);
-                    // Error handling is done in the API call
                 }
             }
         },
@@ -1266,7 +1190,6 @@
         },
 
         calculateProductValue() {
-            // Jednostavno vraćamo cenu kao vrednost
             const cena = parseFloat(document.getElementById('cena_sapdv').value) || 0;
         }
     };
@@ -1274,5 +1197,6 @@
     // Initialize the application
     document.addEventListener('DOMContentLoaded', () => app.init());
 </script>
+
 </body>
 </html>
