@@ -523,6 +523,12 @@
                         <input type="text" id="brend" class="form-control">
                     </div>
                 </div>
+                <div class="form-col">
+                    <div class="form-group">
+                        <label for="kolicina">Količina</label>
+                        <input type="text" id="kolicina" class="form-control">
+                    </div>
+                </div>
             </div>
 
             <div class="form-row">
@@ -1073,6 +1079,7 @@ const api = {
             document.getElementById('cena_sapdv').value = product.cena_sapdv || 0;
             document.getElementById('subcategories').value = product.subcategories || '';
             document.getElementById('brend').value = product.brend || '';
+            document.getElementById('kolicina').value = product.kolicina || '';
             document.getElementById('izdvajanje').value = product.izdvajanje || '';
             document.getElementById('slka').value = product.slka || '';
             document.getElementById('deskripcija').value = product.deskripcija || '';
@@ -1098,6 +1105,7 @@ const api = {
                     cena_sapdv: helpers.safeParseFloat(document.getElementById('cena_sapdv').value),
                     subcategories: document.getElementById('subcategories').value.trim(),
                     brend: document.getElementById('brend').value.trim(),
+                    kolicina: document.getElementById('kolicina').value.trim(),
                     izdvajanje: document.getElementById('izdvajanje').value.trim(),
                     slka: document.getElementById('slka').value.trim(),
                     deskripcija: document.getElementById('deskripcija').value.trim()
