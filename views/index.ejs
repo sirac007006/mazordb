@@ -1064,28 +1064,38 @@ const api = {
             elements.productModal.style.display = 'block';
         },
 
-        openEditModal(productId) {
-            const product = products.find(p => parseInt(p.id) === parseInt(productId));
+        async openEditModal(productId) {
+            try {
+                // Dohvati proizvod direktno sa API-ja da bismo imali sve podatke uključujući kolicinu
+                const response = await fetch(`/api/products/${productId}`);
+                if (!response.ok) {
+                    throw new Error('Greška pri dohvatanju proizvoda');
+                }
+                const product = await response.json();
 
-            if (!product) {
-                alert('Proizvod nije pronađen u listi.');
-                return;
+                if (!product) {
+                    alert('Proizvod nije pronađen.');
+                    return;
+                }
+
+                elements.modalTitle.textContent = 'Izmeni proizvod';
+                document.getElementById('productId').value = product.id;
+                document.getElementById('sifra').value = product.sifra || '';
+                document.getElementById('naziv').value = product.naziv || '';
+                document.getElementById('cena_sapdv').value = product.cena_sapdv || 0;
+                document.getElementById('subcategories').value = product.subcategories || '';
+                document.getElementById('brend').value = product.brend || '';
+                document.getElementById('kolicina').value = product.kolicina || '';
+                document.getElementById('izdvajanje').value = product.izdvajanje || '';
+                document.getElementById('slka').value = product.slka || '';
+                document.getElementById('deskripcija').value = product.deskripcija || '';
+
+                currentProductId = parseInt(productId);
+                elements.productModal.style.display = 'block';
+            } catch (error) {
+                console.error('Greška pri otvaranju modala:', error);
+                alert('Greška pri učitavanju podataka o proizvodu');
             }
-
-            elements.modalTitle.textContent = 'Izmeni proizvod';
-            document.getElementById('productId').value = product.id;
-            document.getElementById('sifra').value = product.sifra || '';
-            document.getElementById('naziv').value = product.naziv || '';
-            document.getElementById('cena_sapdv').value = product.cena_sapdv || 0;
-            document.getElementById('subcategories').value = product.subcategories || '';
-            document.getElementById('brend').value = product.brend || '';
-            document.getElementById('kolicina').value = product.kolicina || '';
-            document.getElementById('izdvajanje').value = product.izdvajanje || '';
-            document.getElementById('slka').value = product.slka || '';
-            document.getElementById('deskripcija').value = product.deskripcija || '';
-
-            currentProductId = parseInt(productId);
-            elements.productModal.style.display = 'block';
         },
 
         openDeleteModal(productId) {

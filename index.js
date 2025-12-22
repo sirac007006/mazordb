@@ -351,7 +351,7 @@ app.get("/api/products/:id", async (req, res) => {
 app.put("/api/products/:id", async (req, res) => {
     try {
         const { id } = req.params;
-        const { sifra, naziv, cena_sapdv, vrednost_sapdv, subcategories, brend, slka, deskripcija, izdvajanje } = req.body;
+        const { sifra, naziv, kolicina, cena_sapdv, vrednost_sapdv, subcategories, brend, slka, deskripcija, izdvajanje } = req.body;
 
         console.log('UPDATE product - ID:', id, 'Data:', req.body);
 
@@ -381,8 +381,8 @@ app.put("/api/products/:id", async (req, res) => {
         }
 
         const result = await db.query(
-            "UPDATE proizvodiful_updated SET sifra = $1, naziv = $2, cena_sapdv = $3, vrednost_sapdv = $4, subcategories = $5, brend = $6, slka = $7, deskripcija = $8, izdvajanje = $9 WHERE id = $10 RETURNING *",
-            [sifra, naziv, cena_sapdv, vrednost_sapdv, subcategories, brend, slka, deskripcija, izdvajanje, id]
+            "UPDATE proizvodiful_updated SET sifra = $1, naziv = $2, kolicina = $3, cena_sapdv = $4, vrednost_sapdv = $5, subcategories = $6, brend = $7, slka = $8, deskripcija = $9, izdvajanje = $10 WHERE id = $11 RETURNING *",
+            [sifra, naziv, kolicina, cena_sapdv, vrednost_sapdv, subcategories, brend, slka, deskripcija, izdvajanje, id]
         );
 
         console.log('UPDATE product - Success:', result.rows[0]);
@@ -396,7 +396,7 @@ app.post("/api/products", async (req, res) => {
     try {
         console.log('CREATE product - Received data:', req.body);
         
-        const { sifra, naziv, cena_sapdv, vrednost_sapdv, subcategories, brend, slka, deskripcija, izdvajanje } = req.body;
+        const { sifra, naziv, kolicina, cena_sapdv, vrednost_sapdv, subcategories, brend, slka, deskripcija, izdvajanje } = req.body;
 
         // Proveri da li šifra već postoji
         const existingProduct = await db.query(
@@ -410,8 +410,8 @@ app.post("/api/products", async (req, res) => {
         }
 
         const result = await db.query(
-            "INSERT INTO proizvodiful_updated (sifra, naziv, cena_sapdv, vrednost_sapdv, subcategories, brend, slka, deskripcija, izdvajanje) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING *",
-            [sifra, naziv, cena_sapdv, vrednost_sapdv, subcategories, brend, slka, deskripcija, izdvajanje]
+            "INSERT INTO proizvodiful_updated (sifra, naziv, kolicina, cena_sapdv, vrednost_sapdv, subcategories, brend, slka, deskripcija, izdvajanje) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) RETURNING *",
+            [sifra, naziv, kolicina, cena_sapdv, vrednost_sapdv, subcategories, brend, slka, deskripcija, izdvajanje]
         );
 
         console.log('CREATE product - Success:', result.rows[0]);
@@ -424,7 +424,7 @@ app.post("/api/products", async (req, res) => {
 
 app.put("/api/products", async (req, res) => {
     try {
-        const { id, sifra, naziv, cena_sapdv, vrednost_sapdv, subcategories, brend, slka, deskripcija, izdvajanje } = req.body;
+        const { id, sifra, naziv, kolicina, cena_sapdv, vrednost_sapdv, subcategories, brend, slka, deskripcija, izdvajanje } = req.body;
 
         if (!id) {
             return res.status(400).json({ error: "ID proizvoda je obavezan" });
@@ -441,8 +441,8 @@ app.put("/api/products", async (req, res) => {
         }
 
         const result = await db.query(
-            "UPDATE proizvodiful_updated SET sifra = $1, naziv = $2, cena_sapdv = $3, vrednost_sapdv = $4, subcategories = $5, brend = $6, slka = $7, deskripcija = $8, izdvajanje = $9 WHERE id = $10 RETURNING *",
-            [sifra, naziv, cena_sapdv, vrednost_sapdv, subcategories, brend, slka, deskripcija, izdvajanje, id]
+            "UPDATE proizvodiful_updated SET sifra = $1, naziv = $2, kolicina = $3, cena_sapdv = $4, vrednost_sapdv = $5, subcategories = $6, brend = $7, slka = $8, deskripcija = $9, izdvajanje = $10 WHERE id = $11 RETURNING *",
+            [sifra, naziv, kolicina, cena_sapdv, vrednost_sapdv, subcategories, brend, slka, deskripcija, izdvajanje, id]
         );
 
         if (result.rows.length === 0) {
