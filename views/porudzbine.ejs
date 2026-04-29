@@ -399,84 +399,77 @@
         <div class="main-content">
             <div class="page-header">
                 <h1>Porudžbine</h1>
-                <div class="search-container" style="margin-bottom: 0;">
-                    <input type="text" id="searchInput" class="form-control" placeholder="Pretraži porudžbine...">
+                <div class="search-container" style="margin-bottom:0;">
+                    <input type="text" id="searchInput" class="form-control" placeholder="Pretraži po imenu, adresi, artiklu...">
                     <button class="btn btn-primary" id="searchBtn">Pretraži</button>
                 </div>
             </div>
-            
-            <div class="filter-container" style="margin: 20px 0; display: flex; justify-content: flex-end;">
-                <div class="filter-dropdown">
-                    <button class="btn btn-primary" id="filterBtn">Filter po statusu ▼</button>
-                    <div id="statusFilter" class="filter-content">
-                        <a href="#" data-status="all">Svi statusi</a>
-                        <a href="#" data-status="pending">Na čekanju</a>
-                        <a href="#" data-status="processing">U obradi</a>
-                        <a href="#" data-status="completed">Završeno</a>
-                        <a href="#" data-status="cancelled">Otkazano</a>
-                    </div>
-                </div>
+
+            <div style="display:flex; gap:8px; margin-bottom:18px; flex-wrap:wrap;">
+                <a href="/porudzbine" class="btn <%= !currentFilter || currentFilter==='all' ? 'btn-primary' : '' %>" style="text-decoration:none; background:<%= !currentFilter||currentFilter==='all' ? '' : '#e0e0e0' %>; color:<%= !currentFilter||currentFilter==='all' ? '' : '#555' %>;">Sve</a>
+                <a href="/porudzbine?status=pending" class="btn" style="background:<%= currentFilter==='pending' ? '#f39c12' : '#fff3e0' %>; color:<%= currentFilter==='pending' ? 'white' : '#f39c12' %>; border:1px solid #f39c12; text-decoration:none;">Na čekanju</a>
+                <a href="/porudzbine?status=processing" class="btn" style="background:<%= currentFilter==='processing' ? '#3498db' : '#e3f2fd' %>; color:<%= currentFilter==='processing' ? 'white' : '#3498db' %>; border:1px solid #3498db; text-decoration:none;">U obradi</a>
+                <a href="/porudzbine?status=completed" class="btn" style="background:<%= currentFilter==='completed' ? '#2ecc71' : '#e8f8f0' %>; color:<%= currentFilter==='completed' ? 'white' : '#27ae60' %>; border:1px solid #2ecc71; text-decoration:none;">Završeno</a>
+                <a href="/porudzbine?status=cancelled" class="btn" style="background:<%= currentFilter==='cancelled' ? '#e74c3c' : '#fdecea' %>; color:<%= currentFilter==='cancelled' ? 'white' : '#e74c3c' %>; border:1px solid #e74c3c; text-decoration:none;">Otkazano</a>
             </div>
-            
+
             <table class="data-table">
                 <thead>
                     <tr>
-                        <th>ID</th>
-                        <th>ID Korisnika</th>
-                        <th>Datum</th>
-                        <th>Iznos</th>
+                        <th style="width:50px;">#</th>
+                        <th>Korisnik</th>
+                        <th style="width:110px;">Datum</th>
+                        <th style="width:100px;">Iznos</th>
                         <th>Adresa</th>
-                        <th>Sadržaj</th>
-                        <th>Status</th>
-                        <th>Akcije</th>
+                        <th>Artikli</th>
+                        <th style="width:120px;">Status</th>
+                        <th style="width:130px;">Akcije</th>
                     </tr>
                 </thead>
                 <tbody id="ordersTableBody">
                     <% if (porudzbine && porudzbine.length > 0) { %>
                         <% porudzbine.forEach(order => { %>
+                            <%
+                            let statusClass = '', statusText = '';
+                            if (order.status === 'pending')    { statusClass = 'status-pending';    statusText = 'Na čekanju'; }
+                            else if (order.status === 'processing') { statusClass = 'status-processing'; statusText = 'U obradi'; }
+                            else if (order.status === 'completed')  { statusClass = 'status-completed';  statusText = 'Završeno'; }
+                            else if (order.status === 'cancelled')  { statusClass = 'status-cancelled';  statusText = 'Otkazano'; }
+                            %>
                             <tr>
-                                <td><%= order.id %></td>
-                                <td><%= order.iduser %></td>
-                                <td><%= new Date(order.datum).toLocaleDateString('sr-RS') %></td>
-                                <td><%= order.iznos %> EUR</td>
-                                <td><%= order.adresa || '-' %></td>
-                                <td style="font-size:13px; min-width:220px;">
+                                <td style="font-weight:600; color:#888;"><%= order.id %></td>
+                                <td>
+                                    <strong><%= order.korisnik_ime && order.korisnik_ime.trim() ? order.korisnik_ime.trim() : ('Korisnik #' + order.iduser) %></strong>
+                                    <% if (order.korisnik_email) { %>
+                                        <br><span style="font-size:12px; color:#888;"><%= order.korisnik_email %></span>
+                                    <% } %>
+                                </td>
+                                <td style="font-size:13px; color:#555;"><%= new Date(order.datum).toLocaleDateString('sr-RS') %></td>
+                                <td style="font-weight:600;"><%= parseFloat(order.iznos).toFixed(2) %> EUR</td>
+                                <td style="font-size:13px; color:#444;"><%= order.adresa || '-' %></td>
+                                <td style="font-size:13px;">
                                     <%
                                     try {
                                         var items = JSON.parse(order.sadrzaj || '[]');
-                                        if (!items.length) { %> - <% } else {
+                                        if (!items.length) { %><span style="color:#bbb;">—</span><% } else {
                                             items.forEach(function(item) { %>
-                                                <div style="margin-bottom:2px;">
-                                                    <strong><%= item.naziv %></strong><br>
-                                                    <%= item.kolicina %> × <%= item.cena %> EUR = <strong><%= (item.cena * item.kolicina).toFixed(2) %> EUR</strong>
+                                                <div style="margin-bottom:3px; line-height:1.3;">
+                                                    <span style="font-weight:600;"><%= item.naziv %></span>
+                                                    <span style="color:#888; font-size:12px;"> <%= item.kolicina %> × <%= parseFloat(item.cena).toFixed(2) %> EUR</span>
                                                 </div>
                                             <% });
                                         }
-                                    } catch(e) { %>
-                                        <%= order.sadrzaj || '-' %>
-                                    <% } %>
+                                    } catch(e) { %><%= order.sadrzaj || '-' %><% } %>
                                 </td>
+                                <td><span class="status-badge <%= statusClass %>"><%= statusText %></span></td>
                                 <td>
-                                    <% let statusClass = ''; let statusText = ''; %>
-                                    <% if (order.status === 'pending') { %>
-                                        <% statusClass = 'status-pending'; statusText = 'Na čekanju'; %>
-                                    <% } else if (order.status === 'processing') { %>
-                                        <% statusClass = 'status-processing'; statusText = 'U obradi'; %>
-                                    <% } else if (order.status === 'completed') { %>
-                                        <% statusClass = 'status-completed'; statusText = 'Završeno'; %>
-                                    <% } else if (order.status === 'cancelled') { %>
-                                        <% statusClass = 'status-cancelled'; statusText = 'Otkazano'; %>
-                                    <% } %>
-                                    <span class="status-badge <%= statusClass %>"><%= statusText %></span>
-                                </td>
-                                <td class="action-buttons">
-                                    <button class="btn btn-warning btn-edit" data-id="<%= order.id %>">Izmeni status</button>
+                                    <button class="btn btn-warning btn-edit" data-id="<%= order.id %>" style="width:100%;">Izmeni status</button>
                                 </td>
                             </tr>
                         <% }); %>
                     <% } else { %>
                         <tr>
-                            <td colspan="8" style="text-align: center;">Nema porudžbina za prikaz</td>
+                            <td colspan="8" style="text-align:center; padding:40px; color:#999;">Nema porudžbina za prikaz</td>
                         </tr>
                     <% } %>
                 </tbody>
@@ -517,9 +510,16 @@
                     </div>
                 </div>
                 
+                <div id="emailNotice" style="display:none; background:#e8f8f0; border:1px solid #2ecc71; border-radius:4px; padding:8px 12px; font-size:13px; color:#27ae60; margin-bottom:12px;">
+                    📧 Email će biti poslan korisniku o promjeni statusa
+                </div>
+                <div id="noEmailNotice" style="display:none; background:#fff8e1; border:1px solid #f39c12; border-radius:4px; padding:8px 12px; font-size:13px; color:#e67e22; margin-bottom:12px;">
+                    ⚠️ Korisnik nema sačuvan email — obavještenje neće biti poslano
+                </div>
+
                 <div class="form-buttons">
                     <button type="button" class="btn btn-danger" id="cancelBtn">Odustani</button>
-                    <button type="submit" class="btn btn-success" id="saveBtn">Sačuvaj</button>
+                    <button type="submit" class="btn btn-success" id="saveBtn">Sačuvaj i pošalji obavještenje</button>
                 </div>
             </form>
         </div>
@@ -528,155 +528,79 @@
     <script>
         document.addEventListener('DOMContentLoaded', init);
         
-        // DOM Elements
         const orderModal = document.getElementById('orderModal');
         const modalTitle = document.getElementById('modalTitle');
         const orderForm = document.getElementById('orderForm');
         const searchInput = document.getElementById('searchInput');
         const searchBtn = document.getElementById('searchBtn');
-        const filterBtn = document.getElementById('filterBtn');
-        const statusFilter = document.getElementById('statusFilter');
         const closeModalBtns = document.querySelectorAll('.close');
         const cancelBtn = document.getElementById('cancelBtn');
-        
-        // Current order ID
+
         let currentOrderId = null;
-        
-        // Initialize the application
-        function init() {
-            setupEventListeners();
-        }
+        let currentOrderEmail = null;
+
+        function init() { setupEventListeners(); }
         
         // Set up event listeners
         function setupEventListeners() {
-            // Edit buttons
             document.querySelectorAll('.btn-edit').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    openEditModal(parseInt(this.dataset.id));
-                });
+                btn.addEventListener('click', function() { openEditModal(parseInt(this.dataset.id)); });
             });
-            
-            // Close modal buttons
-            closeModalBtns.forEach(btn => {
-                btn.addEventListener('click', () => {
-                    orderModal.style.display = 'none';
-                });
-            });
-            
-            // Cancel button in order modal
-            cancelBtn.addEventListener('click', () => {
-                orderModal.style.display = 'none';
-            });
-            
-            // Form submit
+            closeModalBtns.forEach(btn => { btn.addEventListener('click', () => orderModal.style.display = 'none'); });
+            cancelBtn.addEventListener('click', () => orderModal.style.display = 'none');
             orderForm.addEventListener('submit', saveOrder);
-            
-            // Search button
             searchBtn.addEventListener('click', searchOrders);
-            
-            // Search input enter key
-            searchInput.addEventListener('keyup', function(e) {
-                if (e.key === 'Enter') {
-                    searchOrders();
-                }
-            });
-            
-            // Filter dropdown
-            filterBtn.addEventListener('click', function() {
-                statusFilter.classList.toggle('show');
-            });
-            
-            // Status filter options
-            document.querySelectorAll('#statusFilter a').forEach(link => {
-                link.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    const status = this.dataset.status;
-                    statusFilter.classList.remove('show');
-                    filterBtn.textContent = `Filter po statusu: ${this.textContent} ▼`;
-                    window.location.href = `/porudzbine?status=${status}`;
-                });
-            });
-            
-            // Close dropdown when clicking outside
-            window.addEventListener('click', function(e) {
-                if (!e.target.matches('#filterBtn')) {
-                    if (statusFilter.classList.contains('show')) {
-                        statusFilter.classList.remove('show');
-                    }
-                }
-            });
-            
-            // Close modals when clicking outside
-            window.addEventListener('click', function(e) {
-                if (e.target === orderModal) {
-                    orderModal.style.display = 'none';
-                }
-            });
+            searchInput.addEventListener('keyup', e => { if (e.key === 'Enter') searchOrders(); });
+            window.addEventListener('click', e => { if (e.target === orderModal) orderModal.style.display = 'none'; });
         }
         
-        // Open Edit Order Modal
         async function openEditModal(orderId) {
             try {
                 const response = await fetch(`/api/orders/${orderId}`);
                 const order = await response.json();
-                
-                if (response.ok) {
-                    modalTitle.textContent = 'Izmeni status porudžbine';
-                    document.getElementById('orderId').value = order.id;
-                    
-                    // Format date for display
-                    const date = new Date(order.datum);
-                    const formattedDate = date.toLocaleDateString('sr-RS');
-                    
-                    // Display order information
-                    let sadrzajHtml = '';
-                    try {
-                        const items = JSON.parse(order.sadrzaj || '[]');
-                        if (items.length === 0) {
-                            sadrzajHtml = '-';
-                        } else {
-                            let total = 0;
-                            sadrzajHtml = '<table style="width:100%;border-collapse:collapse;margin-top:6px;">';
-                            sadrzajHtml += '<thead><tr style="background:#f0f0f0;"><th style="padding:5px 8px;text-align:left;">Naziv</th><th style="padding:5px 8px;text-align:center;">Kol.</th><th style="padding:5px 8px;text-align:right;">Cena</th><th style="padding:5px 8px;text-align:right;">Ukupno</th></tr></thead><tbody>';
-                            items.forEach(function(item) {
-                                const sub = (parseFloat(item.cena) * parseFloat(item.kolicina));
-                                total += sub;
-                                sadrzajHtml += `<tr style="border-bottom:1px solid #eee;">
-                                    <td style="padding:5px 8px;">${item.naziv}</td>
-                                    <td style="padding:5px 8px;text-align:center;">${item.kolicina}</td>
-                                    <td style="padding:5px 8px;text-align:right;">${parseFloat(item.cena).toFixed(2)} EUR</td>
-                                    <td style="padding:5px 8px;text-align:right;">${sub.toFixed(2)} EUR</td>
-                                </tr>`;
-                            });
-                            sadrzajHtml += `</tbody><tfoot><tr style="font-weight:bold;border-top:2px solid #ccc;background:#f9f9f9;">
-                                <td colspan="3" style="padding:6px 8px;text-align:right;">Ukupno:</td>
-                                <td style="padding:6px 8px;text-align:right;">${total.toFixed(2)} EUR</td>
-                            </tr></tfoot></table>`;
-                        }
-                    } catch(e) {
-                        sadrzajHtml = order.sadrzaj || '-';
-                    }
+                if (!response.ok) { alert('Greška pri učitavanju porudžbine.'); return; }
 
-                    const orderInfo = document.getElementById('orderInfo');
-                    orderInfo.innerHTML = `
-                        <strong>ID Porudžbine:</strong> ${order.id}<br>
-                        <strong>ID Korisnika:</strong> ${order.iduser}<br>
-                        <strong>Datum:</strong> ${formattedDate}<br>
-                        <strong>Iznos:</strong> ${order.iznos} EUR<br>
-                        <strong>Adresa:</strong> ${order.adresa || '-'}<br>
-                        <strong>Sadržaj:</strong>${sadrzajHtml}
-                    `;
-                    
-                    document.getElementById('status').value = order.status;
-                    
-                    currentOrderId = orderId;
-                    orderModal.style.display = 'block';
-                } else {
-                    console.error('Failed to fetch order details:', order.error);
-                    alert('Greška pri učitavanju detalja porudžbine.');
-                }
+                const korisnikIme = (order.korisnik_ime || '').trim() || ('Korisnik #' + order.iduser);
+                modalTitle.textContent = `Porudžbina #${order.id} — ${korisnikIme}`;
+                document.getElementById('orderId').value = order.id;
+                currentOrderId = orderId;
+                currentOrderEmail = order.korisnik_email;
+
+                // Email notice
+                document.getElementById('emailNotice').style.display = order.korisnik_email ? 'block' : 'none';
+                document.getElementById('noEmailNotice').style.display = order.korisnik_email ? 'none' : 'block';
+
+                let sadrzajHtml = '';
+                try {
+                    const items = JSON.parse(order.sadrzaj || '[]');
+                    let total = 0;
+                    if (items.length) {
+                        sadrzajHtml = '<table style="width:100%;border-collapse:collapse;margin-top:8px;font-size:13px;">';
+                        sadrzajHtml += '<thead><tr style="background:#f5f5f5;"><th style="padding:6px 8px;text-align:left;">Naziv</th><th style="padding:6px 8px;text-align:center;">Kol.</th><th style="padding:6px 8px;text-align:right;">Cena</th><th style="padding:6px 8px;text-align:right;">Ukupno</th></tr></thead><tbody>';
+                        items.forEach(item => {
+                            const sub = parseFloat(item.cena) * parseFloat(item.kolicina);
+                            total += sub;
+                            sadrzajHtml += `<tr style="border-bottom:1px solid #eee;"><td style="padding:5px 8px;">${item.naziv}</td><td style="padding:5px 8px;text-align:center;">${item.kolicina}</td><td style="padding:5px 8px;text-align:right;">${parseFloat(item.cena).toFixed(2)} EUR</td><td style="padding:5px 8px;text-align:right;">${sub.toFixed(2)} EUR</td></tr>`;
+                        });
+                        sadrzajHtml += `</tbody><tfoot><tr style="font-weight:bold;background:#f9f9f9;border-top:2px solid #ddd;"><td colspan="3" style="padding:7px 8px;text-align:right;">Ukupno:</td><td style="padding:7px 8px;text-align:right;">${total.toFixed(2)} EUR</td></tr></tfoot></table>`;
+                    }
+                } catch(e) { sadrzajHtml = order.sadrzaj || '-'; }
+
+                document.getElementById('orderInfo').innerHTML = `
+                    <div style="display:grid;grid-template-columns:120px 1fr;gap:6px 12px;font-size:13px;margin-bottom:10px;">
+                        <span style="color:#888;">Korisnik:</span><strong>${korisnikIme}</strong>
+                        ${order.korisnik_email ? `<span style="color:#888;">Email:</span><span>${order.korisnik_email}</span>` : ''}
+                        <span style="color:#888;">Datum:</span><span>${new Date(order.datum).toLocaleDateString('sr-RS')}</span>
+                        <span style="color:#888;">Iznos:</span><strong>${parseFloat(order.iznos).toFixed(2)} EUR</strong>
+                        <span style="color:#888;">Adresa:</span><span>${order.adresa || '—'}</span>
+                    </div>
+                    <strong style="font-size:13px;">Artikli:</strong>${sadrzajHtml}
+                `;
+
+                document.getElementById('status').value = order.status;
+                orderModal.style.display = 'block';
             } catch (error) {
-                console.error('Error fetching order details:', error);
+                console.error('Error:', error);
                 alert('Greška pri učitavanju detalja porudžbine.');
             }
         }
@@ -701,7 +625,11 @@
                     
                     if (response.ok) {
                         orderModal.style.display = 'none';
-                        // Reload the page to see the updated data
+                        if (data.emailSent) {
+                            alert('Status promijenjen. Email obavještenje poslano korisniku.');
+                        } else {
+                            alert('Status promijenjen. Korisnik nema email adresu — obavještenje nije poslano.');
+                        }
                         window.location.reload();
                     } else {
                         console.error('Failed to update order status:', data.error);

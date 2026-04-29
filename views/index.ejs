@@ -494,20 +494,23 @@
             <h2 id="modalTitle">Dodaj novi proizvod</h2>
             <span class="close">&times;</span>
         </div>
+        <div id="formErrorBanner" style="display:none; background:#fdecea; color:#c0392b; border:1px solid #e74c3c; border-radius:4px; padding:10px 14px; margin-bottom:14px; font-size:13px;"></div>
         <form id="productForm">
             <input type="hidden" id="productId">
 
             <div class="form-row">
                 <div class="form-col">
                     <div class="form-group">
-                        <label for="sifra">Šifra</label>
-                        <input type="number" id="sifra" class="form-control" required min="0" step="1">
+                        <label for="sifra">Šifra <span style="color:#e74c3c;">*</span></label>
+                        <input type="number" id="sifra" class="form-control" min="1" step="1" placeholder="Obavezno">
+                        <small class="field-error" id="err-sifra" style="color:#e74c3c; display:none;"></small>
                     </div>
                 </div>
                 <div class="form-col">
                     <div class="form-group">
-                        <label for="naziv">Naziv</label>
-                        <input type="text" id="naziv" class="form-control" required>
+                        <label for="naziv">Naziv <span style="color:#e74c3c;">*</span></label>
+                        <input type="text" id="naziv" class="form-control" placeholder="Obavezno">
+                        <small class="field-error" id="err-naziv" style="color:#e74c3c; display:none;"></small>
                     </div>
                 </div>
             </div>
@@ -515,14 +518,21 @@
             <div class="form-row">
                 <div class="form-col">
                     <div class="form-group">
-                        <label for="cena_sapdv">Cena (sa PDV)</label>
-                        <input type="number" id="cena_sapdv" class="form-control" step="0.01" min="0" required>
+                        <label for="cena_sapdv">Cena (sa PDV) <span style="color:#e74c3c;">*</span></label>
+                        <input type="number" id="cena_sapdv" class="form-control" step="0.01" min="0" placeholder="Obavezno">
+                        <small class="field-error" id="err-cena" style="color:#e74c3c; display:none;"></small>
                     </div>
                 </div>
                 <div class="form-col">
                     <div class="form-group">
-                        <label for="subcategories">Subkategorije</label>
-                        <input type="text" id="subcategories" class="form-control" list="subkat-list" autocomplete="off">
+                        <label for="subcategories">Subkategorije <span style="color:#e74c3c;">*</span></label>
+                        <select id="subcategories" class="form-control">
+                            <option value="">— Izaberite subkategoriju —</option>
+                            <% if (typeof subkategorije !== 'undefined') { subkategorije.forEach(function(s) { %>
+                                <option value="<%= s.naziv %>"><%= s.naziv %> (<%= s.category %>)</option>
+                            <% }); } %>
+                        </select>
+                        <small class="field-error" id="err-subkat" style="color:#e74c3c; display:none;"></small>
                     </div>
                 </div>
             </div>
@@ -537,7 +547,7 @@
                 <div class="form-col">
                     <div class="form-group">
                         <label for="kolicina">Količina</label>
-                        <input type="text" id="kolicina" class="form-control">
+                        <input type="number" id="kolicina" class="form-control" min="0" step="1">
                     </div>
                 </div>
             </div>
@@ -546,7 +556,7 @@
                 <div class="form-col">
                     <div class="form-group">
                         <label for="izdvajanje">Izdvajanje</label>
-                        <input type="text" id="izdvajanje" class="form-control">
+                        <input type="text" id="izdvajanje" class="form-control" placeholder="npr. f ili t">
                     </div>
                 </div>
             </div>
@@ -579,11 +589,6 @@
                 <button type="submit" class="btn btn-success" id="saveBtn">Sačuvaj</button>
             </div>
         </form>
-        <datalist id="subkat-list">
-            <% if (typeof subkategorije !== 'undefined') { subkategorije.forEach(function(s) { %>
-                <option value="<%= s.naziv %>"><%= s.naziv %> — <%= s.category %></option>
-            <% }); } %>
-        </datalist>
     </div>
 </div>
 
@@ -1106,35 +1111,53 @@ const api = {
             }
         },
 
+        clearErrors() {
+            document.getElementById('formErrorBanner').style.display = 'none';
+            document.querySelectorAll('.field-error').forEach(el => { el.style.display = 'none'; el.textContent = ''; });
+            document.querySelectorAll('.form-control').forEach(el => el.style.borderColor = '');
+        },
+
+        showFieldError(fieldId, errId, msg) {
+            const field = document.getElementById(fieldId);
+            const err = document.getElementById(errId);
+            if (field) field.style.borderColor = '#e74c3c';
+            if (err) { err.textContent = msg; err.style.display = 'block'; }
+        },
+
         openAddModal() {
             elements.modalTitle.textContent = 'Dodaj novi proizvod';
             elements.productForm.reset();
             document.getElementById('productId').value = '';
             document.getElementById('imagePreview').style.display = 'none';
+            this.clearErrors();
             currentProductId = null;
             elements.productModal.style.display = 'block';
         },
 
         async openEditModal(productId) {
             try {
-                // Dohvati proizvod direktno sa API-ja da bismo imali sve podatke uključujući kolicinu
                 const response = await fetch(`/api/products/${productId}`);
-                if (!response.ok) {
-                    throw new Error('Greška pri dohvatanju proizvoda');
-                }
+                if (!response.ok) throw new Error('Greška pri dohvatanju proizvoda');
                 const product = await response.json();
-
-                if (!product) {
-                    alert('Proizvod nije pronađen.');
-                    return;
-                }
+                if (!product) { alert('Proizvod nije pronađen.'); return; }
 
                 elements.modalTitle.textContent = 'Izmeni proizvod';
+                this.clearErrors();
                 document.getElementById('productId').value = product.id;
                 document.getElementById('sifra').value = product.sifra || '';
                 document.getElementById('naziv').value = product.naziv || '';
-                document.getElementById('cena_sapdv').value = product.cena_sapdv || 0;
-                document.getElementById('subcategories').value = product.subcategories || '';
+                document.getElementById('cena_sapdv').value = product.cena_sapdv || '';
+
+                // Postavi select - ako vrijednost ne postoji u listi, dodaj je privremeno
+                const subSelect = document.getElementById('subcategories');
+                const subVal = product.subcategories || '';
+                if (subVal && !Array.from(subSelect.options).some(o => o.value === subVal)) {
+                    const opt = document.createElement('option');
+                    opt.value = subVal; opt.textContent = subVal + ' (stara vrednost)';
+                    subSelect.appendChild(opt);
+                }
+                subSelect.value = subVal;
+
                 document.getElementById('brend').value = product.brend || '';
                 document.getElementById('kolicina').value = product.kolicina || '';
                 document.getElementById('izdvajanje').value = product.izdvajanje || '';
@@ -1155,64 +1178,68 @@ const api = {
             elements.deleteModal.style.display = 'block';
         },
 
-        // ISPRAVLJENO: Dodajemo event parametar i preventDefault
         async saveProduct(e) {
             e.preventDefault();
+            this.clearErrors();
+
+            const sifra = document.getElementById('sifra').value.trim();
+            const naziv = document.getElementById('naziv').value.trim();
+            const cena_sapdv = document.getElementById('cena_sapdv').value.trim();
+            const subcategories = document.getElementById('subcategories').value;
+
+            let hasError = false;
+
+            if (!sifra || isNaN(parseInt(sifra)) || parseInt(sifra) <= 0) {
+                this.showFieldError('sifra', 'err-sifra', 'Šifra je obavezna i mora biti pozitivan broj');
+                hasError = true;
+            }
+            if (!naziv) {
+                this.showFieldError('naziv', 'err-naziv', 'Naziv je obavezan');
+                hasError = true;
+            }
+            if (!cena_sapdv || isNaN(parseFloat(cena_sapdv)) || parseFloat(cena_sapdv) <= 0) {
+                this.showFieldError('cena_sapdv', 'err-cena', 'Cena je obavezna i mora biti veća od 0');
+                hasError = true;
+            }
+            if (!subcategories) {
+                this.showFieldError('subcategories', 'err-subkat', 'Izaberite subkategoriju sa liste');
+                hasError = true;
+            }
+
+            if (hasError) {
+                const banner = document.getElementById('formErrorBanner');
+                banner.textContent = 'Molimo ispravite označena polja pre čuvanja.';
+                banner.style.display = 'block';
+                return;
+            }
 
             try {
                 const formData = {
                     id: currentProductId,
-                    sifra: document.getElementById('sifra').value.trim(),
-                    naziv: document.getElementById('naziv').value.trim(),
-                    cena_sapdv: helpers.safeParseFloat(document.getElementById('cena_sapdv').value),
-                    subcategories: document.getElementById('subcategories').value.trim(),
-                    brend: document.getElementById('brend').value.trim(),
-                    kolicina: document.getElementById('kolicina').value.trim(),
-                    izdvajanje: document.getElementById('izdvajanje').value.trim(),
-                    slka: document.getElementById('slka').value.trim(),
-                    deskripcija: document.getElementById('deskripcija').value.trim()
+                    sifra: parseInt(sifra),
+                    naziv,
+                    cena_sapdv: parseFloat(cena_sapdv),
+                    vrednost_sapdv: parseFloat(cena_sapdv),
+                    subcategories,
+                    brend: document.getElementById('brend').value.trim() || null,
+                    kolicina: document.getElementById('kolicina').value.trim() || null,
+                    izdvajanje: document.getElementById('izdvajanje').value.trim() || null,
+                    slka: document.getElementById('slka').value.trim() || null,
+                    deskripcija: document.getElementById('deskripcija').value.trim() || null
                 };
 
-                if (!formData.sifra) {
-                    alert('Šifra je obavezna!');
-                    return;
-                }
-
-                if (!formData.naziv) {
-                    alert('Naziv je obavezan!');
-                    return;
-                }
-
-                formData.vrednost_sapdv = formData.cena_sapdv;
-
-                console.log('Saving product with data:', formData);
-
                 const savedProduct = await api.saveProduct(formData);
-
-                if (currentProductId) {
-                    const index = products.findIndex(p => p.id === parseInt(currentProductId));
-                    if (index !== -1) {
-                        products[index] = {
-                            ...savedProduct,
-                            id: parseInt(savedProduct.id)
-                        };
-                    } else {
-                        savedProduct.id = parseInt(savedProduct.id);
-                        products.push(savedProduct);
-                    }
-                } else {
-                    savedProduct.id = parseInt(savedProduct.id);
-                    products.push(savedProduct);
-                }
+                const wasNew = !currentProductId;
 
                 currentProductId = null;
                 await app.refreshProducts();
                 elements.productModal.style.display = 'none';
-                alert(formData.id ? 'Proizvod uspešno izmenjen!' : 'Proizvod uspešno dodat!');
+                alert(wasNew ? 'Proizvod uspješno dodat!' : 'Proizvod uspješno izmenjen!');
 
             } catch (error) {
-                console.error('Error saving product:', error);
-                alert('Greška pri čuvanju proizvoda: ' + error.message);
+                const banner = document.getElementById('formErrorBanner');
+                banner.textContent = 'Greška: ' + error.message;
+                banner.style.display = 'block';
             }
         },
 
