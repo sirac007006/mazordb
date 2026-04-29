@@ -82,7 +82,8 @@ app.get("/logout", (req, res) => {
 });
 app.get("/", async(req,res) => {
     let proizvodi = (await db.query("SELECT * FROM proizvodiful_updated")).rows;
-    res.render("index.ejs", { proizvodi:proizvodi })
+    let subkategorije = (await db.query("SELECT * FROM subcategories ORDER BY category ASC, naziv ASC")).rows;
+    res.render("index.ejs", { proizvodi, subkategorije })
 });
 
 // Route for orders page with search and filter

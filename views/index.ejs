@@ -150,7 +150,7 @@
         .col-subcategories { width: 130px; }
         .col-brend { width: 120px; }
         .col-izdvajanje { width: 100px; text-align: center; }
-        .col-slka { width: 200px; font-size: 12px; word-break: break-all; }
+        .col-slka { width: 70px; text-align: center; }
         .col-deskripcija { width: 150px; }
 
         /* Buttons */
@@ -440,7 +440,7 @@
                 <th class="col-subcategories">Subkategorije</th>
                 <th class="col-brend">Brend</th>
                 <th class="col-izdvajanje">Izdvajanje</th>
-                <th class="col-slka">URL Slike</th>
+                <th class="col-slka">Slika</th>
                 <th class="col-deskripcija">Deskripcija</th>
             </tr>
             </thead>
@@ -460,7 +460,17 @@
                         <td class="col-subcategories truncated-cell" data-full-text="<%= proizvodi[i].subcategories %>"><%= proizvodi[i].subcategories %></td>
                         <td class="col-brend"><%= proizvodi[i].brend %></td>
                         <td class="col-izdvajanje"><%= proizvodi[i].izdvajanje %></td>
-                        <td class="col-slka truncated-cell" data-full-text="<%= proizvodi[i].slka %>"><%= proizvodi[i].slka %></td>
+                        <td class="col-slka">
+                            <% if (proizvodi[i].slka) { %>
+                                <img src="https://mazorshop.me/images/products/<%= proizvodi[i].slka %>"
+                                     alt="<%= proizvodi[i].naziv %>"
+                                     title="<%= proizvodi[i].slka %>"
+                                     style="height:45px; width:auto; max-width:65px; object-fit:contain;"
+                                     onerror="this.outerHTML='<span style=\'color:#bbb;font-size:11px;\'>N/A</span>'">
+                            <% } else { %>
+                                <span style="color:#bbb; font-size:11px;">Nema</span>
+                            <% } %>
+                        </td>
                         <td class="col-deskripcija truncated-cell" data-full-text="<%= proizvodi[i].deskripcija %>"><%= proizvodi[i].deskripcija %></td>
                     </tr>
                 <% } %>
@@ -490,7 +500,7 @@
                 <div class="form-col">
                     <div class="form-group">
                         <label for="sifra">Šifra</label>
-                        <input type="text" id="sifra" class="form-control" required>
+                        <input type="number" id="sifra" class="form-control" required min="0" step="1">
                     </div>
                 </div>
                 <div class="form-col">
@@ -511,7 +521,7 @@
                 <div class="form-col">
                     <div class="form-group">
                         <label for="subcategories">Subkategorije</label>
-                        <input type="text" id="subcategories" class="form-control">
+                        <input type="text" id="subcategories" class="form-control" list="subkat-list" autocomplete="off">
                     </div>
                 </div>
             </div>
@@ -545,6 +555,11 @@
                     <div class="form-group">
                         <label for="slka">URL Slike</label>
                         <input type="text" id="slka" name="slka" class="form-control">
+                        <div id="imagePreview" style="margin-top:8px; display:none;">
+                            <img id="previewImg" src="" alt="Preview"
+                                 style="max-height:140px; max-width:100%; border-radius:4px; border:1px solid #ddd; object-fit:contain; display:block;">
+                            <span id="previewError" style="color:#999; font-size:12px; display:none;">Slika nije dostupna (URL nije validan ili slika nije javno dostupna)</span>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -563,6 +578,11 @@
                 <button type="submit" class="btn btn-success" id="saveBtn">Sačuvaj</button>
             </div>
         </form>
+        <datalist id="subkat-list">
+            <% if (typeof subkategorije !== 'undefined') { subkategorije.forEach(function(s) { %>
+                <option value="<%= s.naziv %>"><%= s.naziv %> — <%= s.category %></option>
+            <% }); } %>
+        </datalist>
     </div>
 </div>
 
@@ -917,9 +937,12 @@ const api = {
                 paginatedProducts.forEach(product => {
                     const row = document.createElement('tr');
                     const safeImageUrl = (product.slka || '').replace(/"/g, '&quot;');
-                    const displayUrl = safeImageUrl.length > 30
-                        ? safeImageUrl.substring(0, 27) + '...'
-                        : safeImageUrl;
+                    const fullImgUrl = safeImageUrl
+                        ? (safeImageUrl.startsWith('http') ? safeImageUrl : `https://mazorshop.me/images/products/${safeImageUrl}`)
+                        : '';
+                    const imgCell = fullImgUrl
+                        ? `<img src="${fullImgUrl}" alt="" title="${safeImageUrl}" style="height:45px;width:auto;max-width:65px;object-fit:contain;" onerror="this.outerHTML='<span style=\\'color:#bbb;font-size:11px;\\'>N/A</span>'">`
+                        : '<span style="color:#bbb;font-size:11px;">Nema</span>';
 
                     row.innerHTML = `
                     <td class="col-akcije action-buttons">
@@ -934,7 +957,7 @@ const api = {
                     <td class="col-subcategories truncated-cell" data-full-text="${(product.subcategories || '').replace(/"/g, '&quot;')}">${product.subcategories || ''}</td>
                     <td class="col-brend">${product.brend || ''}</td>
                     <td class="col-izdvajanje">${product.izdvajanje || ''}</td>
-                    <td class="col-slka truncated-cell" data-full-text="${safeImageUrl}">${displayUrl || 'Nema URL-a'}</td>
+                    <td class="col-slka">${imgCell}</td>
                     <td class="col-deskripcija">${product.deskripcija || ''}</td>
                 `;
                     elements.productsTableBody.appendChild(row);
@@ -1038,6 +1061,8 @@ const api = {
                 }
             });
 
+            document.getElementById('slka').addEventListener('input', () => this.updateImagePreview());
+
             elements.brendFilter.addEventListener('change', function() {
                 currentBrandFilter = this.value;
                 currentPage = 1;
@@ -1056,10 +1081,35 @@ const api = {
             document.getElementById('cena_sapdv').addEventListener('input', () => this.calculateProductValue());
         },
 
+        updateImagePreview() {
+            const val = document.getElementById('slka').value.trim();
+            const preview = document.getElementById('imagePreview');
+            const img = document.getElementById('previewImg');
+            const err = document.getElementById('previewError');
+            if (val) {
+                const url = val.startsWith('http') ? val : `https://mazorshop.me/images/products/${val}`;
+                preview.style.display = 'block';
+                img.style.display = 'block';
+                err.style.display = 'none';
+                img.src = url;
+                img.onerror = function() {
+                    img.style.display = 'none';
+                    err.style.display = 'block';
+                };
+                img.onload = function() {
+                    img.style.display = 'block';
+                    err.style.display = 'none';
+                };
+            } else {
+                preview.style.display = 'none';
+            }
+        },
+
         openAddModal() {
             elements.modalTitle.textContent = 'Dodaj novi proizvod';
             elements.productForm.reset();
             document.getElementById('productId').value = '';
+            document.getElementById('imagePreview').style.display = 'none';
             currentProductId = null;
             elements.productModal.style.display = 'block';
         },
@@ -1089,6 +1139,7 @@ const api = {
                 document.getElementById('izdvajanje').value = product.izdvajanje || '';
                 document.getElementById('slka').value = product.slka || '';
                 document.getElementById('deskripcija').value = product.deskripcija || '';
+                this.updateImagePreview();
 
                 currentProductId = parseInt(productId);
                 elements.productModal.style.display = 'block';
