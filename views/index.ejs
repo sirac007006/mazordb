@@ -462,7 +462,7 @@
                         <td class="col-izdvajanje"><%= proizvodi[i].izdvajanje %></td>
                         <td class="col-slka">
                             <% if (proizvodi[i].slka) { %>
-                                <img src="https://mazorshop.me/images/products/<%= proizvodi[i].slka %>"
+                                <img src="https://mazorshop.me<%= proizvodi[i].slka %>"
                                      alt="<%= proizvodi[i].naziv %>"
                                      title="<%= proizvodi[i].slka %>"
                                      style="height:45px; width:auto; max-width:65px; object-fit:contain;"
@@ -938,7 +938,7 @@ const api = {
                     const row = document.createElement('tr');
                     const safeImageUrl = (product.slka || '').replace(/"/g, '&quot;');
                     const fullImgUrl = safeImageUrl
-                        ? (safeImageUrl.startsWith('http') ? safeImageUrl : `https://mazorshop.me/images/products/${safeImageUrl}`)
+                        ? (safeImageUrl.startsWith('http') ? safeImageUrl : `https://mazorshop.me${safeImageUrl}`)
                         : '';
                     const imgCell = fullImgUrl
                         ? `<img src="${fullImgUrl}" alt="" title="${safeImageUrl}" style="height:45px;width:auto;max-width:65px;object-fit:contain;" onerror="this.outerHTML='<span style=\\'color:#bbb;font-size:11px;\\'>N/A</span>'">`
@@ -1087,7 +1087,7 @@ const api = {
             const img = document.getElementById('previewImg');
             const err = document.getElementById('previewError');
             if (val) {
-                const url = val.startsWith('http') ? val : `https://mazorshop.me/images/products/${val}`;
+                const url = val.startsWith('http') ? val : `https://mazorshop.me${val.startsWith('/') ? '' : '/'}${val}`;
                 preview.style.display = 'block';
                 img.style.display = 'block';
                 err.style.display = 'none';

@@ -438,7 +438,7 @@
                                 <td><%= order.id %></td>
                                 <td><%= order.iduser %></td>
                                 <td><%= new Date(order.datum).toLocaleDateString('sr-RS') %></td>
-                                <td><%= order.iznos %> RSD</td>
+                                <td><%= order.iznos %> EUR</td>
                                 <td><%= order.adresa || '-' %></td>
                                 <td style="font-size:13px; min-width:220px;">
                                     <%
@@ -448,7 +448,7 @@
                                             items.forEach(function(item) { %>
                                                 <div style="margin-bottom:2px;">
                                                     <strong><%= item.naziv %></strong><br>
-                                                    <%= item.kolicina %> × <%= item.cena %> RSD = <strong><%= (item.cena * item.kolicina).toFixed(2) %> RSD</strong>
+                                                    <%= item.kolicina %> × <%= item.cena %> EUR = <strong><%= (item.cena * item.kolicina).toFixed(2) %> EUR</strong>
                                                 </div>
                                             <% });
                                         }
@@ -644,13 +644,13 @@
                                 sadrzajHtml += `<tr style="border-bottom:1px solid #eee;">
                                     <td style="padding:5px 8px;">${item.naziv}</td>
                                     <td style="padding:5px 8px;text-align:center;">${item.kolicina}</td>
-                                    <td style="padding:5px 8px;text-align:right;">${parseFloat(item.cena).toFixed(2)} RSD</td>
-                                    <td style="padding:5px 8px;text-align:right;">${sub.toFixed(2)} RSD</td>
+                                    <td style="padding:5px 8px;text-align:right;">${parseFloat(item.cena).toFixed(2)} EUR</td>
+                                    <td style="padding:5px 8px;text-align:right;">${sub.toFixed(2)} EUR</td>
                                 </tr>`;
                             });
                             sadrzajHtml += `</tbody><tfoot><tr style="font-weight:bold;border-top:2px solid #ccc;background:#f9f9f9;">
                                 <td colspan="3" style="padding:6px 8px;text-align:right;">Ukupno:</td>
-                                <td style="padding:6px 8px;text-align:right;">${total.toFixed(2)} RSD</td>
+                                <td style="padding:6px 8px;text-align:right;">${total.toFixed(2)} EUR</td>
                             </tr></tfoot></table>`;
                         }
                     } catch(e) {
@@ -662,7 +662,7 @@
                         <strong>ID Porudžbine:</strong> ${order.id}<br>
                         <strong>ID Korisnika:</strong> ${order.iduser}<br>
                         <strong>Datum:</strong> ${formattedDate}<br>
-                        <strong>Iznos:</strong> ${order.iznos} RSD<br>
+                        <strong>Iznos:</strong> ${order.iznos} EUR<br>
                         <strong>Adresa:</strong> ${order.adresa || '-'}<br>
                         <strong>Sadržaj:</strong>${sadrzajHtml}
                     `;

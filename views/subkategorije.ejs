@@ -348,7 +348,14 @@
                             <td><%=subkategorije[i].id%></td>
                             <td><%=subkategorije[i].naziv%></td>
                             <td><%=subkategorije[i].category%></td>
-                            <td><img src="<%=subkategorije[i].slika%>" alt="<%=subkategorije[i].naziv%>" class="thumbnail"></td>
+                            <td>
+                                <% if (subkategorije[i].slika) { %>
+                                    <img src="https://mazorshop.me/<%= subkategorije[i].slika %>" alt="<%= subkategorije[i].naziv %>" class="thumbnail"
+                                         onerror="this.style.opacity='0.3'">
+                                <% } else { %>
+                                    <span style="color:#bbb;font-size:12px;">Nema</span>
+                                <% } %>
+                            </td>
                             <td class="actions-cell">
                                 <button class="btn btn-warning btn-sm edit-btn" 
                                         data-id="<%=subkategorije[i].id%>" 
