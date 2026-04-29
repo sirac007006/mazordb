@@ -134,7 +134,7 @@ app.get("/porudzbine", async(req, res) => {
 });
 
 app.get("/korisnici", async(req,res) => {
-    let users = (await db.query('select * from users')).rows;
+    let users = (await db.query('SELECT id, ime, prezime, email, telefon, adresa, grad, pbroj FROM korisnici ORDER BY id ASC')).rows;
     res.render("korisnici.ejs", {users})
 });
 
