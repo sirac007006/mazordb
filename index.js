@@ -9,7 +9,7 @@ const mailer = nodemailer.createTransport({
     service: 'gmail',
     auth: {
         user: process.env.SMTP_USER || 'ivanovicmicko4@gmail.com',
-        pass: process.env.SMTP_PASS || 'rijp cahz cinh yzeg'
+        pass: process.env.SMTP_PASS || 'lkqu qobd lldn nnkg'
     }
 });
 
