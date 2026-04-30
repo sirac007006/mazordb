@@ -3,78 +3,6 @@ import express from "express";
 import bodyParser from "body-parser";
 import bcrypt from "bcrypt";
 import session from "express-session";
-import nodemailer from "nodemailer";
-
-const mailer = nodemailer.createTransport({
-    service: 'gmail',
-    auth: {
-        user: process.env.SMTP_USER || 'ivanovicmicko4@gmail.com',
-        pass: process.env.SMTP_PASS || 'lkqu qobd lldn nnkg'
-    }
-});
-
-const STATUS_LABELS = {
-    pending:    'Na čekanju',
-    processing: 'U obradi',
-    completed:  'Završeno',
-    cancelled:  'Otkazano'
-};
-
-async function sendStatusEmail(toEmail, toName, orderId, status, sadrzaj, iznos) {
-    if (!toEmail) return;
-    const label = STATUS_LABELS[status] || status;
-
-    let itemsHtml = '';
-    try {
-        const items = JSON.parse(sadrzaj || '[]');
-        itemsHtml = items.map(i =>
-            `<tr><td style="padding:6px 12px;border-bottom:1px solid #eee;">${i.naziv}</td>
-             <td style="padding:6px 12px;border-bottom:1px solid #eee;text-align:center;">${i.kolicina}</td>
-             <td style="padding:6px 12px;border-bottom:1px solid #eee;text-align:right;">${parseFloat(i.cena).toFixed(2)} EUR</td>
-             <td style="padding:6px 12px;border-bottom:1px solid #eee;text-align:right;">${(i.cena*i.kolicina).toFixed(2)} EUR</td></tr>`
-        ).join('');
-    } catch(e) {}
-
-    const statusColor = { pending:'#f39c12', processing:'#3498db', completed:'#2ecc71', cancelled:'#e74c3c' }[status] || '#555';
-
-    const html = `
-    <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;background:#f9f9f9;padding:20px;">
-      <div style="background:#2c3e50;color:white;padding:24px;border-radius:8px 8px 0 0;text-align:center;">
-        <h1 style="margin:0;font-size:22px;">Mazor Shop</h1>
-        <p style="margin:6px 0 0;opacity:0.8;">Ažuriranje porudžbine</p>
-      </div>
-      <div style="background:white;padding:28px;border-radius:0 0 8px 8px;box-shadow:0 2px 8px rgba(0,0,0,0.1);">
-        <p style="font-size:16px;">Zdravo <strong>${toName || 'korisniče'}</strong>,</p>
-        <p>Status vaše porudžbine <strong>#${orderId}</strong> je promijenjen u:</p>
-        <div style="text-align:center;margin:20px 0;">
-          <span style="background:${statusColor};color:white;padding:10px 28px;border-radius:20px;font-size:16px;font-weight:bold;">${label}</span>
-        </div>
-        ${itemsHtml ? `
-        <h3 style="font-size:15px;margin-bottom:10px;">Sadržaj porudžbine:</h3>
-        <table style="width:100%;border-collapse:collapse;font-size:14px;">
-          <thead><tr style="background:#f0f0f0;">
-            <th style="padding:7px 12px;text-align:left;">Naziv</th>
-            <th style="padding:7px 12px;text-align:center;">Kol.</th>
-            <th style="padding:7px 12px;text-align:right;">Cena</th>
-            <th style="padding:7px 12px;text-align:right;">Ukupno</th>
-          </tr></thead>
-          <tbody>${itemsHtml}</tbody>
-          <tfoot><tr style="font-weight:bold;background:#f9f9f9;">
-            <td colspan="3" style="padding:8px 12px;text-align:right;">Ukupno:</td>
-            <td style="padding:8px 12px;text-align:right;">${iznos} EUR</td>
-          </tr></tfoot>
-        </table>` : ''}
-        <p style="margin-top:24px;color:#666;font-size:13px;">Hvala što kupujete kod nas!<br><strong>Tim Mazor Shop</strong></p>
-      </div>
-    </div>`;
-
-    await mailer.sendMail({
-        from: `"Mazor Shop" <${process.env.SMTP_USER || 'ivanovicmicko4@gmail.com'}>`,
-        to: toEmail,
-        subject: `Porudžbina #${orderId} — ${label}`,
-        html
-    });
-}
 
 const port = process.env.PORT || 3000;
 const app = express();
@@ -367,19 +295,7 @@ app.put("/api/orders/:id/status", async (req, res) => {
 
         const order = result.rows[0];
 
-        // Pošalji email korisniku o promjeni statusa
-        if (order.korisnik_email) {
-            sendStatusEmail(
-                order.korisnik_email,
-                order.korisnik_ime,
-                order.id,
-                status,
-                order.sadrzaj,
-                order.iznos
-            ).catch(err => console.error('Email error:', err.message));
-        }
-
-        res.json({ ...order, emailSent: !!order.korisnik_email });
+        res.json(order);
     } catch (error) {
         console.error("Error updating order status:", error);
         res.status(500).json({ error: "Greška pri ažuriranju statusa porudžbine" });
